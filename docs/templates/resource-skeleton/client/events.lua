@@ -1,0 +1,1 @@
+-- RegisterNetEvent client-side

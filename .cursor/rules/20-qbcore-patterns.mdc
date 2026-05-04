@@ -1,0 +1,15 @@
+---
+description: QBCore patterns — GetCoreObject, Player, metadata, callbacks, events
+globs: "**/*.lua"
+alwaysApply: false
+---
+
+# QBCore patterns
+
+- Obtain core: `local QBCore = exports['qb-core']:GetCoreObject()`.
+- Get online player: `QBCore.Functions.GetPlayer(source)` — always check for **nil**.
+- Mutate character state: `Player.Functions.SetPlayerData`, **`Player.Functions.SetMetaData(key, value)`** for `metadata` fields. Triggers client sync.
+- **Hooks:** `QBCore:Server:PlayerLoaded`, `QBCore:Server:OnPlayerUnload` (and client mirrors) for init/teardown of per-player state.
+- Prefer **`QBCore.Functions.CreateCallback(name, cb)`** for request/response patterns instead of ad-hoc `TriggerClientEvent` return chains.
+- **Shared data:** `QBCore.Shared.Items`, `Jobs`, etc. Runtime updates use exports in core (`AddItem`, `AddJob`, …) from [`server/exports.lua`](../../server/exports.lua).
+- **Deprecated:** do not use `QBCore:Server:UseItem` / `AddItem` / `RemoveItem` net events for new code — use inventory resource APIs server-side.

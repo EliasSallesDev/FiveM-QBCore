@@ -1,0 +1,15 @@
+---
+description: NUI — fxmanifest files{}, SendNUIMessage, RegisterNUICallback, focus cleanup
+globs: "**/html/**"
+alwaysApply: false
+---
+
+# NUI / HTML / JS
+
+- List **every** asset (html, css, js, fonts, images) in resource **`files { }`** in `fxmanifest.lua`; set **`ui_page`** when using a full-page UI.
+- Use **`SendNUIMessage`** from client Lua with a stable **`action`** field; avoid leaking large payloads every frame.
+- **`RegisterNUICallback`:** validate data types; for game actions that change state, **forward to server** and wait for server ack before updating UI state.
+- **`SetNuiFocus(true, true)`** must always be paired with **focus release** on close (callback `NUIFocusOff`, `SetNuiFocus(false, false)` on resource stop).
+- Do not embed **secrets** (API keys, DB credentials) in NUI — they are visible to clients.
+- Prefer small vanilla JS or a built bundle under `html/dist/` with source maps **not** shipped to production if large.
+- Every UI surface must show the **Distopia** brand: **favicon** (96×96-class asset) + **visible logo** in the header. Source pack: `shared/Pack Logo Distopia/` — copy normalized files into the resource's `html/assets/brand/` (see [`docs/branding.md`](../../docs/branding.md)).

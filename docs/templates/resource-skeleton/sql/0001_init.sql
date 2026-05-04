@@ -1,0 +1,7 @@
+-- Idempotent schema for qbx-feature
+-- CREATE TABLE IF NOT EXISTS qbx_feature_example (
+--   id INT AUTO_INCREMENT PRIMARY KEY,
+--   citizenid VARCHAR(50) NOT NULL,
+--   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--   KEY idx_citizenid (citizenid)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

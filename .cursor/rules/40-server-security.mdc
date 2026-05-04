@@ -1,0 +1,14 @@
+---
+description: Server authority — validate source, distance, cooldowns; rate limits; ExploitBan
+globs: "**/server/**/*.lua"
+alwaysApply: false
+---
+
+# Server security
+
+- At the top of every `RegisterNetEvent` / `RegisterServerEvent` handler: **`local src = source`** (unless using custom routing — document if so).
+- **Validate everything:** cooldown tables keyed by `src`, distance checks (`GetEntityCoords(GetPlayerPed(src))`), inventory via framework/API, job/class gates server-side.
+- **Never** grant items, XP, or currency from client-triggered events without checks.
+- **Rate-limit** combat, loot, craft, and vendor actions per `src` (sliding window or simple `lastAction[src]` timestamp).
+- For clear exploits / impossible states, use **`exports['qb-core']:ExploitBan(playerId, origin)`** (see [`server/exports.lua`](../../server/exports.lua)) only when policy allows — otherwise kick + log.
+- Log sensitive actions via **`qb-log`** patterns if the server uses them (`TriggerEvent('qb-log:server:CreateLog', ...)`).

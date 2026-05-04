@@ -1,0 +1,12 @@
+---
+description: Core project context — read AGENTS.md and docs/ for MMORPG-survival FiveM on qb-core
+alwaysApply: true
+---
+
+# Core
+
+- This workspace extends **QBCore** (`qb-core` 1.3.x). New gameplay lives in **separate resources** (`qbx-*`), not by editing `qb-core` internals.
+- **Canonical agent guide:** root [`AGENTS.md`](../../AGENTS.md).
+- **Human documentation (PT-BR):** [`docs/README.md`](../../docs/README.md) and [`docs/systems/`](../../docs/systems/).
+- **Commits:** English imperative (`feat:`, `fix:`, `docs:`). **Code identifiers:** English. **Player-facing copy in docs:** PT-BR where `docs/` applies.
+- When adding a feature, start from [`docs/templates/feature-spec-template.md`](../../docs/templates/feature-spec-template.md) and the resource skeleton in [`docs/templates/resource-skeleton/`](../../docs/templates/resource-skeleton/).

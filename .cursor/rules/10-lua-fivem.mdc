@@ -1,0 +1,15 @@
+---
+description: Lua 5.4 and FiveM scripting idioms (threads, vectors, natives)
+globs: "**/*.lua"
+alwaysApply: false
+---
+
+# Lua / FiveM
+
+- Use **Lua 5.4** syntax; avoid globals except framework globals (`QBCore`, shared tables).
+- Prefer **`CreateThread`** + **`Wait(ms)`** over blocking loops. Never `while true` without a sleep except documented rare cases (single-frame loops must exit quickly).
+- Prefer **`vector3` / `vector4`** for coords over loose `{x,y,z}` tables when doing math.
+- **Cache** repeated native results inside tight loops (e.g. `PlayerPedId()` once per iteration batch).
+- Use **`lib`** (`ox_lib`) when available: callbacks, cache, zones — reduces boilerplate and bugs.
+- FiveM resources: respect **`fxmanifest.lua`** load order — shared → client/server; declare **dependencies** explicitly.
+- New resources: use kebab-case folder names `qbx-feature-name`, files **`snake_case.lua`**.

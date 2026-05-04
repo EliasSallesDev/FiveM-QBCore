@@ -1,0 +1,14 @@
+---
+description: Performance budgets — sleeps, zones, statebags, anti hot-path broadcast
+globs: "**/*.lua"
+alwaysApply: false
+---
+
+# Performance
+
+- **Budgets (guidance):** client idle ~≤ **0.05 ms** avg tick contribution; active gameplay ~≤ **0.30 ms**. Server per-resource idle ~≤ **0.20 ms**; spikes ~≤ **1.5 ms** for burst work — amortize with queues/timers.
+- Replace **per-frame** world scans with **zonals**: `ox_lib` zones / PolyZone; poll every **250–1500 ms** when player is far from hotspots.
+- Prefer **`Player(source).state`** (state bags) for replicated flags (`inSafeZone`, `bleedingTier`) over spamming `TriggerClientEvent(-1, ...)`.
+- Avoid **`GetGamePool('CPed')` / `CVehicle`** every tick; narrow by radius or use targeted events.
+- **Target distance:** keep `ox_target` / `qb-target` options within reasonable **distance** — don’t register huge radii without need.
+- One **feature thread** with state machine beats many overlapping `CreateThread` loops.
