@@ -1,0 +1,2 @@
+# Normalizes text in the index; avoids noisy LF/CRLF warnings on Windows (Cursor may treat stderr as error).
+* text=auto

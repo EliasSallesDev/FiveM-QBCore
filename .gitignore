@@ -1,5 +1,7 @@
-# txAdmin / local FXServer data (yarn cache paths exceed Windows MAX_PATH; not source)
-txData/
-
 # FXServer build output at repo root (if present)
 build/
+
+# txData: version server.cfg / resources / config, but not generated caches (Yarn paths
+# exceed Windows MAX_PATH; cache is reproducible when the server runs).
+txData/**/cache/
+txData/**/logs/
