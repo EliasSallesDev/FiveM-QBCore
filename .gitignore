@@ -5,3 +5,4 @@ build/
 # exceed Windows MAX_PATH; cache is reproducible when the server runs).
 txData/**/cache/
 txData/**/logs/
+txData/default/data/
