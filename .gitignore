@@ -5,4 +5,7 @@ build/
 # exceed Windows MAX_PATH; cache is reproducible when the server runs).
 txData/**/cache/
 txData/**/logs/
+txData/**/data/
 txData/default/data/
+txData/admins.json
+txData/distopia/server.cfg
