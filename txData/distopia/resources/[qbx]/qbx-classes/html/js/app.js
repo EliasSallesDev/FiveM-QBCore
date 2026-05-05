@@ -6,11 +6,19 @@ const message = document.getElementById("message");
 const classesPanel = document.getElementById("classes-panel");
 const abilitiesPanel = document.getElementById("abilities-panel");
 const tabs = [...document.querySelectorAll(".tab")];
+const abilityWidget = document.getElementById("ability-widget");
+const abilityHotkey = document.getElementById("ability-hotkey");
+const abilityWidgetLabel = document.getElementById("ability-widget-label");
+const abilityWidgetState = document.getElementById("ability-widget-state");
+const abilityWidgetFill = document.getElementById("ability-widget-fill");
+const abilityWidgetTime = document.getElementById("ability-widget-time");
 
 let state = {
   menuData: null,
   abilities: {},
   selectedClassId: null,
+  abilityStatus: null,
+  abilityStatusSyncedAt: 0,
 };
 
 const post = async (name, data = {}) => {
@@ -45,14 +53,23 @@ const getAbilityForClass = (classId) => {
   return { id: entry[0], ...entry[1] };
 };
 
+const remainingFromStatus = (status, field) => {
+  if (!status) return 0;
+  const initial = Number(status[field] || 0);
+  const elapsed = (Date.now() / 1000) - state.abilityStatusSyncedAt;
+  return Math.max(0, initial - elapsed);
+};
+
 const costText = () => {
   const data = state.menuData;
 
   if (!data) return "";
   if (data.freeInitialClassChoice) return "Primeira escolha gratuita";
-  if (!data.classChangeCost) return `Cooldown ${data.classChangeCooldown || 0}s`;
+  if (!data.classChangeCost) return "Classe fixa apos a escolha inicial";
 
-  return `${data.classChangeCost.amount || 1}x ${data.classChangeCost.item} | ${data.classChangeCooldown || 0}s`;
+  const cooldown = data.classChangeCooldown > 0 ? ` | ${data.classChangeCooldown}s` : "";
+
+  return `${data.classChangeCost.amount || 1}x ${data.classChangeCost.label || data.classChangeCost.item}${cooldown}`;
 };
 
 const classById = (id) => (state.menuData?.classes || []).find((item) => item.id === id);
@@ -68,6 +85,8 @@ const renderActive = () => {
   document.getElementById("cost-label").textContent = costText();
   document.getElementById("xp-fill").style.width = `${xpPct(active)}%`;
   document.getElementById("ability-class-name").textContent = active.label;
+  state.abilityStatus = active.abilityStatus || state.abilityStatus;
+  state.abilityStatusSyncedAt = Date.now() / 1000;
 };
 
 const renderClassList = () => {
@@ -111,9 +130,12 @@ const renderDetails = () => {
   document.getElementById("detail-name").textContent = selected.label;
   document.getElementById("detail-role").textContent = selected.role;
   document.getElementById("detail-state").textContent = isActive ? "Atual" : "Disponivel";
+  if (!isActive && !state.menuData?.freeInitialClassChoice) {
+    document.getElementById("detail-state").textContent = "Requer item";
+  }
   document.getElementById("detail-ability").textContent = ability ? ability.label : "Sem habilidade";
   document.getElementById("detail-ability-meta").textContent = ability
-    ? `Nivel ${ability.minLevel || 1} | Cooldown ${ability.cooldown || 0}s | Stamina ${ability.staminaCost || 0}`
+    ? `${ability.description || "Sem descricao."} Nivel ${ability.minLevel || 1} | Cooldown ${ability.cooldown || 0}s | Stamina ${ability.staminaCost || 0}`
     : "-";
 
   const mods = selected.modifiers || {};
@@ -132,7 +154,13 @@ const renderDetails = () => {
 
   const selectButton = document.getElementById("select-class");
   selectButton.disabled = isActive && !canConfirmActive;
-  selectButton.textContent = canConfirmActive ? "Confirmar escolha" : isActive ? "Classe atual" : "Selecionar";
+  selectButton.textContent = canConfirmActive
+    ? "Confirmar escolha"
+    : isActive
+      ? "Classe definida"
+      : state.menuData?.freeInitialClassChoice
+        ? "Escolher classe"
+        : "Trocar com item";
 };
 
 const renderAbilities = () => {
@@ -153,6 +181,7 @@ const renderAbilities = () => {
     card.innerHTML = `
       <div>
         <h3>${ability.label}</h3>
+        <p>${ability.description || "Sem descricao."}</p>
         <p>Nivel ${ability.minLevel || 1} | Cooldown ${ability.cooldown || 0}s | Stamina ${ability.staminaCost || 0}</p>
       </div>
       <button class="primary-button" type="button" ${disabled ? "disabled" : ""}>Usar</button>
@@ -180,7 +209,48 @@ const hydrate = (payload) => {
   state.menuData = payload?.menuData || null;
   state.abilities = payload?.abilities || {};
   state.selectedClassId ||= state.menuData?.active?.id || null;
+  state.abilityStatus = state.menuData?.active?.abilityStatus || state.abilityStatus;
+  state.abilityStatusSyncedAt = Date.now() / 1000;
   render();
+  renderAbilityWidget();
+};
+
+const hydrateAbilityStatus = (payload) => {
+  state.abilityStatus = payload?.abilityStatus || payload?.active?.abilityStatus || null;
+  state.abilityStatusSyncedAt = Date.now() / 1000;
+  abilityHotkey.textContent = payload?.hotkey || "H";
+  renderAbilityWidget();
+};
+
+const renderAbilityWidget = () => {
+  const status = state.abilityStatus;
+
+  if (!status) {
+    abilityWidget.classList.add("is-hidden");
+    return;
+  }
+
+  abilityWidget.classList.remove("is-hidden");
+  abilityWidgetLabel.textContent = status.label || "Habilidade";
+
+  const activeRemaining = remainingFromStatus(status, "activeRemaining");
+  const cooldownRemaining = remainingFromStatus(status, "cooldownRemaining");
+  let percent = 100;
+
+  if (activeRemaining > 0) {
+    percent = Math.max(0, Math.min(100, (activeRemaining / Math.max(Number(status.duration || 1), 1)) * 100));
+    abilityWidgetState.textContent = "Ativa";
+    abilityWidgetTime.textContent = `${Math.ceil(activeRemaining)}s`;
+  } else if (cooldownRemaining > 0) {
+    percent = 100 - Math.max(0, Math.min(100, (cooldownRemaining / Math.max(Number(status.cooldown || 1), 1)) * 100));
+    abilityWidgetState.textContent = "Recarregando";
+    abilityWidgetTime.textContent = `${Math.ceil(cooldownRemaining)}s`;
+  } else {
+    abilityWidgetState.textContent = "Pronta";
+    abilityWidgetTime.textContent = "OK";
+  }
+
+  abilityWidgetFill.style.width = `${percent}%`;
 };
 
 const handleServerResult = (result) => {
@@ -228,11 +298,17 @@ window.addEventListener("message", (event) => {
     hydrate(payload);
   }
 
+  if (action === "abilityStatus") {
+    hydrateAbilityStatus(payload);
+  }
+
   if (action === "close") {
     app.classList.remove("is-open");
     app.setAttribute("aria-hidden", "true");
   }
 });
+
+setInterval(renderAbilityWidget, 500);
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {

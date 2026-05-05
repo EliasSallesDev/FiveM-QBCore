@@ -8,6 +8,16 @@
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
+    <aside id="ability-widget" class="ability-widget is-hidden" aria-label="Habilidade ativa">
+      <div class="ability-widget__key" id="ability-hotkey">H</div>
+      <div class="ability-widget__body">
+        <span class="ability-widget__label" id="ability-widget-label">Habilidade</span>
+        <strong id="ability-widget-state">Carregando</strong>
+        <div class="ability-widget__track"><span id="ability-widget-fill"></span></div>
+      </div>
+      <span class="ability-widget__time" id="ability-widget-time">--</span>
+    </aside>
+
     <main id="app" class="hud" aria-hidden="true">
       <section class="shell" aria-label="Classes de Distopia">
         <header class="topbar">

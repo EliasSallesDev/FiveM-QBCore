@@ -92,5 +92,6 @@ function Classes.DefaultClassProgress()
         xp = 0,
         level = 1,
         abilityCooldowns = {},
+        abilityActives = {},
     }
 end

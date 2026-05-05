@@ -9,20 +9,31 @@ Config.NotifyClassLevelUp = true
 
 Config.MinGrantAmount = 1
 Config.MaxGrantAmount = 2500
-Config.ResetTargetProgressOnClassChange = false
+Config.SingleClassOnly = true
+Config.ResetTargetProgressOnClassChange = true
 Config.FreeInitialClassChoice = true
-Config.ClassChangeCooldown = 86400
+Config.ClassChangeCooldown = 0
 Config.BlockClassChangeWhileInCombat = true
 Config.CombatStateKeys = {
     'inCombat',
     'isInCombat',
 }
 
-Config.ClassChangeCost = {
-    enabled = false,
+Config.ClassChangeItem = {
+    enabled = true,
     inventory = 'qb-inventory',
-    item = 'class_token',
+    item = 'class_change_token',
+    label = 'Token de Troca de Classe',
+    description = 'Permite trocar de classe uma vez. O item e consumido na troca.',
+    image = 'certificate.png',
+    weight = 0,
     amount = 1,
+}
+
+Config.AbilityHotkey = {
+    command = 'classabilityquick',
+    description = 'Usar habilidade ativa da classe',
+    defaultKey = 'H',
 }
 
 Config.AbilityResourceCheck = function(_src, _ability, _classData)
@@ -136,37 +147,47 @@ Config.DefaultModifiers = {
 Config.Abilities = {
     guard_stance = {
         label = 'Postura defensiva',
+        description = 'Reduz o impacto recebido por alguns segundos e ajuda o guerreiro a segurar a linha de frente.',
         class = 'warrior',
         minLevel = 1,
         staminaCost = 25,
+        duration = 12,
         cooldown = 45,
     },
     mark_prey = {
         label = 'Marcar presa',
+        description = 'Marca um alvo prioritario, facilitando rastreio e dano coordenado a distancia.',
         class = 'hunter',
         minLevel = 1,
         staminaCost = 20,
+        duration = 10,
         cooldown = 40,
     },
     field_triage = {
         label = 'Triagem de campo',
+        description = 'Aplica uma janela curta de suporte medico para estabilizar aliados em situacoes criticas.',
         class = 'medic',
         minLevel = 1,
         staminaCost = 30,
+        duration = 8,
         cooldown = 60,
     },
     grit = {
         label = 'Tenacidade',
+        description = 'Ativa foco de sobrevivencia para resistir melhor a desgaste, fadiga e pressao ambiental.',
         class = 'survivor',
         minLevel = 1,
         staminaCost = 20,
+        duration = 12,
         cooldown = 50,
     },
     field_rig = {
         label = 'Improviso tecnico',
+        description = 'Prepara um ajuste tecnico rapido para melhorar utilidade de campo e suporte a equipamentos.',
         class = 'engineer',
         minLevel = 1,
         staminaCost = 25,
+        duration = 10,
         cooldown = 55,
     },
 }

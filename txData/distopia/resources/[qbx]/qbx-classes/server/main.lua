@@ -2,6 +2,32 @@ local QBCore = exports['qb-core']:GetCoreObject()
 
 local grantBuckets = {}
 
+local function ensureClassChangeItemDefinition()
+    local item = Config.ClassChangeItem or Config.ClassChangeCost
+
+    if not item or not item.enabled or not item.item or not QBCore.Shared or not QBCore.Shared.Items then
+        return
+    end
+
+    if QBCore.Shared.Items[item.item] then
+        return
+    end
+
+    QBCore.Shared.Items[item.item] = {
+        name = item.item,
+        label = item.label or item.item,
+        weight = item.weight or 0,
+        type = 'item',
+        image = item.image or 'certificate.png',
+        unique = false,
+        useable = false,
+        shouldClose = true,
+        description = item.description or 'Permite trocar de classe uma vez.',
+    }
+end
+
+ensureClassChangeItemDefinition()
+
 local function getPlayer(src)
     if not src then
         return nil
@@ -44,6 +70,7 @@ local function normalizeActiveClassData(classData)
             or classData.xp ~= nil
             or classData.level ~= nil
             or classData.abilityCooldowns ~= nil
+            or classData.abilityActives ~= nil
 
         changed = changed
             or classData.id ~= normalized.id
@@ -54,6 +81,7 @@ local function normalizeActiveClassData(classData)
             or classData.xp ~= nil
             or classData.level ~= nil
             or classData.abilityCooldowns ~= nil
+            or classData.abilityActives ~= nil
     end
 
     return normalized, changed
@@ -68,12 +96,14 @@ local function normalizeClassProgress(progress)
         normalized.xp = math.max(math.floor(tonumber(progress.xp) or normalized.xp), 0)
         normalized.level = math.max(math.floor(tonumber(progress.level) or normalized.level), 1)
         normalized.abilityCooldowns = type(progress.abilityCooldowns) == 'table' and progress.abilityCooldowns or {}
+        normalized.abilityActives = type(progress.abilityActives) == 'table' and progress.abilityActives or {}
 
         changed = changed
             or progress.rank ~= normalized.rank
             or progress.xp ~= normalized.xp
             or progress.level ~= normalized.level
             or type(progress.abilityCooldowns) ~= 'table'
+            or type(progress.abilityActives) ~= 'table'
     end
 
     if Config.MaxClassLevel > 0 and normalized.level > Config.MaxClassLevel then
@@ -98,6 +128,7 @@ local function normalizeClassesData(classesData, activeClassId, legacyClassData)
                 xp = legacyClassData.xp,
                 level = legacyClassData.level,
                 abilityCooldowns = legacyClassData.abilityCooldowns,
+                abilityActives = legacyClassData.abilityActives,
             }
             changed = true
         end
@@ -115,6 +146,56 @@ local function setClassState(player, activeClass, classesData)
     player.Functions.SetMetaData('classes', classesData)
 end
 
+local function getPrimaryAbility(classId)
+    for abilityId, ability in pairs(Config.Abilities) do
+        if ability.class == classId then
+            local definition = Classes.GetAbilityDefinition(abilityId)
+            return definition
+        end
+    end
+
+    return nil
+end
+
+local function buildAbilityStatus(classId, progress)
+    local ability = getPrimaryAbility(classId)
+
+    if not ability then
+        return nil
+    end
+
+    local now = os.time()
+    local duration = math.max(math.floor(tonumber(ability.duration) or 0), 0)
+    local cooldown = math.max(math.floor(tonumber(ability.cooldown) or 0), 0)
+    local activeUntil = math.max(math.floor(tonumber(progress.abilityActives[ability.id]) or 0), 0)
+    local lastUsedAt = math.max(math.floor(tonumber(progress.abilityCooldowns[ability.id]) or 0), 0)
+    local cooldownUntil = lastUsedAt + cooldown
+    local activeRemaining = math.max(activeUntil - now, 0)
+    local cooldownRemaining = math.max(cooldownUntil - now, 0)
+    local state = 'ready'
+
+    if activeRemaining > 0 then
+        state = 'active'
+    elseif cooldownRemaining > 0 then
+        state = 'cooldown'
+    end
+
+    return {
+        id = ability.id,
+        label = ability.label,
+        description = ability.description,
+        minLevel = ability.minLevel or 1,
+        staminaCost = ability.staminaCost or 0,
+        duration = duration,
+        cooldown = cooldown,
+        activeUntil = activeUntil,
+        cooldownUntil = cooldownUntil,
+        activeRemaining = activeRemaining,
+        cooldownRemaining = cooldownRemaining,
+        state = state,
+    }
+end
+
 local function buildClassResult(activeClass, progress)
     local definition = Classes.GetClassDefinition(activeClass.id)
 
@@ -130,6 +211,7 @@ local function buildClassResult(activeClass, progress)
         selectedAt = activeClass.selectedAt,
         hasChosenClass = activeClass.hasChosenClass,
         modifiers = Classes.GetModifiers(activeClass.id),
+        abilityStatus = buildAbilityStatus(activeClass.id, progress),
     }
 end
 
@@ -181,7 +263,7 @@ local function isInCombat(src)
 end
 
 local function getClassChangeCost()
-    local cost = Config.ClassChangeCost
+    local cost = Config.ClassChangeItem or Config.ClassChangeCost
 
     if not cost or not cost.enabled or not cost.item or (tonumber(cost.amount) or 0) <= 0 then
         return nil
@@ -190,6 +272,7 @@ local function getClassChangeCost()
     return {
         inventory = cost.inventory or 'qb-inventory',
         item = cost.item,
+        label = cost.label or cost.item,
         amount = math.floor(tonumber(cost.amount) or 1),
     }
 end
@@ -255,6 +338,18 @@ local function applyClassLevelUps(progress)
     end
 
     return levelsGained
+end
+
+local function enforceSingleClassProgress(classesData, activeClassId)
+    if not Config.SingleClassOnly then
+        return
+    end
+
+    for classId in pairs(classesData) do
+        if classId ~= activeClassId then
+            classesData[classId] = copyDefaultClassProgress()
+        end
+    end
 end
 
 local function runAbilityResourceHook(hookName, src, ability, classData)
@@ -381,7 +476,7 @@ function Classes.SetPlayerClass(src, classId, force)
     if not force and not isInitialChoice then
         local remaining = Config.ClassChangeCooldown - (now - activeClass.lastChangedAt)
 
-        if remaining > 0 then
+        if Config.ClassChangeCooldown > 0 and remaining > 0 then
             return false, 'class_change_cooldown', remaining
         end
 
@@ -404,6 +499,8 @@ function Classes.SetPlayerClass(src, classId, force)
     if Config.ResetTargetProgressOnClassChange or Config.ResetProgressOnClassChange then
         classesData[classId] = copyDefaultClassProgress()
     end
+
+    enforceSingleClassProgress(classesData, classId)
 
     setClassState(player, activeClass, classesData)
 
@@ -513,16 +610,32 @@ function Classes.TryUseAbility(src, abilityId)
     end
 
     progress.abilityCooldowns[ability.id] = now
+
+    if (ability.duration or 0) > 0 then
+        progress.abilityActives[ability.id] = now + math.floor(tonumber(ability.duration) or 0)
+    end
+
     setClassState(player, activeClass, classesData)
 
-    TriggerClientEvent('qbx-classes:client:abilityUsed', src, ability)
-    TriggerEvent('qbx-classes:server:abilityUsed', src, ability)
+    local result = buildClassResult(activeClass, progress)
+
+    TriggerClientEvent('qbx-classes:client:abilityUsed', src, ability, result.abilityStatus)
+    TriggerClientEvent('qbx-classes:client:classUpdated', src, result)
+    TriggerEvent('qbx-classes:server:abilityUsed', src, ability, result.abilityStatus)
 
     return true, ability
 end
 
 AddEventHandler('QBCore:Server:PlayerLoaded', function(player)
     Classes.EnsurePlayerClass(player)
+end)
+
+AddEventHandler('onResourceStart', function(resourceName)
+    if resourceName ~= GetCurrentResourceName() then
+        return
+    end
+
+    ensureClassChangeItemDefinition()
 end)
 
 AddEventHandler('QBCore:Server:OnPlayerUnload', function(src)

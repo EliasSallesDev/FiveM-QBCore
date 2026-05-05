@@ -34,8 +34,9 @@
 | `xp` | int | XP **da classe** (separado do personagem e das outras classes) |
 | `level` | int | Nível da classe |
 | `abilityCooldowns` | table | Cooldowns server-side por habilidade |
+| `abilityActives` | table | Timestamps de fim do efeito ativo por habilidade |
 
-Troca de classe: **servidor**, primeira escolha sem custo/cooldown, demais trocas com custo em item moeda (`Config.ClassChangeCost`) + cooldown em metadata.
+Troca de classe: **servidor**, primeira escolha sem item. Depois disso o jogador so troca usando `Config.ClassChangeItem`; o item e consumido na troca.
 
 ## 4. Modificadores derivados
 
@@ -64,6 +65,7 @@ UI inicial:
 
 - `/classes` abre HUD NUI com classe atual, lista de classes, detalhes, confirmacao e habilidades.
 - `/chooseclass` abre direto a lista de classes.
+- Hotkey configurada em `Config.AbilityHotkey` usa a habilidade ativa da classe atual.
 
 ## 7. Dependências
 
@@ -79,4 +81,4 @@ UI inicial:
 
 1. Escolha inicial de classe no criador ou NPC.
 2. Modificadores aplicados em dano simulado servidor.
-3. Troca com custo e cooldown respeitados.
+3. Troca bloqueada sem `class_change_token` e permitida uma vez quando o item existe.
