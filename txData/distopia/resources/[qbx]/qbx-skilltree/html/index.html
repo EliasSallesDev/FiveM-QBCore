@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Distopia Skill Tree</title>
+    <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <main id="app" class="hud" aria-hidden="true">
+      <section class="shell" aria-label="Arvore de habilidades de Distopia">
+        <header class="topbar">
+          <div class="brand">
+            <img class="brand-logo" src="assets/brand/logo.svg" alt="" />
+            <div>
+              <strong>Distopia</strong>
+              <span>Skill Tree</span>
+            </div>
+          </div>
+          <div class="point-meter">
+            <span class="label">Pontos</span>
+            <strong id="point-count">0</strong>
+          </div>
+          <button class="icon-button" id="close" type="button" title="Fechar" aria-label="Fechar">x</button>
+        </header>
+
+        <section class="status-band">
+          <div>
+            <span class="label">Arvore selecionada</span>
+            <h1 id="tree-title">Sobrevivencia</h1>
+            <p id="tree-description"></p>
+          </div>
+          <div class="level-block">
+            <span class="label">Nos</span>
+            <strong id="node-count">0</strong>
+          </div>
+          <div class="xp-block">
+            <div class="xp-meta">
+              <span id="active-class">Classe ativa: nenhuma</span>
+              <span id="respec-tax">Taxa 0%</span>
+            </div>
+            <div class="xp-track"><span id="unlock-fill"></span></div>
+          </div>
+        </section>
+
+        <section class="content">
+          <aside class="tree-list" id="tree-list" aria-label="Lista de arvores"></aside>
+
+          <section class="detail">
+            <div class="detail-header">
+              <div>
+                <span class="label">Grafo</span>
+                <h2 id="detail-name">Habilidades</h2>
+              </div>
+              <span class="pill" id="detail-state">Disponivel</span>
+            </div>
+
+            <div class="graph" id="graph"></div>
+
+            <div class="node-panel">
+              <div>
+                <span class="label">No selecionado</span>
+                <h3 id="node-title">Selecione um no</h3>
+                <p id="node-copy"></p>
+              </div>
+              <div class="node-meta" id="node-meta"></div>
+              <div class="actions">
+                <button class="primary-button" id="allocate-node" type="button">Alocar ponto</button>
+                <button class="ghost-button" id="respec" type="button">Resetar</button>
+                <button class="ghost-button" id="refresh" type="button">Atualizar</button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <footer class="footer">
+          <span id="message"></span>
+        </footer>
+      </section>
+
+      <section class="modal is-hidden" id="respec-modal" aria-label="Confirmar reset">
+        <div class="modal-panel">
+          <span class="label">Reset de habilidades</span>
+          <h2>Confirmar reset</h2>
+          <p id="respec-copy">Todos os nos alocados serao removidos e os pontos serao devolvidos com taxa.</p>
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancel-respec" type="button">Cancelar</button>
+            <button class="primary-button" id="confirm-respec" type="button">Confirmar</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
