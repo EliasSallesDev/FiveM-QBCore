@@ -148,12 +148,72 @@ local function getPrimaryAbility(classId)
     return nil
 end
 
-local function buildAbilityStatus(classId, progress)
+local function getSkillTreeModifiers(src)
+    if GetResourceState('qbx-skilltree') ~= 'started' then
+        return {}
+    end
+
+    local ok, modifiers = pcall(function()
+        return exports['qbx-skilltree']:GetSkillModifiers(src)
+    end)
+
+    if not ok or type(modifiers) ~= 'table' then
+        return {}
+    end
+
+    return modifiers
+end
+
+local function getSkillTreeAbilityRanks(src)
+    if GetResourceState('qbx-skilltree') ~= 'started' then
+        return {}
+    end
+
+    local ok, ranks = pcall(function()
+        return exports['qbx-skilltree']:GetAbilityRanks(src)
+    end)
+
+    if not ok or type(ranks) ~= 'table' then
+        return {}
+    end
+
+    return ranks
+end
+
+local function buildEffectiveModifiers(classId, src)
+    local modifiers = Classes.GetModifiers(classId)
+
+    for key, value in pairs(getSkillTreeModifiers(src)) do
+        modifiers[key] = (modifiers[key] or 1.0) + (tonumber(value) or 0)
+    end
+
+    return modifiers
+end
+
+local function buildEffectiveAbility(src, ability)
+    if type(ability) ~= 'table' then
+        return nil
+    end
+
+    local adjusted = Classes.CopyTable(ability)
+    local ranks = getSkillTreeAbilityRanks(src)
+    local bonusRank = math.max(math.floor(tonumber(ranks[adjusted.id]) or 0), 0)
+
+    adjusted.skillRank = 1 + bonusRank
+    adjusted.duration = math.max(math.floor((tonumber(adjusted.duration) or 0) * (1.0 + (bonusRank * 0.10)) + 0.5), 0)
+    adjusted.cooldown = math.max(math.floor((tonumber(adjusted.cooldown) or 0) * (1.0 - math.min(bonusRank * 0.10, 0.50)) + 0.5), 0)
+
+    return adjusted
+end
+
+local function buildAbilityStatus(classId, progress, src)
     local ability = getPrimaryAbility(classId)
 
     if not ability then
         return nil
     end
+
+    ability = buildEffectiveAbility(src, ability)
 
     local now = os.time()
     local duration = math.max(math.floor(tonumber(ability.duration) or 0), 0)
@@ -184,10 +244,11 @@ local function buildAbilityStatus(classId, progress)
         activeRemaining = activeRemaining,
         cooldownRemaining = cooldownRemaining,
         state = state,
+        skillRank = ability.skillRank or 1,
     }
 end
 
-local function buildClassResult(activeClass, progress)
+local function buildClassResult(activeClass, progress, src)
     if not activeClass or not Classes.IsValidClass(activeClass.id) or not progress then
         return nil
     end
@@ -205,8 +266,8 @@ local function buildClassResult(activeClass, progress)
         lastChangedAt = activeClass.lastChangedAt,
         selectedAt = activeClass.selectedAt,
         hasChosenClass = activeClass.hasChosenClass,
-        modifiers = Classes.GetModifiers(activeClass.id),
-        abilityStatus = buildAbilityStatus(activeClass.id, progress),
+        modifiers = buildEffectiveModifiers(activeClass.id, src),
+        abilityStatus = buildAbilityStatus(activeClass.id, progress, src),
     }
 end
 
@@ -397,7 +458,7 @@ function Classes.GetPlayerClass(src)
         return nil
     end
 
-    return buildClassResult(activeClass, classesData[activeClass.id])
+    return buildClassResult(activeClass, classesData[activeClass.id], src)
 end
 
 function Classes.GetClassId(src)
@@ -418,7 +479,7 @@ function Classes.GetClassModifiers(src)
         return nil
     end
 
-    return Classes.GetModifiers(classId)
+    return buildEffectiveModifiers(classId, src)
 end
 
 function Classes.GetClassMenuData(src)
@@ -437,7 +498,7 @@ function Classes.GetClassMenuData(src)
             lastChangedAt = activeClass.lastChangedAt,
             selectedAt = activeClass.selectedAt,
             hasChosenClass = activeClass.hasChosenClass,
-        }, classesData[classId])
+        }, classesData[classId], src)
     end
 
     table.sort(classes, function(left, right)
@@ -445,7 +506,7 @@ function Classes.GetClassMenuData(src)
     end)
 
     return {
-        active = activeClass.id and buildClassResult(activeClass, classesData[activeClass.id]) or nil,
+        active = activeClass.id and buildClassResult(activeClass, classesData[activeClass.id], src) or nil,
         classes = classes,
         classChangeCost = getClassChangeCost(),
         classChangeCooldown = Config.ClassChangeCooldown,
@@ -504,7 +565,7 @@ function Classes.SetPlayerClass(src, classId, force)
 
     setClassState(player, activeClass, classesData)
 
-    local result = buildClassResult(activeClass, classesData[classId])
+    local result = buildClassResult(activeClass, classesData[classId], src)
 
     if Config.NotifyClassChange then
         TriggerClientEvent('QBCore:Notify', src, Lang:t('success.class_changed', { class = result.label }), 'success')
@@ -549,7 +610,7 @@ function Classes.GrantClassXp(src, amount, reason)
     local levelsGained = applyClassLevelUps(progress)
     setClassState(player, activeClass, classesData)
 
-    local result = buildClassResult(activeClass, progress)
+    local result = buildClassResult(activeClass, progress, src)
     result.levelsGained = levelsGained
 
     if Config.NotifyClassXpGain then
@@ -582,6 +643,8 @@ function Classes.TryUseAbility(src, abilityId)
         return false, 'invalid_ability'
     end
 
+    ability = buildEffectiveAbility(src, ability)
+
     local activeClass, classesData = Classes.EnsurePlayerClass(player)
 
     if not activeClass.id then
@@ -606,7 +669,7 @@ function Classes.TryUseAbility(src, abilityId)
         return false, 'ability_cooldown', remaining
     end
 
-    local classData = buildClassResult(activeClass, progress)
+    local classData = buildClassResult(activeClass, progress, src)
     local resourceOk, resourceErr = runAbilityResourceHook('AbilityResourceCheck', src, ability, classData)
 
     if not resourceOk then
@@ -627,7 +690,7 @@ function Classes.TryUseAbility(src, abilityId)
 
     setClassState(player, activeClass, classesData)
 
-    local result = buildClassResult(activeClass, progress)
+    local result = buildClassResult(activeClass, progress, src)
 
     TriggerClientEvent('qbx-classes:client:abilityUsed', src, ability, result.abilityStatus)
     TriggerClientEvent('qbx-classes:client:classUpdated', src, result)

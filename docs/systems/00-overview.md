@@ -44,11 +44,11 @@ ensure qb-core
 ensure [qb]
 ensure qbx-progression
 ensure qbx-classes
+ensure qbx-professions
+ensure qbx-skilltree
 ensure [standalone]
 # --- sistemas qbx ---
 ensure qbx-zones
-ensure qbx-professions
-ensure qbx-skilltree
 ensure qbx-combat
 ensure qbx-status
 ensure qbx-survival
