@@ -21,12 +21,21 @@
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `id` | string | ID da classe |
-| `rank` | int opcional | Prestígio dentro da classe (futuro) |
-| `xp` | int | XP **da classe** (separado do personagem) |
-| `level` | int | Nível da classe |
+| `id` | string | ID da classe ativa |
+| `lastChangedAt` | int | Timestamp da última troca |
+| `selectedAt` | int | Timestamp da primeira escolha real |
+| `hasChosenClass` | bool | Se o jogador já fez a escolha inicial |
 
-Troca de classe: **servidor**, custo em item moeda (`Config.ClassChangeCost`) + cooldown em **SQL ou metadata**.
+### `PlayerData.metadata.classes[classId]`
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `rank` | int opcional | Prestígio dentro da classe (futuro) |
+| `xp` | int | XP **da classe** (separado do personagem e das outras classes) |
+| `level` | int | Nível da classe |
+| `abilityCooldowns` | table | Cooldowns server-side por habilidade |
+
+Troca de classe: **servidor**, primeira escolha sem custo/cooldown, demais trocas com custo em item moeda (`Config.ClassChangeCost`) + cooldown em metadata.
 
 ## 4. Modificadores derivados
 
@@ -42,6 +51,7 @@ Tabela `Config.ClassMods[classId]` com multiplicadores por `damage`, `mitigation
 
 - Registar como **itens usáveis** (consumo de stamina/ cooldown server-side) **ou** `RegisterCommand` + keybind que pede ao servidor `TryUseAbility(abilityId)`.
 - **Toda** habilidade valida classe atual + cooldown + recurso (mana/stamina inventário).
+- Recursos de habilidade entram por hooks server-side (`Config.AbilityResourceCheck` / `Config.AbilityResourceConsume`) para plugar `qbx-status` ou survival sem acoplar classes.
 
 ## 6. Eventos e exports
 
@@ -50,9 +60,15 @@ Tabela `Config.ClassMods[classId]` com multiplicadores por `damage`, `mitigation
 | `GetClassId(src)` | Retorna id atual |
 | `GetClassModifiers(src)` | Tabela de mods para combate |
 
+UI inicial:
+
+- `/classes` abre HUD NUI com classe atual, lista de classes, detalhes, confirmacao e habilidades.
+- `/chooseclass` abre direto a lista de classes.
+
 ## 7. Dependências
 
 - Progressão global ([01-personagem-e-progressao.md](01-personagem-e-progressao.md))
+- NUI do resource para HUD inicial de selecao
 - Combate ([07-combate-pve-pvp.md](07-combate-pve-pvp.md))
 
 ## 8. Riscos
