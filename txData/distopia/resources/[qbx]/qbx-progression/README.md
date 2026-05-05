@@ -49,4 +49,5 @@ O comando usa permissao QBCore `admin` e cria ACE `command.grantcharxp`.
 ## Instalacao
 
 1. Execute `sql/0001_progress_audit.sql` na base de desenvolvimento se quiser habilitar `Config.AuditEnabled = true`.
-2. Como o resource esta dentro de `[standalone]`, `ensure [standalone]` ja inicia `qbx-progression`. Use um `ensure qbx-progression` separado somente se mover o resource para uma pasta dedicada.
+2. Mantenha o resource em `resources/[qbx]/qbx-progression`.
+3. Garanta `ensure qbx-progression` antes dos resources que consomem XP global, como `qbx-classes`.

@@ -36,18 +36,17 @@ Legenda: **→** depende de.
 | Survival (fome, frio, doença) | Core (`metadata` fome/sede), zonas | Combate (debuffs), quests survive |
 | Battle pass | Progressão, quests, combate | — (endpoint de recompensas) |
 
-## Ordem sugerida no `server.cfg` (após `qb-core`)
+## Ordem atual/sugerida no `server.cfg`
 
 ```
 ensure oxmysql
-ensure ox_lib
 ensure qb-core
-ensure qb-inventory   # ou ox_inventory
-ensure ox_target      # ou qb-target
-# --- sistemas qbx ---
-ensure qbx-zones
+ensure [qb]
 ensure qbx-progression
 ensure qbx-classes
+ensure [standalone]
+# --- sistemas qbx ---
+ensure qbx-zones
 ensure qbx-professions
 ensure qbx-skilltree
 ensure qbx-combat

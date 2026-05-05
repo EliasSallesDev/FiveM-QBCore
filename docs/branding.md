@@ -4,7 +4,20 @@
 
 O servidor opera sob a marca **Distopia**. Referências narrativas à cidade (HUD, menus, notificações temáticas, texto de loading) devem usar esse nome de forma consistente.
 
-**Tom sugerido** (ajustável pelo time de lore): sobrevivência urbana / decadência controlada — paleta e tipografia finais ficam a cargo do design; os assets oficiais da logo estão na pasta indicada abaixo.
+**Tom sugerido** (ajustável pelo time de lore): sobrevivência urbana / decadência controlada; os assets oficiais da logo estão na pasta indicada abaixo.
+
+## Paleta oficial
+
+Toda UI nova deve partir desta paleta:
+
+| Uso | Cor |
+|-----|-----|
+| Texto / luz quente | `#F2D6BD` |
+| Acento / botoes primarios | `#8C5230` |
+| Paineis / bordas densas | `#401616` |
+| Fundo / preto base | `#0D0D0D` |
+
+Variacoes com alpha sao permitidas quando forem derivadas dessas quatro cores.
 
 ## Fonte de verdade dos assets
 
