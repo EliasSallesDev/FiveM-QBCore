@@ -1,14 +1,14 @@
 local Translations = {
     error = {
-        invalid_player = 'Jogador invalido.',
-        invalid_amount = 'Quantidade de XP invalida.',
-        invalid_reason = 'Motivo de XP invalido.',
-        rate_limited = 'Ganho de XP bloqueado por limite de frequencia.',
+        invalid_player = 'Jogador inválido.',
+        invalid_amount = 'Quantidade de XP inválida.',
+        invalid_reason = 'Motivo de XP inválido.',
+        rate_limited = 'Ganho de XP bloqueado por limite de frequência.',
     },
     success = {
-        xp_granted = 'Voce ganhou %{amount} XP.',
+        xp_granted = 'Você ganhou %{amount} XP.',
         xp_granted_admin = 'Concedido %{amount} XP de personagem para %{target}.',
-        level_up = 'Voce alcancou o nivel de personagem %{level}.',
+        level_up = 'Você alcancou o nivel de personagem %{level}.',
     },
     info = {
         progress = 'Nivel %{level} - %{xp}/%{xpToNext} XP - %{skillPoints} pontos de habilidade.',

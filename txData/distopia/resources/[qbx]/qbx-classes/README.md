@@ -10,7 +10,7 @@ Sistema server-authoritative de classes de combate/survival para Distopia.
 
 ## Persistencia
 
-- `PlayerData.metadata.class.id`
+- `PlayerData.metadata.class.id` (`nil` ate o jogador escolher a primeira classe)
 - `PlayerData.metadata.class.lastChangedAt`
 - `PlayerData.metadata.class.selectedAt`
 - `PlayerData.metadata.class.hasChosenClass`
@@ -34,7 +34,7 @@ local ok, result = exports['qbx-classes']:GrantClassXp(src, amount, 'combat')
 local ok, ability = exports['qbx-classes']:TryUseAbility(src, 'guard_stance')
 ```
 
-`reason` deve existir em `Config.AllowedReasons`.
+`reason` deve existir em `Config.AllowedReasons`. `GetClassId`, `GetClassModifiers`, `GetClassData`, `GrantClassXp` e `TryUseAbility` podem retornar `nil` ou `class_not_chosen` enquanto o jogador ainda nao escolheu a primeira classe.
 
 ## Eventos
 
@@ -80,7 +80,7 @@ Use esses hooks para integrar stamina, mana, status ou inventario quando `qbx-st
 /grantclassxp <playerId> <amount> <reason>
 ```
 
-`/classes` e `/chooseclass` abrem a HUD NUI com status, escolha de classe, detalhes, confirmacao e habilidades.
+`/classes` e `/chooseclass` abrem a HUD NUI com status, escolha de classe, detalhes, confirmacao e habilidades. A primeira classe nao e definida automaticamente; o jogador escolhe uma opcao na HUD e confirma sem custo quando `Config.FreeInitialClassChoice = true`.
 `/classabilityquick` usa a habilidade ativa da classe atual e fica mapeado por padrao na tecla definida em `Config.AbilityHotkey.defaultKey`.
 
 `setclass` e `grantclassxp` usam permissao QBCore `admin` e criam ACEs `command.setclass` / `command.grantclassxp`.

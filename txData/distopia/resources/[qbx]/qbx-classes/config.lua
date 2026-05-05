@@ -1,6 +1,5 @@
 Config = Config or {}
 
-Config.DefaultClass = 'survivor'
 Config.ClassXpBase = 90
 Config.MaxClassLevel = 30
 Config.NotifyClassChange = true

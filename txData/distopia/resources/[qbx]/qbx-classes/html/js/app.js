@@ -76,7 +76,18 @@ const classById = (id) => (state.menuData?.classes || []).find((item) => item.id
 
 const renderActive = () => {
   const active = state.menuData?.active;
-  if (!active) return;
+
+  if (!active) {
+    document.getElementById("active-name").textContent = "Escolha sua classe";
+    document.getElementById("active-role").textContent = "A primeira escolha e gratuita.";
+    document.getElementById("active-level").textContent = "-";
+    document.getElementById("xp-label").textContent = "0 / 0 XP";
+    document.getElementById("cost-label").textContent = costText();
+    document.getElementById("xp-fill").style.width = "0%";
+    document.getElementById("ability-class-name").textContent = "Sem classe";
+    state.abilityStatus = null;
+    return;
+  }
 
   document.getElementById("active-name").textContent = active.label;
   document.getElementById("active-role").textContent = active.role;
@@ -119,8 +130,10 @@ const renderClassList = () => {
 };
 
 const renderDetails = () => {
-  const selected = classById(state.selectedClassId) || state.menuData?.active;
+  const selected = classById(state.selectedClassId) || state.menuData?.active || state.menuData?.classes?.[0];
   if (!selected) return;
+
+  state.selectedClassId = selected.id;
 
   const activeId = state.menuData?.active?.id;
   const isActive = selected.id === activeId;
@@ -165,7 +178,12 @@ const renderDetails = () => {
 
 const renderAbilities = () => {
   const active = state.menuData?.active;
-  if (!active) return;
+
+  if (!active) {
+    document.getElementById("ability-count").textContent = "0";
+    abilityList.innerHTML = "";
+    return;
+  }
 
   const abilities = Object.entries(state.abilities || {})
     .filter(([, ability]) => ability.class === active.id)
@@ -198,7 +216,7 @@ const renderAbilities = () => {
 
 const render = () => {
   if (!state.menuData) return;
-  state.selectedClassId ||= state.menuData.active?.id;
+  state.selectedClassId ||= state.menuData.active?.id || state.menuData.classes?.[0]?.id || null;
   renderActive();
   renderClassList();
   renderDetails();
@@ -208,7 +226,9 @@ const render = () => {
 const hydrate = (payload) => {
   state.menuData = payload?.menuData || null;
   state.abilities = payload?.abilities || {};
-  state.selectedClassId ||= state.menuData?.active?.id || null;
+  if (!classById(state.selectedClassId)) {
+    state.selectedClassId = state.menuData?.active?.id || state.menuData?.classes?.[0]?.id || null;
+  }
   state.abilityStatus = state.menuData?.active?.abilityStatus || state.abilityStatus;
   state.abilityStatusSyncedAt = Date.now() / 1000;
   render();
