@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Distopia Profissoes</title>
+    <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <main id="app" class="hud" aria-hidden="true">
+      <section class="shell" aria-label="Profissoes de Distopia">
+        <header class="topbar">
+          <div class="brand">
+            <img class="brand-logo" src="assets/brand/logo.svg" alt="" />
+            <div>
+              <strong>Distopia</strong>
+              <span>Profissoes</span>
+            </div>
+          </div>
+          <div class="slot-meter">
+            <span class="label">Ativas</span>
+            <strong id="slot-count">1 / 1</strong>
+          </div>
+          <button class="icon-button" id="close" type="button" title="Fechar" aria-label="Fechar">x</button>
+        </header>
+
+        <section class="status-band">
+          <div>
+            <span class="label">Profissoes ativas</span>
+            <h1 id="active-title">Mineracao</h1>
+            <p id="slot-help">Use uma Licenca de Profissao para liberar mais uma profissão ativa.</p>
+          </div>
+          <div class="level-block">
+            <span class="label">Slots</span>
+            <strong id="active-slots">1</strong>
+          </div>
+          <div class="xp-block">
+            <div class="xp-meta">
+              <span id="selected-xp">0 / 80 XP</span>
+              <span id="selected-state">Ativa</span>
+            </div>
+            <div class="xp-track"><span id="selected-xp-fill"></span></div>
+          </div>
+        </section>
+
+        <section class="content">
+          <aside class="profession-list" id="profession-list" aria-label="Lista de profissoes"></aside>
+
+          <section class="detail">
+            <div class="detail-header">
+              <div>
+                <span class="label">Selecionada</span>
+                <h2 id="detail-name">Profissao</h2>
+              </div>
+              <span class="pill" id="detail-state">Ativa</span>
+            </div>
+
+            <p class="detail-copy" id="detail-description"></p>
+
+            <div class="stats-grid">
+              <article class="stat">
+                <span>Nivel</span>
+                <strong id="detail-level">1</strong>
+              </article>
+              <article class="stat">
+                <span>XP atual</span>
+                <strong id="detail-xp">0</strong>
+              </article>
+              <article class="stat">
+                <span>Proximo nivel</span>
+                <strong id="detail-next">80</strong>
+              </article>
+              <article class="stat">
+                <span>Status</span>
+                <strong id="detail-active">Ativa</strong>
+              </article>
+            </div>
+
+            <section class="activity-panel">
+              <span class="label">O que faz</span>
+              <div class="activity-list" id="activity-list"></div>
+            </section>
+
+            <div class="actions">
+              <button class="primary-button" id="activate-profession" type="button">Ativar profissão</button>
+              <button class="ghost-button" id="refresh" type="button">Atualizar</button>
+            </div>
+          </section>
+        </section>
+
+        <footer class="footer">
+          <span id="message"></span>
+        </footer>
+      </section>
+    </main>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>

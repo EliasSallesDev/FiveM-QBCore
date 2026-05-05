@@ -79,7 +79,7 @@ end
 
 function Classes.DefaultActiveClassData()
     return {
-        id = Config.DefaultClass,
+        id = nil,
         lastChangedAt = 0,
         selectedAt = 0,
         hasChosenClass = false,

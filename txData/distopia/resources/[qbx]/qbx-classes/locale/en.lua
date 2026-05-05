@@ -2,6 +2,7 @@ local Translations = {
     error = {
         invalid_player = 'Invalid player.',
         invalid_class = 'Invalid class.',
+        class_not_chosen = 'Choose a class first.',
         same_class = 'You already have this class.',
         class_change_cooldown = 'Class change is on cooldown for %{seconds} seconds.',
         class_change_in_combat = 'You cannot change class while in combat.',

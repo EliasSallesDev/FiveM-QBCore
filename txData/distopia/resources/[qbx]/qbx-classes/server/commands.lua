@@ -12,7 +12,7 @@ QBCore.Commands.Add('class', Lang:t('command.class.help'), {}, false, function(s
     local classData = Classes.GetPlayerClass(source)
 
     if not classData then
-        notifyOrPrint(source, Lang:t('error.invalid_player'), 'error')
+        notifyOrPrint(source, Lang:t('error.class_not_chosen'), 'error')
         return
     end
 

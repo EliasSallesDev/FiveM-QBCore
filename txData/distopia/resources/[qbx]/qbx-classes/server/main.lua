@@ -37,13 +37,7 @@ local function getPlayer(src)
 end
 
 local function copyDefaultActiveClassData()
-    local defaults = Classes.DefaultActiveClassData()
-
-    if not Classes.IsValidClass(defaults.id) then
-        defaults.id = 'survivor'
-    end
-
-    return defaults
+    return Classes.DefaultActiveClassData()
 end
 
 local function copyDefaultClassProgress()
@@ -57,6 +51,8 @@ local function normalizeActiveClassData(classData)
     if type(classData) == 'table' then
         if Classes.IsValidClass(classData.id) then
             normalized.id = classData.id
+        elseif classData.id == nil or classData.id == false or classData.id == '' then
+            normalized.id = nil
         else
             changed = true
         end
@@ -66,11 +62,6 @@ local function normalizeActiveClassData(classData)
         normalized.hasChosenClass = classData.hasChosenClass == true
             or normalized.selectedAt > 0
             or normalized.lastChangedAt > 0
-            or classData.rank ~= nil
-            or classData.xp ~= nil
-            or classData.level ~= nil
-            or classData.abilityCooldowns ~= nil
-            or classData.abilityActives ~= nil
 
         changed = changed
             or classData.id ~= normalized.id
@@ -197,6 +188,10 @@ local function buildAbilityStatus(classId, progress)
 end
 
 local function buildClassResult(activeClass, progress)
+    if not activeClass or not Classes.IsValidClass(activeClass.id) or not progress then
+        return nil
+    end
+
     local definition = Classes.GetClassDefinition(activeClass.id)
 
     return {
@@ -397,6 +392,11 @@ function Classes.GetPlayerClass(src)
     end
 
     local activeClass, classesData = Classes.EnsurePlayerClass(player)
+
+    if not activeClass.id then
+        return nil
+    end
+
     return buildClassResult(activeClass, classesData[activeClass.id])
 end
 
@@ -408,7 +408,7 @@ function Classes.GetClassId(src)
     end
 
     local activeClass = Classes.EnsurePlayerClass(player)
-    return activeClass.id
+    return activeClass and activeClass.id or nil
 end
 
 function Classes.GetClassModifiers(src)
@@ -445,7 +445,7 @@ function Classes.GetClassMenuData(src)
     end)
 
     return {
-        active = buildClassResult(activeClass, classesData[activeClass.id]),
+        active = activeClass.id and buildClassResult(activeClass, classesData[activeClass.id]) or nil,
         classes = classes,
         classChangeCost = getClassChangeCost(),
         classChangeCooldown = Config.ClassChangeCooldown,
@@ -538,6 +538,11 @@ function Classes.GrantClassXp(src, amount, reason)
     end
 
     local activeClass, classesData = Classes.EnsurePlayerClass(player)
+
+    if not activeClass.id then
+        return false, 'class_not_chosen'
+    end
+
     local progress = classesData[activeClass.id]
     progress.xp = progress.xp + amount
 
@@ -578,6 +583,11 @@ function Classes.TryUseAbility(src, abilityId)
     end
 
     local activeClass, classesData = Classes.EnsurePlayerClass(player)
+
+    if not activeClass.id then
+        return false, 'class_not_chosen'
+    end
+
     local progress = classesData[activeClass.id]
 
     if activeClass.id ~= ability.class then
