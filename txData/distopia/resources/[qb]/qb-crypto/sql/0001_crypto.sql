@@ -4,5 +4,3 @@ CREATE TABLE IF NOT EXISTS `crypto` (
   `history` text DEFAULT NULL,
   PRIMARY KEY (`crypto`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT INTO `crypto` VALUES ('qbit', 1000, '[{"NewWorth":1000,"PreviousWorth":1000}]');

@@ -29,4 +29,5 @@ files {
     'html/css/*.css',
     'html/img/backgrounds/*.png',
     'html/img/apps/*.png',
+    'sql/*.sql',
 }
