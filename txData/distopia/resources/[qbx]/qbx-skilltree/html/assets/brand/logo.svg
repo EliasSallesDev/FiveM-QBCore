@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Distopia">
-  <rect width="256" height="256" rx="28" fill="#0D0D0D"/>
-  <path d="M58 180V76h49c40 0 70 19 70 52s-30 52-70 52H58Zm32-28h18c22 0 36-8 36-24s-14-24-36-24H90v48Z" fill="#F2D6BD"/>
-  <path d="M50 202h156" stroke="#8C5230" stroke-width="14" stroke-linecap="round"/>
-  <path d="M190 70l18 18-18 18" fill="none" stroke="#401616" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>

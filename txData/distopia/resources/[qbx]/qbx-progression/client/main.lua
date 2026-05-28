@@ -1,1 +1,0 @@
--- qbx-progression is server-authoritative. Client code is intentionally empty.

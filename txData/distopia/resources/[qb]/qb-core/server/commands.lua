@@ -247,7 +247,11 @@ end, 'user')
 QBCore.Commands.Add('setjob', Lang:t('command.setjob.help'), { { name = Lang:t('command.setjob.params.id.name'), help = Lang:t('command.setjob.params.id.help') }, { name = Lang:t('command.setjob.params.job.name'), help = Lang:t('command.setjob.params.job.help') }, { name = Lang:t('command.setjob.params.grade.name'), help = Lang:t('command.setjob.params.grade.help') } }, true, function(source, args)
     local Player = QBCore.Functions.GetPlayer(tonumber(args[1]))
     if Player then
-        Player.Functions.SetJob(tostring(args[2]), tonumber(args[3]))
+        local jobName = tostring(args[2])
+        local gradeLevel = tonumber(args[3])
+        Player.Functions.SetJob(jobName, gradeLevel)
+        TriggerClientEvent('QBCore:Notify', source, 'Job de ID ' .. args[1] .. ' alterado para ' .. jobName .. ' grade ' .. gradeLevel .. '.', 'success')
+        TriggerClientEvent('QBCore:Notify', Player.PlayerData.source, 'Seu emprego foi alterado para ' .. jobName .. ' grade ' .. gradeLevel .. '.', 'success')
     else
         TriggerClientEvent('QBCore:Notify', source, Lang:t('error.not_online'), 'error')
     end
