@@ -11,6 +11,7 @@ local Translations = {
         vehicle_not_correct = 'This is not a commercial vehicle!',
         no_driver = 'You must be the driver to do this..',
         no_work_done = "You haven't done any work yet..",
+        not_trucker = 'You need to be a trucker to make deliveries',
         backdoors_not_open = "The backdoors of the vehicle aren't open",
         get_out_vehicle = 'You need to step out of the vehicle to perform this action',
         too_far_from_trunk = 'You need to grab the boxes from the trunk of your vehicle',
@@ -31,6 +32,7 @@ local Translations = {
         another_box = 'Get another Box Of Products',
         goto_next_point = 'You Have Delivered All Products, To The Next Point',
         return_to_station = 'You Have Delivered All Products, Return to Station',
+        job_started = 'Trucker job started. Go to GO Postal to start deliveries',
         job_completed = 'You Have Completed Your Route'
     },
 }

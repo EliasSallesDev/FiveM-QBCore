@@ -64,12 +64,12 @@ const InventoryContainer = Vue.createApp({
                 errorSlot: null,
                 // Player Inventory
                 playerInventory: {},
-                inventoryLabel: "Inventory",
+                inventoryLabel: "Inventario",
                 totalWeight: 0,
                 // Other inventory
                 otherInventory: {},
                 otherInventoryName: "",
-                otherInventoryLabel: "Drop",
+                otherInventoryLabel: "Chao",
                 otherInventoryMaxWeight: 1000000,
                 otherInventorySlots: 100,
                 isShopInventory: false,
@@ -409,7 +409,7 @@ const InventoryContainer = Vue.createApp({
                             delete this.playerInventory[draggingItemKey];
                         }
                         this.otherInventoryName = response.data;
-                        this.otherInventoryLabel = response.data;
+                        this.otherInventoryLabel = "Chao";
                         this.isOtherInventoryEmpty = false;
                         this.clearDragData();
                     }
@@ -598,7 +598,7 @@ const InventoryContainer = Vue.createApp({
                             delete this.playerInventory[playerItemKey];
                             this.otherInventory[1] = newItem;
                             this.otherInventoryName = response.data;
-                            this.otherInventoryLabel = response.data;
+                            this.otherInventoryLabel = "Chao";
                             this.isOtherInventoryEmpty = false;
                         }
                     } catch (error) {
@@ -765,7 +765,7 @@ const InventoryContainer = Vue.createApp({
                 id,
                 text: itemData.item.label,
                 image: "images/" + itemData.item.image,
-                type: itemData.type === "add" ? "Received" : itemData.type === "use" ? "Used" : "Removed",
+                type: itemData.type === "add" ? "Recebido" : itemData.type === "use" ? "Usado" : "Removido",
                 amount: itemData.amount || 1,
             };
 

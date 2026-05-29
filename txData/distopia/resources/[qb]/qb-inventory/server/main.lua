@@ -252,7 +252,7 @@ RegisterNetEvent('qb-inventory:server:openDrop', function(dropId)
     if distance > 2.5 then return end
     local formattedInventory = {
         name = dropId,
-        label = dropId,
+        label = drop.label or 'Chao',
         maxweight = drop.maxweight,
         slots = drop.slots,
         inventory = drop.items

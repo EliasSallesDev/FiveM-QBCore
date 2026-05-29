@@ -53,6 +53,9 @@ local Translations = {
         xenon = 'Faróis xenon',
         window_tint = 'Insulfilm',
         plate = 'Placa',
+
+        camera_hint = '[A/D] girar | [W/S] zoom | [Q/E] altura | [Backspace] fechar câmera',
+
         repair = 'Reparar',
         unknown = 'Desconhecido',
         tire_smoke = 'Fumaça dos pneus',

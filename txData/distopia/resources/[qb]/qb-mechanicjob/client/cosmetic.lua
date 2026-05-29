@@ -1,6 +1,160 @@
-QBCore = exports['qb-core']:GetCoreObject()
+local QBCore = exports['qb-core']:GetCoreObject()
 local particleEffects = {}
 local isPainting = false
+
+local cosmeticCameraActive = false
+local cosmeticCameraThread = false
+local cosmeticCamera = nil
+local cosmeticCameraVehicle = nil
+
+-- Ângulo inicial da câmera em relação ao veículo
+local cosmeticCameraAngle = 145.0
+local cosmeticCameraDistance = 5.0
+local cosmeticCameraHeight = 1.8
+
+local function Clamp(value, min, max)
+    return math.max(min, math.min(max, value))
+end
+
+local function UpdateCosmeticCamera()
+    if not cosmeticCamera or not DoesCamExist(cosmeticCamera) then return end
+    if not cosmeticCameraVehicle or not DoesEntityExist(cosmeticCameraVehicle) then return end
+
+    local coords = GetEntityCoords(cosmeticCameraVehicle)
+    local heading = GetEntityHeading(cosmeticCameraVehicle)
+    local angle = math.rad(heading + cosmeticCameraAngle)
+
+    local camX = coords.x + math.cos(angle) * cosmeticCameraDistance
+    local camY = coords.y + math.sin(angle) * cosmeticCameraDistance
+    local camZ = coords.z + cosmeticCameraHeight
+
+    SetCamCoord(cosmeticCamera, camX, camY, camZ)
+    PointCamAtEntity(cosmeticCamera, cosmeticCameraVehicle, 0.0, 0.0, 0.45, true)
+end
+
+local function DisableCosmeticCamera()
+    cosmeticCameraActive = false
+
+    if cosmeticCamera and DoesCamExist(cosmeticCamera) then
+        RenderScriptCams(false, true, 250, true, true)
+        DestroyCam(cosmeticCamera, false)
+    end
+
+    SetNuiFocusKeepInput(false)
+
+    cosmeticCamera = nil
+    cosmeticCameraVehicle = nil
+end
+
+local function HandleCosmeticCameraControls()
+    -- Teclado 60%
+    -- WASD controla a câmera.
+    -- Q/E controla a altura.
+    -- Mouse continua livre para clicar nas opções do qb-menu.
+
+    -- A
+    if IsControlPressed(0, 34) or IsDisabledControlPressed(0, 34) then
+        cosmeticCameraAngle = cosmeticCameraAngle - 2.0
+    end
+
+    -- D
+    if IsControlPressed(0, 35) or IsDisabledControlPressed(0, 35) then
+        cosmeticCameraAngle = cosmeticCameraAngle + 2.0
+    end
+
+    -- W
+    if IsControlPressed(0, 32) or IsDisabledControlPressed(0, 32) then
+        cosmeticCameraDistance = Clamp(cosmeticCameraDistance - 0.08, 2.0, 10.0)
+    end
+
+    -- S
+    if IsControlPressed(0, 33) or IsDisabledControlPressed(0, 33) then
+        cosmeticCameraDistance = Clamp(cosmeticCameraDistance + 0.08, 2.0, 10.0)
+    end
+
+    -- Q
+    if IsControlPressed(0, 44) or IsDisabledControlPressed(0, 44) then
+        cosmeticCameraHeight = Clamp(cosmeticCameraHeight - 0.04, 0.6, 3.8)
+    end
+
+    -- E
+    if IsControlPressed(0, 38) or IsDisabledControlPressed(0, 38) then
+        cosmeticCameraHeight = Clamp(cosmeticCameraHeight + 0.04, 0.6, 3.8)
+    end
+end
+
+local function EnableCosmeticCamera(vehicle)
+    if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then return end
+
+    cosmeticCameraActive = true
+    cosmeticCameraVehicle = vehicle
+
+    SetNuiFocusKeepInput(true)
+
+    if not cosmeticCamera or not DoesCamExist(cosmeticCamera) then
+        cosmeticCamera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+    end
+
+    SetCamActive(cosmeticCamera, true)
+    RenderScriptCams(true, true, 250, true, true)
+
+    UpdateCosmeticCamera()
+
+    if cosmeticCameraThread then return end
+    cosmeticCameraThread = true
+
+    CreateThread(function()
+        Wait(300)
+
+        while cosmeticCameraActive do
+            SetNuiFocusKeepInput(true)
+
+            if not cosmeticCameraVehicle or not DoesEntityExist(cosmeticCameraVehicle) then
+                break
+            end
+
+            BeginTextCommandDisplayHelp('STRING')
+            AddTextComponentSubstringPlayerName(Lang:t('menu.camera_hint'))
+            EndTextCommandDisplayHelp(0, false, true, -1)
+
+            -- Bloqueia movimento e combate do jogador.
+            -- Não bloqueia mouse, clique ou scroll, porque o qb-menu usa o mouse para selecionar as opções.
+            DisableControlAction(0, 21, true)
+            DisableControlAction(0, 22, true)
+            DisableControlAction(0, 25, true)
+            DisableControlAction(0, 30, true)
+            DisableControlAction(0, 31, true)
+            DisableControlAction(0, 32, true)
+            DisableControlAction(0, 33, true)
+            DisableControlAction(0, 34, true)
+            DisableControlAction(0, 35, true)
+            DisableControlAction(0, 37, true)
+            DisableControlAction(0, 44, true)
+            DisableControlAction(0, 75, true)
+            DisableControlAction(0, 140, true)
+            DisableControlAction(0, 141, true)
+            DisableControlAction(0, 142, true)
+
+            HandleCosmeticCameraControls()
+
+            if IsDisabledControlJustReleased(0, 177) or IsControlJustReleased(0, 177) or IsDisabledControlJustReleased(0, 200) or IsControlJustReleased(0, 200) then
+                exports['qb-menu']:closeMenu()
+                break
+            end
+
+            UpdateCosmeticCamera()
+            Wait(0)
+        end
+
+        DisableCosmeticCamera()
+        cosmeticCameraThread = false
+    end)
+end
+
+local function OpenCosmeticMenu(menu, vehicle)
+    EnableCosmeticCamera(vehicle)
+    exports['qb-menu']:openMenu(menu)
+end
 
 -- Paint
 
@@ -158,7 +312,10 @@ function PaintCategories()
             }
         }
     end
-    exports['qb-menu']:openMenu(Paints)
+    local vehicle, distance = QBCore.Functions.GetClosestVehicle()
+    if vehicle == 0 or distance > 5.0 then return end
+
+    OpenCosmeticMenu(Paints, vehicle)
 end
 
 -- Interior
@@ -180,7 +337,7 @@ local function OpenInteriors(vehicle)
             }
         end
     end
-    exports['qb-menu']:openMenu(mods)
+    OpenCosmeticMenu(mods, vehicle)
 end
 
 function InteriorModList(id, vehicle, label)
@@ -224,7 +381,7 @@ function InteriorModList(id, vehicle, label)
             }
         }
     end
-    exports['qb-menu']:openMenu(mods)
+    OpenCosmeticMenu(mods, vehicle)
 end
 
 -- Exterior
@@ -246,7 +403,7 @@ local function OpenExteriors(vehicle)
             }
         end
     end
-    exports['qb-menu']:openMenu(mods)
+    OpenCosmeticMenu(mods, vehicle)
 end
 
 function ExteriorModList(id, vehicle, label)
@@ -276,7 +433,7 @@ function ExteriorModList(id, vehicle, label)
             }
         }
     end
-    exports['qb-menu']:openMenu(mods)
+    OpenCosmeticMenu(mods, vehicle)
 end
 
 -- Tire Smoke
@@ -379,7 +536,7 @@ local function OpenWheels(vehicle)
             }
         }
     end
-    exports['qb-menu']:openMenu(mods)
+    OpenCosmeticMenu(mods, vehicle)
 end
 
 function OpenWheelList(id, vehicle, label)
@@ -410,7 +567,7 @@ function OpenWheelList(id, vehicle, label)
             }
         }
     end
-    exports['qb-menu']:openMenu(mods)
+    OpenCosmeticMenu(mods, vehicle)
 end
 
 -- Neons
@@ -526,6 +683,7 @@ local function GetXenonList()
 end
 
 local function OpenXenon(vehicle)
+    EnableCosmeticCamera(vehicle)
     local dialog = exports['qb-input']:ShowInput({
         header = Lang:t('menu.xenon'),
         submitText = Lang:t('menu.submit'),
@@ -559,6 +717,7 @@ local function OpenXenon(vehicle)
             }
         }
     })
+    DisableCosmeticCamera()
     if not dialog then return end
 
     if dialog.toggle == 'disable' then
@@ -606,7 +765,7 @@ local function WindowTint(vehicle)
             }
         end
     end
-    exports['qb-menu']:openMenu(tints)
+    OpenCosmeticMenu(tints, vehicle)
 end
 
 -- Plates
@@ -626,10 +785,19 @@ local function PlateIndex(vehicle)
             }
         }
     end
-    exports['qb-menu']:openMenu(plates)
+    OpenCosmeticMenu(plates, vehicle)
 end
 
 -- Events
+
+RegisterNetEvent('qb-menu:client:menuClosed', function()
+    DisableCosmeticCamera()
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+    DisableCosmeticCamera()
+end)
 
 RegisterNetEvent('qb-mechanicjob:client:vehicleSetColors', function(netId, section, colorIndex)
     if not NetworkDoesEntityExistWithNetworkId(netId) then return end

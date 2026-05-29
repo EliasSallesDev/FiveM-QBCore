@@ -1,6 +1,10 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Bail = {}
 
+local function isTrucker(Player)
+    return Player and Player.PlayerData.job and Player.PlayerData.job.name == 'trucker'
+end
+
 -- Functions
 
 local function checkTable(inputValue, requiredValue)
@@ -75,7 +79,13 @@ end)
 RegisterNetEvent('qb-shops:server:DoBail', function(bool)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
     if bool then
+        if not isTrucker(Player) then
+            TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_trucker'), 'error')
+            return
+        end
+        if Bail[Player.PlayerData.citizenid] then return end
         if Player.Functions.RemoveMoney('cash', Config.TruckDeposit, 'tow-received-bail') then
             Bail[Player.PlayerData.citizenid] = Config.TruckDeposit
             TriggerClientEvent('QBCore:Notify', src, Lang:t('success.paid_with_cash', { value = Config.TruckDeposit }), 'success')
@@ -105,11 +115,16 @@ RegisterNetEvent('qb-shops:server:PaySlip', function(drops)
     if distance > 10 then return end
     local Player = QBCore.Functions.GetPlayer(src)
     if not Player then return end
+    if not isTrucker(Player) then
+        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_trucker'), 'error')
+        return
+    end
     local completedDrops = tonumber(drops)
     if not drops then return end
     local payment = Config.DeliveryPrice * completedDrops
     Player.Functions.AddMoney('bank', payment, 'trucker-salary')
     Player.Functions.AddRep('delivery', completedDrops)
+    Player.Functions.AddRep('trucker', completedDrops)
     TriggerClientEvent('QBCore:Notify', src, Lang:t('success.you_earned', { value = payment }), 'success')
 end)
 

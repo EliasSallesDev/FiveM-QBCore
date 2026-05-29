@@ -21,6 +21,7 @@ local Translations = {
     mission = {
         delivered_vehicle = "You Have Delivered A Vehicle",
         get_new_vehicle = "A New Vehicle Can Be Picked Up",
+        auto_route_started = "Tow route started automatically",
         towing_vehicle = "Hoisting the Vehicle...",
         goto_depot = "Take The Vehicle To Hayes Depot",
         vehicle_towed = "Vehicle Towed",

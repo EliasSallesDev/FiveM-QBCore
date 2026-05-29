@@ -76,10 +76,6 @@ RegisterNetEvent('qb-tow:server:11101110', function(drops)
     TriggerClientEvent('QBCore:Notify', src, Lang:t('success.you_earned', { value = payment }), 'success')
 end)
 
-QBCore.Commands.Add('npc', Lang:t('info.toggle_npc'), {}, false, function(source)
-    TriggerClientEvent('jobs:client:ToggleNpc', source)
-end)
-
 QBCore.Commands.Add('tow', Lang:t('info.tow'), {}, false, function(source)
     local Player = QBCore.Functions.GetPlayer(source)
     if Player.PlayerData.job.name == 'tow' or Player.PlayerData.job.name == 'mechanic' then

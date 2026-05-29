@@ -1,3 +1,5 @@
+local QBCore = exports['qb-core']:GetCoreObject()
+
 local vehicle, plate, netId
 local nitrousActive = false
 local nitrousVehicles = {}

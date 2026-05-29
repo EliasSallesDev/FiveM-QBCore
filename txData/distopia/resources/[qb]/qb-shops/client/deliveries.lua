@@ -15,6 +15,8 @@ local showMarker = false
 local markerLocation
 local zoneCombo = nil
 local returningToStation = false
+local deliveryZonesReady = false
+local jobStartBusy = false
 
 -- Functions
 
@@ -24,6 +26,24 @@ end
 
 local function SetDelivering(active)
     Delivering = active
+end
+
+local function isTrucker()
+    local PlayerData = QBCore.Functions.GetPlayerData()
+    return PlayerData.job and PlayerData.job.name == 'trucker'
+end
+
+local function resetTruckerJob()
+    CurrentLocation = nil
+    CurrentBlip = nil
+    hasBox = false
+    isWorking = false
+    currentCount = 0
+    CurrentPlate = nil
+    Delivering = false
+    showMarker = false
+    returningToStation = false
+    jobStartBusy = false
 end
 
 local function setupZones(type, number)
@@ -49,26 +69,7 @@ local function setupZones(type, number)
         size = 40
     end
 
-    if Config.UseTarget and type == 'main' then
-        RequestModel('s_m_m_postal_01')
-        while not HasModelLoaded('s_m_m_postal_01') do Wait(0) end
-        deliveryPed = CreatePed(0, 's_m_m_postal_01', coords.x, coords.y, coords.z - 1, heading, false, false)
-        FreezeEntityPosition(deliveryPed, true)
-        SetEntityInvincible(deliveryPed, true)
-        SetBlockingOfNonTemporaryEvents(deliveryPed, true)
-        exports['qb-target']:AddTargetEntity(deliveryPed, {
-            options = {
-                {
-                    icon = 'fas fa-box',
-                    label = 'Iniciar entregas',
-                    action = function()
-                        TriggerServerEvent('qb-shops:server:DoBail', true)
-                    end
-                }
-            },
-            distance = 2.0
-        })
-    else
+    if type == 'main' or type == 'vehicleDeposit' or type == 'stores' then
         local zone = BoxZone:Create(
             coords, size, size, {
                 minZ = coords.z - 5.0,
@@ -82,9 +83,19 @@ local function setupZones(type, number)
         zoneCombo:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 if type == 'main' then
-                    TriggerServerEvent('qb-shops:server:DoBail', true)
+                    if isTrucker() and not CurrentPlate and not jobStartBusy then
+                        jobStartBusy = true
+                        JobsDone = 0
+                        LocationsDone = {}
+                        TriggerServerEvent('qb-shops:server:DoBail', true)
+                        SetTimeout(5000, function()
+                            if not CurrentPlate then jobStartBusy = false end
+                        end)
+                    end
                 elseif type == 'vehicleDeposit' then
-                    TriggerEvent('qb-shops:client:Vehicle')
+                    if CurrentPlate then
+                        TriggerEvent('qb-shops:client:Vehicle')
+                    end
                 elseif type == 'stores' then
                     markerLocation = coords
                     QBCore.Functions.Notify(Lang:t('mission.store_reached'))
@@ -110,7 +121,7 @@ local function setupZones(type, number)
 
             local zoneCombodel = ComboZone:Create({ zonedel }, { name = boxName, debugPoly = false })
             zoneCombodel:onPlayerInOut(function(isPointInside)
-                if isPointInside then
+                if isPointInside and CurrentPlate and (returningToStation or JobsDone > 0) then
                     markerLocation = coords
                     ShowMarker(true)
                 else
@@ -123,7 +134,15 @@ local function setupZones(type, number)
     end
 end
 
-local function CreateBlip()
+local function CreateBlip(routeToStation)
+    if not isTrucker() then return end
+    if TruckerBlip then
+        if routeToStation then
+            SetBlipRoute(TruckerBlip, true)
+            SetBlipRouteColour(TruckerBlip, 6)
+        end
+        return
+    end
     TruckerBlip = AddBlipForCoord(Config.DeliveryLocations['main'].coords.x, Config.DeliveryLocations['main'].coords.y, Config.DeliveryLocations['main'].coords.z)
     SetBlipSprite(TruckerBlip, 408)
     SetBlipDisplay(TruckerBlip, 4)
@@ -133,8 +152,15 @@ local function CreateBlip()
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentSubstringPlayerName(Config.DeliveryLocations['main'].label)
     EndTextCommandSetBlipName(TruckerBlip)
-    setupZones('main')
-    setupZones('vehicleDeposit')
+    if routeToStation then
+        SetBlipRoute(TruckerBlip, true)
+        SetBlipRouteColour(TruckerBlip, 6)
+    end
+    if not deliveryZonesReady then
+        setupZones('main')
+        setupZones('vehicleDeposit')
+        deliveryZonesReady = true
+    end
 end
 
 local function getShopList()
@@ -150,6 +176,11 @@ local function getShopList()
 end
 
 local function returnToStation()
+    if not TruckerBlip then
+        CreateBlip(true)
+    end
+    markerLocation = Config.DeliveryLocations['vehicleDeposit']
+    ShowMarker(true)
     SetBlipRoute(TruckerBlip, true)
     returningToStation = true
 end
@@ -193,6 +224,7 @@ end
 
 local function RemoveTruckerBlips()
     ClearAllBlipRoutes()
+    ShowMarker(false)
     if TruckerBlip then
         RemoveBlip(TruckerBlip)
         TruckerBlip = nil
@@ -357,13 +389,13 @@ AddEventHandler('onResourceStart', function(resource)
     hasBox = false
     isWorking = false
     JobsDone = 0
-    CreateBlip()
     getShopList()
+    CreateBlip()
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
-    DeletePed(deliveryPed)
+    if deliveryPed then DeletePed(deliveryPed) end
     RemoveBlip(TruckerBlip)
 end)
 
@@ -373,8 +405,19 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     hasBox = false
     isWorking = false
     JobsDone = 0
-    CreateBlip()
     getShopList()
+    CreateBlip()
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+    if JobInfo.name == 'trucker' then
+        getShopList()
+        CreateBlip(true)
+        QBCore.Functions.Notify(Lang:t('mission.job_started'), 'primary')
+    else
+        RemoveTruckerBlips()
+        resetTruckerJob()
+    end
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
@@ -393,6 +436,7 @@ end)
 RegisterNetEvent('qb-shops:client:SpawnVehicle', function()
     local coords = Config.DeliveryLocations['vehicleWithdraw']
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+        jobStartBusy = false
         local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, 'TRUK' .. tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
@@ -416,17 +460,31 @@ RegisterNetEvent('qb-shops:client:Vehicle', function()
     if inVehicle and isTruckerVehicle(vehicle) then
         if GetPedInVehicleSeat(vehicle, -1) == ped then
             if isTruckerVehicle(vehicle) then
+                local completedJobs = JobsDone
                 DeleteVehicle(vehicle)
                 TriggerServerEvent('qb-shops:server:DoBail', false)
+                if completedJobs > 0 then
+                    TriggerServerEvent('qb-shops:server:PaySlip', completedJobs)
+                else
+                    QBCore.Functions.Notify(Lang:t('error.no_work_done'), 'error')
+                end
                 if CurrentBlip ~= nil then
                     RemoveBlip(CurrentBlip)
                     ClearAllBlipRoutes()
                     CurrentBlip = nil
                 end
-                if returningToStation or CurrentLocation then
+                if CurrentLocation and CurrentLocation.zoneCombo then
+                    CurrentLocation.zoneCombo:destroy()
+                end
+                if completedJobs > 0 and (returningToStation or CurrentLocation) then
                     ClearAllBlipRoutes()
-                    returningToStation = false
                     QBCore.Functions.Notify(Lang:t('mission.job_completed'), 'success')
+                end
+                JobsDone = 0
+                LocationsDone = {}
+                resetTruckerJob()
+                if isTrucker() then
+                    CreateBlip(true)
                 end
             else
                 QBCore.Functions.Notify(Lang:t('error.vehicle_not_correct'), 'error')

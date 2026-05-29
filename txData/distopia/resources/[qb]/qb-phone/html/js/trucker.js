@@ -5,8 +5,8 @@ SetupTruckerInfo = function(data) {
     var DivideAmount = (100 / Difference)
     var ProgressPercentage = data.CurrentRep * DivideAmount;
 
-    if (data.CurrentNivel != 1) {
-        NewRep = (data.CurrentRep - data.TiersData[((data.CurrentNivel - 1) - 1)].max);
+    if (data.CurrentTier != 1) {
+        NewRep = (data.CurrentRep - data.TiersData[((data.CurrentTier - 1) - 1)].max);
         ProgressPercentage = NewRep * DivideAmount;
     }
 

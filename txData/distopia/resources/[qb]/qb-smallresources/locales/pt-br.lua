@@ -58,7 +58,8 @@ local Translations = {
         teleport_default = 'Usar Elevador'
     },
     pushcar = {
-        stop_push = "[E] Parar de Empurrar"
+        stop_push = "[E] Parar de empurrar",
+        notDamaged = "O veiculo nao esta danificado o suficiente para empurrar!",
     }
 }
 

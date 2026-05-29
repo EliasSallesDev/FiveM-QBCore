@@ -21,6 +21,7 @@ local Translations = {
     mission = {
         delivered_vehicle = "Você entregou um veículo",
         get_new_vehicle = "Um novo veículo pode ser retirado",
+        auto_route_started = "Rota de guincho iniciada automaticamente",
         towing_vehicle = "Içando o veículo...",
         goto_depot = "Leve o veículo para o Depósito Hayes",
         vehicle_towed = "Veículo rebocado",

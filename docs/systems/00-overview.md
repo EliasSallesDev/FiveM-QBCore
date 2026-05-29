@@ -17,6 +17,7 @@ Este documento liga as specs de gameplay. **Atualizar** sempre que um resource n
 | `qbx-zones` | [09-zonas-e-npc-hostis.md](09-zonas-e-npc-hostis.md) |
 | `qbx-survival` | [10-survival-fome-sede-doencas-frio.md](10-survival-fome-sede-doencas-frio.md) |
 | `qbx-battlepass` | [11-battle-pass.md](11-battle-pass.md) |
+| `trucking` | Caminhoneiro / fretes com caminhoes pessoais |
 
 ## Matriz de dependências
 
@@ -27,6 +28,7 @@ Legenda: **→** depende de.
 | Personagem / XP | `qb-core` | Classes, profissões, skill tree, battle pass, quests |
 | Classes | Progressão, core | Combate, skill tree, algumas quests |
 | Profissões | Progressão, inventário | Craft, loot (uso de ferramentas), quests gather |
+| Caminhoneiro / fretes | `qb-core`, `qb-menu`, `qb-inventory`, `player_vehicles` | Economia, lojas, progressao de profissao |
 | Skill tree | Classes (ou neutra), progressão | Combate, survival (passivas), profissões |
 | Quests | Zonas (opcional), NPCs | Battle pass (missões), profissões (tutorial) |
 | Loot & Craft | Profissões, inventário | Progressão indireta (gear), economia |
@@ -55,6 +57,7 @@ ensure qbx-survival
 ensure qbx-lootcraft
 ensure qbx-quests
 ensure qbx-battlepass
+ensure trucking
 ```
 
 Ajusta conforme implementação real (podes fundir recursos se reduzires granularidade).

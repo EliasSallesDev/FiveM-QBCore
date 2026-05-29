@@ -801,6 +801,34 @@ local function GetFirstAvailableSlot() -- Placeholder
     return nil
 end
 local CanDownloadApps = false
+local TruckerTiers = {
+    { min = 0, max = 50 },
+    { min = 50, max = 100 },
+    { min = 100, max = 200 },
+    { min = 200, max = 400 },
+    { min = 400, max = 400 },
+}
+
+local function GetLocalTruckerTier(rep)
+    rep = tonumber(rep) or 0
+    local currentTier = #TruckerTiers
+    local currentTierData = TruckerTiers[#TruckerTiers]
+
+    for tier, data in ipairs(TruckerTiers) do
+        if rep >= data.min and rep < data.max then
+            currentTier = tier
+            currentTierData = data
+            break
+        end
+    end
+
+    return {
+        CurrentRep = rep,
+        CurrentTier = currentTier,
+        CurrentTierData = currentTierData,
+        TiersData = TruckerTiers
+    }
+end
 
 RegisterNUICallback('InstallApplication', function(data, cb)
     local ApplicationData = Config.StoreApps[data.app]
@@ -829,9 +857,22 @@ RegisterNUICallback('RemoveApplication', function(data, cb)
 end)
 
 RegisterNUICallback('GetTruckerData', function(_, cb)
-    local TruckerMeta = QBCore.Functions.GetPlayerData().metadata['jobrep']['trucker']
-    local TierData = exports['qb-trucker']:GetTier(TruckerMeta)
-    cb(TierData)
+    local metadata = QBCore.Functions.GetPlayerData().metadata or {}
+    local repData = metadata.rep or {}
+    local truckerRep = repData.trucker or repData.delivery or 0
+
+    if GetResourceState('qb-trucker') == 'started' then
+        local ok, tierData = pcall(function()
+            return exports['qb-trucker']:GetTier(truckerRep)
+        end)
+
+        if ok and tierData then
+            cb(tierData)
+            return
+        end
+    end
+
+    cb(GetLocalTruckerTier(truckerRep))
 end)
 
 RegisterNUICallback('GetGalleryData', function(_, cb)

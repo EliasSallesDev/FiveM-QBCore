@@ -18,18 +18,23 @@ end
 local function openMenu(data, sort, skipFirst)
     if not data or not next(data) then return end
     if sort then data = sortData(data, skipFirst) end
-	for _,v in pairs(data) do
-		if v["icon"] then
-			if QBCore.Shared.Items[tostring(v["icon"])] then
-				if not string.find(QBCore.Shared.Items[tostring(v["icon"])].image, "//") and not string.find(v["icon"], "//") then
-                    v["icon"] = "nui://qb-inventory/html/images/"..QBCore.Shared.Items[tostring(v["icon"])].image
-				end
-			end
-		end
-	end
+
+    for _, v in pairs(data) do
+        if v["icon"] then
+            if QBCore.Shared.Items[tostring(v["icon"])] then
+                if not string.find(QBCore.Shared.Items[tostring(v["icon"])].image, "//") and not string.find(v["icon"], "//") then
+                    v["icon"] = "nui://qb-inventory/html/images/" .. QBCore.Shared.Items[tostring(v["icon"])].image
+                end
+            end
+        end
+    end
+
     SetNuiFocus(true, true)
+    SetNuiFocusKeepInput(true)
+
     headerShown = false
     sendData = data
+
     SendNUIMessage({
         action = 'OPEN_MENU',
         data = table.clone(data)
@@ -39,10 +44,15 @@ end
 local function closeMenu()
     sendData = nil
     headerShown = false
-    SetNuiFocus(false)
+
+    SetNuiFocus(false, false)
+    SetNuiFocusKeepInput(false)
+
     SendNUIMessage({
         action = 'CLOSE_MENU'
     })
+
+    TriggerEvent('qb-menu:client:menuClosed')
 end
 
 local function showHeader(data)
@@ -69,16 +79,22 @@ end)
 
 RegisterNUICallback('clickedButton', function(option, cb)
     if headerShown then headerShown = false end
+
     PlaySoundFrontend(-1, 'Highlight_Cancel', 'DLC_HEIST_PLANNING_BOARD_SOUNDS', 1)
-    SetNuiFocus(false)
+
+    SetNuiFocus(false, false)
+    SetNuiFocusKeepInput(false)
+
     if sendData then
         local data = sendData[tonumber(option)]
         sendData = nil
+
         if data.action ~= nil then
             data.action()
             cb('ok')
             return
         end
+
         if data then
             if data.params.event then
                 if data.params.isServer then
@@ -95,6 +111,7 @@ RegisterNUICallback('clickedButton', function(option, cb)
             end
         end
     end
+
     cb('ok')
 end)
 
@@ -102,7 +119,10 @@ end)
 RegisterNUICallback('closeMenu', function(_, cb)
     headerShown = false
     sendData = nil
-    SetNuiFocus(false)
+
+    SetNuiFocus(false, false)
+    SetNuiFocusKeepInput(false)
+
     cb('ok')
     TriggerEvent("qb-menu:client:menuClosed")
 end)

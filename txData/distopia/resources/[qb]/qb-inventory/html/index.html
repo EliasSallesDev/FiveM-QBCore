@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>QB Inventory</title>
+        <title>Inventario</title>
         <link rel="stylesheet" href="main.css" />
         <link rel="stylesheet" href="https://unpkg.com/floating-vue@5.2.2/dist/style.css" />
         <script src="https://kit.fontawesome.com/d37231be1f.js" crossorigin="anonymous"></script>
@@ -66,7 +66,7 @@
 
                 <div class="input-container" v-if="!isOtherInventoryEmpty">
                     <div class="input-wrapper">
-                        <input type="number" v-model="transferAmount" min="1" :placeholder="transferAmount === null ? 'amount' : ''" />
+                        <input type="number" v-model="transferAmount" min="1" :placeholder="transferAmount === null ? 'quantidade' : ''" />
                         <button @click="clearTransferAmount" class="clear-button">
                             <i class="fas fa-times"></i>
                         </button>
@@ -198,26 +198,26 @@
                 </div>
             </div>
             <ul v-if="showContextMenu" class="context-menu" :style="{ top: contextMenuPosition.top, left: contextMenuPosition.left }">
-                <li v-if="contextMenuItem.useable" @click="useItem(contextMenuItem)">Use</li>
+                <li v-if="contextMenuItem.useable" @click="useItem(contextMenuItem)">Usar</li>
                 <li @mouseover="showSubmenu = true" @mouseleave="showSubmenu = false">
-                    Give
+                    Entregar
                     <ul v-if="showSubmenu" class="submenu">
-                        <li @click="giveItem(contextMenuItem, 1)">Single</li>
-                        <li @click="giveItem(contextMenuItem, 'half')">Half</li>
-                        <li @click="giveItem(contextMenuItem, 'all')">All</li>
+                        <li @click="giveItem(contextMenuItem, 1)">Um</li>
+                        <li @click="giveItem(contextMenuItem, 'half')">Metade</li>
+                        <li @click="giveItem(contextMenuItem, 'all')">Tudo</li>
                     </ul>
                 </li>
                 <li @mouseover="showSubmenu = true" @mouseleave="showSubmenu = false">
-                    Drop
+                    Jogar fora
                     <ul v-if="showSubmenu" class="submenu">
-                        <li @click="dropItem(contextMenuItem, 1)">Single</li>
-                        <li @click="dropItem(contextMenuItem, 'half')">Half</li>
-                        <li @click="dropItem(contextMenuItem, 'all')">All</li>
+                        <li @click="dropItem(contextMenuItem, 1)">Um</li>
+                        <li @click="dropItem(contextMenuItem, 'half')">Metade</li>
+                        <li @click="dropItem(contextMenuItem, 'all')">Tudo</li>
                     </ul>
                 </li>
-                <li @click="splitAndPlaceItem(contextMenuItem, 'player')">Split</li>
-                <li v-if="contextMenuItem.name.includes('weapon_')" @click="copySerial(contextMenuItem)">Copy Serial</li>
-                <li v-if="contextMenuItem.name.includes('weapon_')" @click="openWeaponAttachments(contextMenuItem)">Attachments</li>
+                <li @click="splitAndPlaceItem(contextMenuItem, 'player')">Dividir</li>
+                <li v-if="contextMenuItem.name.includes('weapon_')" @click="copySerial(contextMenuItem)">Copiar serial</li>
+                <li v-if="contextMenuItem.name.includes('weapon_')" @click="openWeaponAttachments(contextMenuItem)">Acessorios</li>
             </ul>
         </div>
     </body>

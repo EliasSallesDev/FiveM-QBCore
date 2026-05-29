@@ -53,6 +53,7 @@ local Translations = {
         xenon = 'Xenon Headlights',
         window_tint = 'Window Tints',
         plate = 'Plate',
+        camera_hint = '[A/D] rotate | [W/S] zoom | [Q/E] height | [Backspace] close camera',
         repair = 'Repair',
         unknown = 'Unknown',
         tire_smoke = 'Tire Smoke',
