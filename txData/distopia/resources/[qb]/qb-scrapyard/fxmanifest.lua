@@ -8,6 +8,7 @@ version '1.2.0'
 shared_script {
     '@PolyZone/client.lua',
     '@PolyZone/BoxZone.lua',
+    '@PolyZone/CircleZone.lua',
     '@PolyZone/ComboZone.lua',
     'config.lua',
     '@qb-core/shared/locale.lua',

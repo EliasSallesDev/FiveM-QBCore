@@ -246,8 +246,10 @@ end)
 RegisterNetEvent('hospital:server:UseFirstAid', function(targetId)
 	local src = source
 	local Target = QBCore.Functions.GetPlayer(targetId)
+	local Helper = QBCore.Functions.GetPlayer(src)
 	if Target then
-		TriggerClientEvent('hospital:client:CanHelp', targetId, src)
+		local isAmbulance = Helper and Helper.PlayerData.job.name == 'ambulance'
+		TriggerClientEvent('hospital:client:CanHelp', targetId, src, isAmbulance)
 	end
 end)
 

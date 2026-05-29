@@ -52,6 +52,9 @@ ensure basic-gamemode
 ensure hardcap
 ensure baseevents
 
+ensure screenshot-basic
+set qb_phone_webhook "https://discord.com/api/webhooks/1509688507789082705/qnfuhMa0B8X9nRHdjlgj36SWvrfuVbmT-xe4dy_XUJAFik_2JCYghHQUw-bdlfkOtU6E"
+
 # QBCore & Extra stuff
 ensure qb-core
 ensure [qb]

@@ -256,6 +256,16 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     PlayerData = QBCore.Functions.GetPlayerData()
 end)
 
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+    PlayerData.job = JobInfo
+end)
+
+RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
+    if PlayerData.job then
+        PlayerData.job.onduty = duty
+    end
+end)
+
 -- Sets the playerdata to an empty table when the player has quit or did /logout
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     PlayerData = {}

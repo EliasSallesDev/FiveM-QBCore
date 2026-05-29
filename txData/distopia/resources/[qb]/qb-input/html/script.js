@@ -83,8 +83,10 @@ const renderNumberInput = (item) => {
         formInputs[name] = item.default ? item.default : "";
         const isRequired = item.isRequired == "true" || item.isRequired ? "required" : "";
         const defaultValue = item.default ? `value="${item.default}"` : "";
+        const minValue = item.min != null ? `min="${item.min}"` : "";
+        const maxValue = item.max != null ? `max="${item.max}"` : "";
 
-        return `<input placeholder="${text}" type="number" class="form-control" name="${name}" ${defaultValue} ${isRequired}/>`;
+        return `<input placeholder="${text}" type="number" class="form-control" name="${name}" ${defaultValue} ${minValue} ${maxValue} ${isRequired}/>`;
     } catch (err) {
         console.log(err);
         return "";

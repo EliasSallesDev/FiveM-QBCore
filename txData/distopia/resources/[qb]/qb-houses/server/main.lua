@@ -179,8 +179,8 @@ RegisterNetEvent('qb-houses:server:addNewHouse', function(street, coords, price,
     local houseCount = GetHouseStreetCount(street)
     local name = street:lower() .. tostring(houseCount)
     local label = street .. ' ' .. tostring(houseCount)
-    MySQL.insert('INSERT INTO houselocations (name, label, coords, owned, price, tier) VALUES (?, ?, ?, ?, ?, ?)',
-        { name, label, json.encode(coords), 0, price, tier })
+    MySQL.insert('INSERT INTO houselocations (name, label, coords, owned, price, tier, garage) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        { name, label, json.encode(coords), 0, price, tier, '{}' })
     Config.Houses[name] = {
         coords = coords,
         owned = false,

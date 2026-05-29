@@ -5,6 +5,8 @@ author 'Kakarot'
 description 'Allows players to access a phone to interact with various apps and features'
 version '1.3.0'
 
+dependency 'screenshot-basic'
+
 ui_page 'html/index.html'
 
 shared_scripts {
@@ -19,6 +21,7 @@ client_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    '@screenshot-basic/server.lua',
     'server/main.lua'
 }
 

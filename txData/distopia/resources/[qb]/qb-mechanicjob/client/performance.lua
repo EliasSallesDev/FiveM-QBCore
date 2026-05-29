@@ -68,7 +68,7 @@ local function GetEngine(vehicle)
 end
 
 local function GetSuspension(vehicle)
-    local suspensionMenu = { { header = 'Suspension', isMenuHeader = true, icon = 'fas fa-car' } }
+    local suspensionMenu = { { header = Lang:t('menu.suspension'), isMenuHeader = true, icon = 'fas fa-car' } }
     for i = -1, GetNumVehicleMods(vehicle, 15) - 1 do
         local header = Lang:t('menu.suspension') .. ': ' .. (i >= 0 and i or Lang:t('menu.stock'))
         local disabled = GetVehicleMod(vehicle, 15) == i

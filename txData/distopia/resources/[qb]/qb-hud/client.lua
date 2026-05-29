@@ -107,6 +107,11 @@ RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
     PlayerData = val
 end)
 
+RegisterNetEvent('QBCore:Player:UpdatePlayerDataField', function(key, val)
+    if not PlayerData or not key then return end
+    PlayerData[key] = val
+end)
+
 AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
     Wait(2000)
@@ -880,8 +885,9 @@ RegisterNetEvent('hud:client:ShowAccounts', function(type, amount)
 end)
 
 RegisterNetEvent('hud:client:OnMoneyChange', function(type, amount, isMinus)
-    cashAmount = PlayerData.money['cash']
-    bankAmount = PlayerData.money['bank']
+    local money = PlayerData.money or QBCore.Functions.GetPlayerData().money or {}
+    cashAmount = money['cash'] or cashAmount
+    bankAmount = money['bank'] or bankAmount
     SendNUIMessage({
         action = 'updatemoney',
         cash = Round(cashAmount),

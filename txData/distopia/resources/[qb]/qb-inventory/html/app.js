@@ -84,11 +84,7 @@ const InventoryContainer = Vue.createApp({
                 showHotbar: false,
                 hotbarItems: [],
                 // Notification box
-                showNotification: false,
-                notificationText: "",
-                notificationImage: "",
-                notificationType: "added",
-                notificationAmount: 1,
+                itemNotifications: [],
                 // Required items box
                 showRequiredItems: false,
                 requiredItems: [],
@@ -764,13 +760,18 @@ const InventoryContainer = Vue.createApp({
             }
         },
         showItemNotification(itemData) {
-            this.notificationText = itemData.item.label;
-            this.notificationImage = "images/" + itemData.item.image;
-            this.notificationType = itemData.type === "add" ? "Received" : itemData.type === "use" ? "Used" : "Removed";
-            this.notificationAmount = itemData.amount || 1;
-            this.showNotification = true;
+            const id = `${Date.now()}-${Math.random()}`;
+            const notification = {
+                id,
+                text: itemData.item.label,
+                image: "images/" + itemData.item.image,
+                type: itemData.type === "add" ? "Received" : itemData.type === "use" ? "Used" : "Removed",
+                amount: itemData.amount || 1,
+            };
+
+            this.itemNotifications.push(notification);
             setTimeout(() => {
-                this.showNotification = false;
+                this.itemNotifications = this.itemNotifications.filter((item) => item.id !== id);
             }, 3000);
         },
         showRequiredItem(data) {

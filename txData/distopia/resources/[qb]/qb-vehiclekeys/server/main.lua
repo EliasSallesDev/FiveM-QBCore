@@ -31,6 +31,37 @@ RegisterNetEvent('qb-vehiclekeys:server:GiveVehicleKeys', function(receiver, pla
     end
 end)
 
+RegisterNetEvent('qb-vehiclekeys:server:LendVehicleKeys', function(receiver, plate)
+    local giver = source
+
+    if not receiver or not plate then return end
+    if giver == receiver then return end
+
+    local ReceiverPlayer = QBCore.Functions.GetPlayer(receiver)
+    if not ReceiverPlayer then
+        TriggerClientEvent('QBCore:Notify', giver, Lang:t('notify.nonear'), 'error')
+        return
+    end
+
+    local giverPed = GetPlayerPed(giver)
+    local receiverPed = GetPlayerPed(receiver)
+    if giverPed == 0 or receiverPed == 0 then return end
+
+    local distance = #(GetEntityCoords(giverPed) - GetEntityCoords(receiverPed))
+    if distance > 3.0 then
+        TriggerClientEvent('QBCore:Notify', giver, Lang:t('notify.nonear'), 'error')
+        return
+    end
+
+    if HasKeys(giver, plate) then
+        TriggerClientEvent('QBCore:Notify', giver, Lang:t('notify.vlkeys'), 'success')
+        TriggerClientEvent('QBCore:Notify', receiver, Lang:t('notify.vborrowkeys'))
+        TriggerClientEvent('qb-vehiclekeys:client:AddKeys', receiver, plate)
+    else
+        TriggerClientEvent('QBCore:Notify', giver, Lang:t('notify.ydhk'), 'error')
+    end
+end)
+
 RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate)
     local src = source
     GiveKeys(src, plate)
@@ -146,6 +177,11 @@ QBCore.Commands.Add('givekeys', Lang:t('addcom.givekeys'), { { name = Lang:t('ad
     TriggerClientEvent('qb-vehiclekeys:client:GiveKeys', src, tonumber(args[1]))
 end)
 
+QBCore.Commands.Add('emprestarkeys', Lang:t('addcom.lendkeys'), { { name = Lang:t('addcom.lendkeys_id'), help = Lang:t('addcom.lendkeys_id_help') } }, false, function(source, args)
+    local src = source
+    TriggerClientEvent('qb-vehiclekeys:client:LendKeys', src, tonumber(args[1]))
+end)
+
 QBCore.Commands.Add('addkeys', Lang:t('addcom.addkeys'), { { name = Lang:t('addcom.addkeys_id'), help = Lang:t('addcom.addkeys_id_help') }, { name = Lang:t('addcom.addkeys_plate'), help = Lang:t('addcom.addkeys_plate_help') } }, true, function(source, args)
     local src = source
     if not args[1] or not args[2] then
@@ -163,3 +199,10 @@ QBCore.Commands.Add('removekeys', Lang:t('addcom.rkeys'), { { name = Lang:t('add
     end
     RemoveKeys(tonumber(args[1]), args[2])
 end, 'admin')
+
+CreateThread(function()
+    Wait(1000)
+    for _, src in ipairs(QBCore.Functions.GetPlayers()) do
+        QBCore.Commands.Refresh(src)
+    end
+end)

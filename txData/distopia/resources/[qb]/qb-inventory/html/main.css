@@ -328,10 +328,14 @@ div {
 .notification-container {
     display: flex;
     justify-content: center;
+    align-items: flex-end;
+    gap: 0.6vh;
     position: fixed;
     bottom: 2vh;
     left: 50%;
     transform: translate(-50%);
+    max-width: 90vw;
+    flex-wrap: wrap-reverse;
 }
 
 .notification-slot {

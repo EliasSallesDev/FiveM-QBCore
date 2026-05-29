@@ -54,7 +54,7 @@ local function RobberyPed()
                         Wait(2000)
                         ClearPedTasks(player)
                         TriggerServerEvent('qb-drugs:server:giveStealItems', stealData.item, stealData.amount)
-                        TriggerEvent('qb-inventory:client:ItemBox', QBCore.Shared.Items[stealData.item], 'add')
+                        TriggerEvent('qb-inventory:client:ItemBox', QBCore.Shared.Items[stealData.item], 'add', stealData.amount)
                         stealingPed = nil
                         stealData = {}
                         exports['qb-target']:RemoveZone('stealingPed')
@@ -106,7 +106,7 @@ local function RobberyPed()
                             Wait(2000)
                             ClearPedTasks(playerPed)
                             TriggerServerEvent('qb-drugs:server:giveStealItems', stealData.item, stealData.amount)
-                            TriggerEvent('qb-inventory:client:ItemBox', QBCore.Shared.Items[stealData.item], 'add')
+                            TriggerEvent('qb-inventory:client:ItemBox', QBCore.Shared.Items[stealData.item], 'add', stealData.amount)
                             stealingPed = nil
                             stealData = {}
                         end

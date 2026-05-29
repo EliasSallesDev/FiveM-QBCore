@@ -246,6 +246,28 @@ RegisterNetEvent('qb-vehiclekeys:client:GiveKeys', function(id)
     end
 end)
 
+RegisterNetEvent('qb-vehiclekeys:client:LendKeys', function(id)
+    local targetVehicle = GetVehicle()
+    if not targetVehicle then return end
+
+    local targetPlate = QBCore.Functions.GetPlate(targetVehicle)
+    if not HasKeys(targetPlate) then
+        QBCore.Functions.Notify(Lang:t('notify.ydhk'), 'error')
+        return
+    end
+
+    if id and type(id) == 'number' then
+        LendKeys(id, targetPlate)
+    elseif IsPedSittingInVehicle(PlayerPedId(), targetVehicle) then
+        local otherOccupants = GetOtherPlayersInVehicle(targetVehicle)
+        for p = 1, #otherOccupants do
+            TriggerServerEvent('qb-vehiclekeys:server:LendVehicleKeys', GetPlayerServerId(NetworkGetPlayerIndexFromPed(otherOccupants[p])), targetPlate)
+        end
+    else
+        LendKeys(GetPlayerServerId(QBCore.Functions.GetClosestPlayer()), targetPlate)
+    end
+end)
+
 RegisterNetEvent('QBCore:Client:VehicleInfo', function(data)
     if data.event == 'Entering' then
         robKeyLoop()
@@ -391,6 +413,22 @@ function GiveKeys(id, plate)
     end
 
     TriggerServerEvent('qb-vehiclekeys:server:GiveVehicleKeys', id, plate)
+end
+
+function LendKeys(id, plate)
+    local player = GetPlayerFromServerId(id)
+    if player == -1 then
+        QBCore.Functions.Notify(Lang:t('notify.nonear'), 'error')
+        return
+    end
+
+    local distance = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(GetPlayerPed(player)))
+    if distance <= 0.0 or distance >= 1.5 then
+        QBCore.Functions.Notify(Lang:t('notify.nonear'), 'error')
+        return
+    end
+
+    TriggerServerEvent('qb-vehiclekeys:server:LendVehicleKeys', id, plate)
 end
 
 function GetKeys()

@@ -1,57 +1,57 @@
 const navbarOptions = {
     // https://forums.gta5-mods.com/topic/3842/tutorial-handling-meta
-    power: [
-        { id: "fMass", label: "Mass", description: "The weight of the vehicle in kg", min: 0, max: 10000 },
-        { id: "fInitialDragCoeff", label: "Initial Drag Coefficient", description: "Increase to simulate aerodynamic drag", min: 0, max: 100 },
-        { id: "fDownforceModifier", label: "Downforce Modifier", description: "Amount of downforce applied to the vehicle", min: 0, max: 100 },
-        { id: "nInitialDriveGears", label: "Drive Gears", description: "Amount of vehicle gears", min: 1, max: 10 },
-        { id: "fInitialDriveForce", label: "Drive Force", description: "Transmission force ouput", min: 0, max: 100 },
-        { id: "fDriveInertia", label: "Drive Inertia", description: "How fast vehicle redlines", min: 0, max: 2 },
-        { id: "fDriveBiasFront", label: "Drive Bias Front", description: "RWD: 0.0 | AWD: 0.5 | FWD: 1.0", min: 0, max: 1 },
-        { id: "fInitialDriveMaxFlatVel", label: "Max Drive Velocity", description: "Speed at redline in top gear", min: 0, max: 1000 },
-        { id: "fClutchChangeRateScaleUpShift", label: "Clutch Speed Upshift", description: "Higher value = faster shifts", min: 0, max: 100 },
-        { id: "fClutchChangeRateScaleDownShift", label: "Clutch Speed Downshift", description: "Higher value = faster shifts", min: 0, max: 100 },
+    potencia: [
+        { id: "fMass", label: "Peso", description: "Peso do veículo em kg", min: 0, max: 10000 },
+        { id: "fInitialDragCoeff", label: "Arrasto aerodinâmico", description: "Aumente para simular maior resistência do ar", min: 0, max: 100 },
+        { id: "fDownforceModifier", label: "Pressão aerodinâmica", description: "Quantidade de pressão aplicada ao veículo", min: 0, max: 100 },
+        { id: "nInitialDriveGears", label: "Marchas", description: "Quantidade de marchas do veículo", min: 1, max: 10 },
+        { id: "fInitialDriveForce", label: "Força de tração", description: "Força enviada pela transmissão", min: 0, max: 100 },
+        { id: "fDriveInertia", label: "Inércia do motor", description: "Velocidade com que o motor chega ao limite de giro", min: 0, max: 2 },
+        { id: "fDriveBiasFront", label: "Distribuição da tração", description: "Traseira: 0.0 | Integral: 0.5 | Dianteira: 1.0", min: 0, max: 1 },
+        { id: "fInitialDriveMaxFlatVel", label: "Velocidade máxima", description: "Velocidade no limite de giro na última marcha", min: 0, max: 1000 },
+        { id: "fClutchChangeRateScaleUpShift", label: "Troca de marcha", description: "Valor maior = trocas mais rápidas", min: 0, max: 100 },
+        { id: "fClutchChangeRateScaleDownShift", label: "Redução de marcha", description: "Valor maior = reduções mais rápidas", min: 0, max: 100 },
     ],
-    braking: [
-        { id: "fSteeringLock", label: "Steering Lock", description: "Maximum steering angle of the wheels", min: 0, max: 1 },
-        { id: "fBrakeForce", label: "Brake Force", description: "Overall braking power", min: 0, max: 100 },
-        { id: "fBrakeBiasFront", label: "Brake Bias Front", description: "Rear: 0.0 | Equal: 0.5 | Front: 1.0", min: 0, max: 1 },
-        { id: "fHandBrakeForce", label: "Hand Brake Force", description: "Sets the strength of the handbrake", min: 0, max: 100 },
+    freios: [
+        { id: "fSteeringLock", label: "Ângulo de direção", description: "Ângulo máximo de esterço das rodas", min: 0, max: 1 },
+        { id: "fBrakeForce", label: "Força dos freios", description: "Potência geral de frenagem", min: 0, max: 100 },
+        { id: "fBrakeBiasFront", label: "Distribuição dos freios", description: "Traseira: 0.0 | Igual: 0.5 | Dianteira: 1.0", min: 0, max: 1 },
+        { id: "fHandBrakeForce", label: "Força do freio de mão", description: "Define a força do freio de mão", min: 0, max: 100 },
     ],
-    traction: [
-        { id: "fTractionCurveMax", label: "Max Traction Curve", description: "Cornering grip of the vehicle", min: 0, max: 100 },
-        { id: "fTractionCurveMin", label: "Min Traction Curve", description: "Accelerating/braking grip of the vehicle", min: 0, max: 100 },
-        { id: "fTractionCurveLateral", label: "Lateral Traction Curve", description: "Shape of lateral traction curve", min: 0, max: 100 },
-        { id: "fTractionSpringDeltaMax", label: "Max Traction Spring Delta", description: "Distance above the ground the car will lose traction", min: 0, max: 100 },
-        { id: "fLowSpeedTractionLossMult", label: "Low Speed Traction Loss Multiplier", description: "Lower: less burnout | Higher: more burnout", min: 0, max: 100 },
-        { id: "fTractionBiasFront", label: "Traction Bias Front", description: "Rear: 0.1 | Equal: 0.5 | Front: 0.99", min: 0, max: 1 },
-        { id: "fCamberStiffnesss", label: "Camber Stiffness", description: "Drifting grip", min: 0, max: 100 },
-        { id: "fTractionLossMult", label: "Traction Loss Multiplier", description: "Grip on asphalt and mud", min: 0, max: 100 },
+    tracao: [
+        { id: "fTractionCurveMax", label: "Tração máxima", description: "Aderência do veículo em curvas", min: 0, max: 100 },
+        { id: "fTractionCurveMin", label: "Tração mínima", description: "Aderência ao acelerar e frear", min: 0, max: 100 },
+        { id: "fTractionCurveLateral", label: "Tração lateral", description: "Formato da curva de tração lateral", min: 0, max: 100 },
+        { id: "fTractionSpringDeltaMax", label: "Perda de tração", description: "Altura do solo em que o carro perde tração", min: 0, max: 100 },
+        { id: "fLowSpeedTractionLossMult", label: "Perda em baixa velocidade", description: "Menor: menos burnout | Maior: mais burnout", min: 0, max: 100 },
+        { id: "fTractionBiasFront", label: "Distribuição da tração", description: "Traseira: 0.1 | Igual: 0.5 | Dianteira: 0.99", min: 0, max: 1 },
+        { id: "fCamberStiffnesss", label: "Rigidez do cambagem", description: "Aderência para drift", min: 0, max: 100 },
+        { id: "fTractionLossMult", label: "Multiplicador de perda de tração", description: "Aderência no asfalto e na lama", min: 0, max: 100 },
     ],
-    suspension: [
-        { id: "vecCentreOfMassOffset", label: "Centre of Mass Offset", description: "Shifts the center of gravity right,forwards,upwards", min: 0, max: 100 },
-        { id: "vecInertiaMultiplier", label: "Inertia Multiplier", description: "Rotational inertia", min: 0, max: 100 },
-        { id: "fSuspensionForce", label: "Suspension Force", description: "Suspension strength", min: 0, max: 100 },
-        { id: "fSuspensionCompDamp", label: "Compression Damping", description: "Bigger values = stiffer", min: 0, max: 100 },
-        { id: "fSuspensionReboundDamp", label: "Rebound Damping", description: "Bigger values = stiffer", min: 0, max: 100 },
-        { id: "fSuspensionUpperLimit", label: "Suspension Upper Limit", description: "Visual limit of how far can wheels move up", min: 0, max: 100 },
-        { id: "fSuspensionLowerLimit", label: "Suspension Lower Limit", description: "Visual limit of how far can wheels move down", min: 0, max: 100 },
-        { id: "fSuspensionRaise", label: "Suspension Raise", description: "Body height off the wheels", min: 0, max: 100 },
-        { id: "fSuspensionBiasFront", label: "Suspension Bias Front", description: "Front/back suspension strength", min: 0, max: 1 },
-        { id: "fAntiRollBarForce", label: "Anti Roll Bar Force", description: "Larger numbers = less body roll", min: 0, max: 100 },
-        { id: "fAntiRollBarBiasFront", label: "Anti Roll Bar Bias Front", description: "Front: 0 | Rear: 1", min: 0, max: 1 },
-        { id: "fRollCentreHeightFront", label: "Roll Centre Height Front", description: "Larger numbers = less rollovers", min: -0.15, max: 0.15 },
-        { id: "fRollCentreHeightRear", label: "Roll Centre Height Rear", description: "Larger numbers = less rollovers", min: -0.15, max: 0.15 },
+    suspensao: [
+        { id: "vecCentreOfMassOffset", label: "Centro de massa", description: "Move o centro de gravidade para direita, frente ou cima", min: 0, max: 100 },
+        { id: "vecInertiaMultiplier", label: "Multiplicador de inércia", description: "Inércia de rotação", min: 0, max: 100 },
+        { id: "fSuspensionForce", label: "Força da suspensão", description: "Rigidez da suspensão", min: 0, max: 100 },
+        { id: "fSuspensionCompDamp", label: "Amortecimento de compressão", description: "Valores maiores deixam mais rígido", min: 0, max: 100 },
+        { id: "fSuspensionReboundDamp", label: "Amortecimento de retorno", description: "Valores maiores deixam mais rígido", min: 0, max: 100 },
+        { id: "fSuspensionUpperLimit", label: "Limite superior", description: "Limite visual de quanto as rodas podem subir", min: 0, max: 100 },
+        { id: "fSuspensionLowerLimit", label: "Limite inferior", description: "Limite visual de quanto as rodas podem descer", min: 0, max: 100 },
+        { id: "fSuspensionRaise", label: "Altura da suspensão", description: "Altura da carroceria em relação às rodas", min: 0, max: 100 },
+        { id: "fSuspensionBiasFront", label: "Distribuição da suspensão", description: "Força da suspensão dianteira/traseira", min: 0, max: 1 },
+        { id: "fAntiRollBarForce", label: "Barra estabilizadora", description: "Números maiores reduzem rolagem da carroceria", min: 0, max: 100 },
+        { id: "fAntiRollBarBiasFront", label: "Distribuição da barra", description: "Dianteira: 0 | Traseira: 1", min: 0, max: 1 },
+        { id: "fRollCentreHeightFront", label: "Centro de rolagem dianteiro", description: "Números maiores reduzem capotagens", min: -0.15, max: 0.15 },
+        { id: "fRollCentreHeightRear", label: "Centro de rolagem traseiro", description: "Números maiores reduzem capotagens", min: -0.15, max: 0.15 },
     ],
-    miscellaneous: [
-        { id: "fPercentSubmerged", label: "Percent Submerged", description: "Percent submerged before considered drowned", min: 0, max: 100 },
-        { id: "fCollisionDamageMult", label: "Collision Damage Multiplier", description: "Multipy collision damage", min: 0, max: 10 },
-        { id: "fDeformationDamageMult", label: "Deformation Damage Multiplier", description: "Multipy body damage", min: 0, max: 10 },
-        { id: "fWeaponDamageMult", label: "Weapon Damage Multiplier", description: "Multipy weapon damage", min: 0, max: 10 },
-        { id: "fEngineDamageMult", label: "Engine Damage Multiplier", description: "Multipy engine damage", min: 0, max: 10 },
-        { id: "fPetrolTankVolume", label: "Petrol Tank Volume", description: "Amount of petrol that will leak after damaging a vehicle's tank", min: 0, max: 100 },
-        { id: "fOilVolume", label: "Oil Volume", description: "Amount of oil", min: 0, max: 100 },
-        { id: "nMonetaryValue", label: "Monetary Value", description: "Determine NPC reaction to vehicle", min: 0, max: 1000000 },
+    outros: [
+        { id: "fPercentSubmerged", label: "Percentual submerso", description: "Percentual submerso antes do veículo afogar", min: 0, max: 100 },
+        { id: "fCollisionDamageMult", label: "Dano de colisão", description: "Multiplica o dano de colisão", min: 0, max: 10 },
+        { id: "fDeformationDamageMult", label: "Dano na lataria", description: "Multiplica o dano de deformação da carroceria", min: 0, max: 10 },
+        { id: "fWeaponDamageMult", label: "Dano por arma", description: "Multiplica o dano causado por armas", min: 0, max: 10 },
+        { id: "fEngineDamageMult", label: "Dano no motor", description: "Multiplica o dano recebido pelo motor", min: 0, max: 10 },
+        { id: "fPetrolTankVolume", label: "Volume do tanque", description: "Quantidade de combustível que vaza após dano no tanque", min: 0, max: 100 },
+        { id: "fOilVolume", label: "Volume de óleo", description: "Quantidade de óleo", min: 0, max: 100 },
+        { id: "nMonetaryValue", label: "Valor monetário", description: "Define a reação dos NPCs ao veículo", min: 0, max: 1000000 },
     ],
 };
 
@@ -117,7 +117,7 @@ const openTuner = (stats) => {
     currentStats = stats;
     document.querySelector(".tablet").style.display = "block";
     generateNavbarItems();
-    displayFieldsForNavbarOption("power");
+    displayFieldsForNavbarOption("potencia");
 };
 
 const saveSettings = () => {

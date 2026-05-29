@@ -257,8 +257,8 @@ const bankingApp = Vue.createApp({
                             balance: this.createAccountAmount,
                             users: JSON.stringify([this.playerName]),
                         });
-                        this.addStatement(this.accountNumber, "checking", "Initial deposit for " + this.createAccountName, this.createAccountAmount, "withdraw");
-                        this.addStatement(this.accountNumber, this.createAccountName, "Initial deposit", this.createAccountAmount, "deposit");
+                        this.addStatement(this.accountNumber, "checking", "Depósito inicial para " + this.createAccountName, this.createAccountAmount, "withdraw");
+                        this.addStatement(this.accountNumber, this.createAccountName, "Depósito inicial", this.createAccountAmount, "deposit");
                         this.createAccountName = "";
                         this.createAccountAmount = 0;
                         this.addNotification(response.data.message, "success");
@@ -370,6 +370,26 @@ const bankingApp = Vue.createApp({
 
             this.statements[accountName].push(newStatement);
         },
+        displayAccountName(accountName) {
+            const accountNames = {
+                checking: "Conta corrente",
+            };
+            return accountNames[accountName] || accountName;
+        },
+        formatStatementReason(reason) {
+            if (!reason) return "";
+            const reasonTranslations = {
+                "External Deposit": "Depósito externo",
+                "External Withdrawal": "Saque externo",
+                "Bank Withdrawal": "Saque bancário",
+                "Bank Deposit": "Depósito bancário",
+                "Internal transfer": "Transferência interna",
+                "External transfer": "Transferência externa",
+                "Initial deposit": "Depósito inicial",
+            };
+            if (reasonTranslations[reason]) return reasonTranslations[reason];
+            return reason.replace(/^Initial deposit for /, "Depósito inicial para ");
+        },
         addNotification(message, type) {
             this.notification = {
                 message: message,
@@ -424,10 +444,10 @@ const bankingApp = Vue.createApp({
         },
         formatDate(timestamp) {
             const date = new Date(parseInt(timestamp));
-            const month = (date.getMonth() + 1).toString().padStart(2, "0");
             const day = date.getDate().toString().padStart(2, "0");
+            const month = (date.getMonth() + 1).toString().padStart(2, "0");
             const year = date.getFullYear();
-            return `${month}/${day}/${year}`;
+            return `${day}/${month}/${year}`;
         },
         balanceClass(statementType) {
             return statementType === "deposit" ? "positive-balance" : "negative-balance";

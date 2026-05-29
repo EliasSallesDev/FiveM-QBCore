@@ -29,6 +29,29 @@ healAnimDict = 'mini@cpr@char_a@cpr_str'
 healAnim = 'cpr_pumpchest'
 injured = {}
 
+local DamageReasonLocaleKeys = {
+    ['Melee killed / Whacked / Executed / Beat down / Murdered / Battered'] = 'melee_blunt',
+    ['Melee Killed / Whacked / Executed / Beat down / Musrdered / Battered / Candy Caned'] = 'melee_blunt',
+    ['Knifed / Stabbed / Eviscerated'] = 'melee_sharp',
+    ['Pistoled / Blasted / Plugged / Bust a cap in'] = 'pistol',
+    ['Riddled / Drilled / Finished / Submachine Gunned'] = 'smg',
+    ['Devastated / Pulverized / Shotgunned'] = 'shotgun',
+    ['Ended / Rifled / Shot down / Floored'] = 'rifle',
+    ['Machine gunned / Sprayed / Ruined'] = 'mg',
+    ['Sniped / Picked off / Scoped'] = 'sniper',
+    ['Killed / Exploded / Obliterated / Destroyed / Erased / Annihilated'] = 'explosive',
+    ['Bombed / Exploded / Detonated / Blew up'] = 'bomb',
+    ['Torched / Flambeed / Barbecued'] = 'fire',
+    ['Flattened / Ran over / Ran down'] = 'vehicle',
+    ['Helicopter Crash'] = 'heli_crash',
+    ['Bled out'] = 'bleeding',
+    ['Fried'] = 'electric',
+    ['Committed suicide'] = 'fall',
+    ['Mauled'] = 'animal',
+    ['Died'] = 'died',
+    ['Prodded'] = 'barbed_wire',
+}
+
 BodyParts = {
     ['HEAD'] = { label = Lang:t('body.head'), causeLimp = false, isDamaged = false, severity = 0 },
     ['NECK'] = { label = Lang:t('body.neck'), causeLimp = false, isDamaged = false, severity = 0 },
@@ -48,6 +71,15 @@ BodyParts = {
 }
 
 -- Functions
+
+local function TranslateDamageReason(reason)
+    local localeKey = DamageReasonLocaleKeys[reason]
+    if localeKey then
+        return Lang:t('damage.' .. localeKey)
+    end
+
+    return reason or Lang:t('info.wep_unknown')
+end
 
 -- Gets a bed at the given hospital that is not taken.
 -- If all beds are taken it will just place them in the first bed
@@ -315,7 +347,7 @@ local function CheckWeaponDamage(ped)
                 TriggerEvent('chat:addMessage', {
                     color = { 255, 0, 0 },
                     multiline = false,
-                    args = { Lang:t('info.status'), v.damagereason }
+                    args = { Lang:t('info.status'), TranslateDamageReason(v.damagereason) }
                 })
                 CurrentDamageList[#CurrentDamageList + 1] = k
             end

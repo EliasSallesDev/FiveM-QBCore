@@ -88,8 +88,21 @@ end
 
 QBCore.Functions.CreateCallback('qb-recyclejob:server:getPriceList', function(source, cb)
     local src = source
-    if not isClose(src, 'sell') then return false end
-    cb(Sales)
+    local Player = QBCore.Functions.GetPlayer(src)
+    if not isClose(src, 'sell') then cb(false) return end
+
+    local itemsForSale = {}
+    for item, price in pairs(Sales) do
+        local hasItem = Player and Player.Functions.GetItemByName(item)
+        if hasItem and hasItem.amount > 0 then
+            itemsForSale[item] = {
+                price = price,
+                amount = hasItem.amount,
+            }
+        end
+    end
+
+    cb(itemsForSale)
 end)
 
 local function adjustStock(item, change, amount)
@@ -113,12 +126,21 @@ end
 
 local function sellMaterials(src, item, amount)
     local Player = QBCore.Functions.GetPlayer(src)
-    local price = Sales[item] * amount
+    amount = tonumber(amount)
+    if not Player or not Sales[item] or not amount or amount < 1 then return end
+    amount = math.floor(amount)
+
     local has = Player.Functions.GetItemByName(item)
-    if has and has.amount < amount then
-        amount = has.amount
-        price = Sales[item] * amount
+    if not has or has.amount < 1 then
+        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.nothing_to_sell'), 'error')
+        return
     end
+
+    if has.amount < amount then
+        amount = has.amount
+    end
+
+    local price = Sales[item] * amount
     if Player.Functions.RemoveItem(item, amount) then
         Player.Functions.AddMoney('cash', price)
         TriggerClientEvent('QBCore:Notify', src, Lang:t('success.sold', {amount = amount, item = QBCore.Shared.Items[item].label, price = price}), 'success')
@@ -129,17 +151,25 @@ local function sellMaterials(src, item, amount)
     end
 end
 
-local function getItem(source, item, amount)
+local function addReceivedItem(receivedItems, receivedOrder, item, amount)
+    if not receivedItems[item] then
+        receivedItems[item] = 0
+        receivedOrder[#receivedOrder + 1] = item
+    end
+    receivedItems[item] = receivedItems[item] + amount
+end
+
+local function getItem(source, item, amount, receivedItems, receivedOrder)
     local Player = QBCore.Functions.GetPlayer(source)
     if Config.LimitedMaterials then
         if not checkStock(source, item, amount) then return end
-        Player.Functions.AddItem(item, amount)
-        TriggerClientEvent('qb-inventory:client:ItemBox', source, QBCore.Shared.Items[item], 'add', amount)
+        if not Player.Functions.AddItem(item, amount) then return end
         adjustStock(item, 'remove', amount)
     else
-        Player.Functions.AddItem(item, amount)
-        TriggerClientEvent('qb-inventory:client:ItemBox', source, QBCore.Shared.Items[item], 'add', amount)
+        if not Player.Functions.AddItem(item, amount) then return end
     end
+
+    addReceivedItem(receivedItems, receivedOrder, item, amount)
 end
 
 RegisterNetEvent('qb-recyclejob:server:getItem', function()
@@ -154,6 +184,8 @@ RegisterNetEvent('qb-recyclejob:server:getItem', function()
         return
     end
     local itemAmountRecieved = math.random(1, maxRecieved)
+    local receivedItems = {}
+    local receivedOrder = {}
 
     if not isClose(src, 'turnIn') then return end
 
@@ -162,13 +194,18 @@ RegisterNetEvent('qb-recyclejob:server:getItem', function()
         local item = Recieve[math.random(1, #Recieve)]
         local itemAmount = math.random(item.min, item.max)
         itemAmountRecieved = itemAmountRecieved - 1
-        getItem(src, item.item, itemAmount)
+        getItem(src, item.item, itemAmount, receivedItems, receivedOrder)
     until itemAmountRecieved == 0
 
     local luckyChance = math.random(1, 100)
     if luckyChance <= LuckyItemChance then 
-        Player.Functions.AddItem(luckyItem, 1)
-        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[luckyItem], 'add', 1)
+        if Player.Functions.AddItem(luckyItem, 1) then
+            addReceivedItem(receivedItems, receivedOrder, luckyItem, 1)
+        end
+    end
+
+    for _, item in ipairs(receivedOrder) do
+        TriggerClientEvent('qb-inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'add', receivedItems[item])
     end
 end)
 

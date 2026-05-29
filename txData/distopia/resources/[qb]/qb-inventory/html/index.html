@@ -152,19 +152,19 @@
                     </div>
                 </div>
             </div>
-            <div class="notification-container" v-if="showNotification">
-                <div class="notification-slot">
+            <div class="notification-container" v-if="itemNotifications.length">
+                <div v-for="notification in itemNotifications" :key="notification.id" class="notification-slot">
                     <div class="notification-title">
-                        <p>{{ notificationType }}</p>
+                        <p>{{ notification.type }}</p>
                     </div>
                     <div class="item-slot-img">
-                        <img :src="notificationImage" alt="" />
+                        <img :src="notification.image" alt="" />
                     </div>
                     <div class="item-slot-amount">
-                        <p>x{{ notificationAmount }}</p>
+                        <p>x{{ notification.amount }}</p>
                     </div>
                     <div class="item-slot-label">
-                        <p>{{ notificationText }}</p>
+                        <p>{{ notification.text }}</p>
                     </div>
                 </div>
             </div>

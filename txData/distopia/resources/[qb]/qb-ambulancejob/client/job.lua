@@ -3,7 +3,39 @@ local onDuty = false
 local currentGarage = 0
 local currentHospital
 
+local DamageReasonLocaleKeys = {
+    ['Melee killed / Whacked / Executed / Beat down / Murdered / Battered'] = 'melee_blunt',
+    ['Melee Killed / Whacked / Executed / Beat down / Musrdered / Battered / Candy Caned'] = 'melee_blunt',
+    ['Knifed / Stabbed / Eviscerated'] = 'melee_sharp',
+    ['Pistoled / Blasted / Plugged / Bust a cap in'] = 'pistol',
+    ['Riddled / Drilled / Finished / Submachine Gunned'] = 'smg',
+    ['Devastated / Pulverized / Shotgunned'] = 'shotgun',
+    ['Ended / Rifled / Shot down / Floored'] = 'rifle',
+    ['Machine gunned / Sprayed / Ruined'] = 'mg',
+    ['Sniped / Picked off / Scoped'] = 'sniper',
+    ['Killed / Exploded / Obliterated / Destroyed / Erased / Annihilated'] = 'explosive',
+    ['Bombed / Exploded / Detonated / Blew up'] = 'bomb',
+    ['Torched / Flambeed / Barbecued'] = 'fire',
+    ['Flattened / Ran over / Ran down'] = 'vehicle',
+    ['Helicopter Crash'] = 'heli_crash',
+    ['Bled out'] = 'bleeding',
+    ['Fried'] = 'electric',
+    ['Committed suicide'] = 'fall',
+    ['Mauled'] = 'animal',
+    ['Died'] = 'died',
+    ['Prodded'] = 'barbed_wire',
+}
+
 -- Functions
+
+local function TranslateDamageReason(reason)
+    local localeKey = DamageReasonLocaleKeys[reason]
+    if localeKey then
+        return Lang:t('damage.' .. localeKey)
+    end
+
+    return reason or Lang:t('info.wep_unknown')
+end
 
 local function GetClosestPlayer()
     local closestPlayers = QBCore.Functions.GetPlayersFromCoords()
@@ -198,11 +230,11 @@ RegisterNetEvent('hospital:client:CheckStatus', function()
                         }
                     elseif result['WEAPONWOUNDS'] then
                         for _, v2 in pairs(result['WEAPONWOUNDS']) do
-                            TriggerEvent('chat:addMessage', {
-                                color = { 255, 0, 0 },
-                                multiline = false,
-                                args = { Lang:t('info.status'), QBCore.Shared.Weapons[v2].damagereason }
-                            })
+                        TriggerEvent('chat:addMessage', {
+                            color = { 255, 0, 0 },
+                            multiline = false,
+                            args = { Lang:t('info.status'), TranslateDamageReason(QBCore.Shared.Weapons[v2] and QBCore.Shared.Weapons[v2].damagereason) }
+                        })
                         end
                     elseif result['BLEED'] > 0 then
                         TriggerEvent('chat:addMessage', {

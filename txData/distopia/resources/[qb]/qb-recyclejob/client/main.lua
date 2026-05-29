@@ -154,19 +154,42 @@ local function handInPackage()
     end)
 end
 
+local function getItemAmount(itemName)
+    local playerData = QBCore.Functions.GetPlayerData()
+    local amount = 0
+
+    if not playerData or type(playerData.items) ~= 'table' then return amount end
+
+    for _, itemData in pairs(playerData.items) do
+        if itemData and itemData.name == itemName then
+            amount = amount + (itemData.amount or 0)
+        end
+    end
+
+    return amount
+end
+
 local function sellMaterials()
     QBCore.Functions.TriggerCallback('qb-recyclejob:server:getPriceList', function(data)
         local menu = {}
-        if data == false then QBCore.Functions.Notify(Lang:t('error.too_far_to_sell') 'error') return end
+        if data == false then QBCore.Functions.Notify(Lang:t('error.too_far_to_sell'), 'error') return end
         for k, v in pairs (data) do
-            if QBCore.Functions.HasItem(k) then
+            local item = QBCore.Shared.Items[k]
+            local price = type(v) == 'table' and v.price or v
+            local ownedAmount = type(v) == 'table' and v.amount or getItemAmount(k)
+            if item and ownedAmount > 0 then
                 menu[#menu+1] = {
-                    header = QBCore.Shared.Items[k].label,
-                    txt = Lang:t('text.price', {price = v}),
-                    icon = "nui://qb-inventory/html/images/" .. QBCore.Shared.Items[k].name .. ".png",
+                    header = item.label,
+                    txt = Lang:t('text.price', {price = price}),
+                    icon = "nui://qb-inventory/html/images/" .. item.name .. ".png",
                     action = function()
+                        if ownedAmount < 1 then
+                            QBCore.Functions.Notify(Lang:t('error.nothing_to_sell'), 'error')
+                            return
+                        end
+
                         local dialog = exports['qb-input']:ShowInput({
-                            header = Lang:t('text.sell') .. ' ' ..  QBCore.Shared.Items[k].label,
+                            header = Lang:t('text.sell') .. ' ' .. item.label,
                             submitText = Lang:t('text.sell') ,
                             inputs = {
                                 {
@@ -174,11 +197,22 @@ local function sellMaterials()
                                     header = Lang:t('text.amount'),
                                     type = "number",
                                     name = "amount",
+                                    default = 1,
+                                    min = 1,
+                                    max = ownedAmount,
                                 },
                             }
                         })
-                        if not dialog and dialog.amount then return end
-                        TriggerServerEvent('qb-recyclejob:server:sellItem', k, tonumber(dialog.amount))
+                        if not dialog or not dialog.amount then return end
+
+                        local sellAmount = tonumber(dialog.amount)
+                        if not sellAmount or sellAmount < 1 then return end
+                        if sellAmount > ownedAmount then
+                            QBCore.Functions.Notify(Lang:t('error.nothing_to_sell'), 'error')
+                            return
+                        end
+
+                        TriggerServerEvent('qb-recyclejob:server:sellItem', k, math.floor(sellAmount))
                     end
                 }
             end

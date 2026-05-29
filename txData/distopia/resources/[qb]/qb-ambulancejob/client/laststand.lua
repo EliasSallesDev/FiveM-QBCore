@@ -131,9 +131,9 @@ RegisterNetEvent('hospital:client:UseFirstAid', function()
     end
 end)
 
-RegisterNetEvent('hospital:client:CanHelp', function(helperId)
+RegisterNetEvent('hospital:client:CanHelp', function(helperId, isAmbulance)
     if InLaststand then
-        if LaststandTime <= 300 then
+        if isAmbulance or LaststandTime <= Config.MinimumRevive then
             TriggerServerEvent('hospital:server:CanHelp', helperId, true)
         else
             TriggerServerEvent('hospital:server:CanHelp', helperId, false)

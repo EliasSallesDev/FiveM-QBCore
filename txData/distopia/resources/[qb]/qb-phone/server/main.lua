@@ -6,8 +6,9 @@ local Hashtags = {}
 local Calls = {}
 local Adverts = {}
 local GeneratedPlates = {}
-local WebHook = ''
-local FivemerrApiToken = ''
+local WebHook = GetConvar('qb_phone_webhook', '')
+local FivemerrApiToken = GetConvar('qb_phone_fivemerr_token', '')
+local warnedMissingWebhook = false
 local bannedCharacters = { '%', '$', ';' }
 local TWData = {}
 
@@ -423,15 +424,15 @@ QBCore.Functions.CreateCallback('qb-phone:server:PayInvoice', function(source, c
                 local commission = QBCore.Shared.Round(amount * Config.BillingCommissions[society])
                 SenderPly.Functions.AddMoney('bank', commission)
                 invoiceMailData = {
-                    sender = 'Billing Department',
-                    subject = 'Commission Received',
-                    message = string.format('You received a commission check of $%s when %s %s paid a bill of $%s.', commission, Ply.PlayerData.charinfo.firstname, Ply.PlayerData.charinfo.lastname, amount)
+                    sender = 'Departamento de Cobrança',
+                    subject = 'Comissão recebida',
+                    message = string.format('Você recebeu uma comissão de $%s quando %s %s pagou uma fatura de $%s.', commission, Ply.PlayerData.charinfo.firstname, Ply.PlayerData.charinfo.lastname, amount)
                 }
             elseif not SenderPly and Config.BillingCommissions[society] then
                 invoiceMailData = {
-                    sender = 'Billing Department',
-                    subject = 'Bill Paid',
-                    message = string.format('%s %s paid a bill of $%s', Ply.PlayerData.charinfo.firstname, Ply.PlayerData.charinfo.lastname, amount)
+                    sender = 'Departamento de Cobrança',
+                    subject = 'Fatura paga',
+                    message = string.format('%s %s pagou uma fatura de $%s', Ply.PlayerData.charinfo.firstname, Ply.PlayerData.charinfo.lastname, amount)
                 }
             end
             if Ply.Functions.RemoveMoney('bank', amount, 'paid-invoice') then
@@ -440,7 +441,7 @@ QBCore.Functions.CreateCallback('qb-phone:server:PayInvoice', function(source, c
                     exports['qb-phone']:sendNewMailToOffline(sendercitizenid, invoiceMailData)
                 end
                 TriggerEvent("qb-phone:server:paidInvoice", source, invoiceId)
-                exports['qb-banking']:AddMoney(society, amount, 'Phone invoice')
+                    exports['qb-banking']:AddMoney(society, amount, 'Fatura do celular')
                 cb(true)
                 return
             end
@@ -587,7 +588,7 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetVehicleSearchResults', funct
                         status = true,
                         owner = charinfo.firstname .. ' ' .. charinfo.lastname,
                         citizenid = result[k].citizenid,
-                        label = 'Name not found..'
+                    label = 'Nome não encontrado'
                     }
                 end
             end
@@ -599,7 +600,7 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetVehicleSearchResults', funct
                 status = GeneratedPlates[search].status,
                 owner = GeneratedPlates[search].owner,
                 citizenid = GeneratedPlates[search].citizenid,
-                label = 'Brand unknown..'
+                label = 'Marca desconhecida'
             }
         else
             local ownerInfo = GenerateOwnerName()
@@ -614,7 +615,7 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetVehicleSearchResults', funct
                 status = true,
                 owner = ownerInfo.name,
                 citizenid = ownerInfo.citizenid,
-                label = 'Brand unknown..'
+                label = 'Marca desconhecida'
             }
         end
     end
@@ -654,7 +655,7 @@ QBCore.Functions.CreateCallback('qb-phone:server:ScanPlate', function(source, cb
         end
         cb(vehicleData)
     else
-        TriggerClientEvent('QBCore:Notify', src, 'No Vehicle Nearby', 'error')
+        TriggerClientEvent('QBCore:Notify', src, 'Nenhum veículo por perto', 'error')
         cb(nil)
     end
 end)
@@ -727,7 +728,10 @@ QBCore.Functions.CreateCallback('qb-phone:server:GetWebhook', function(_, cb)
     if WebHook ~= '' then
         cb(WebHook)
     else
-        print('Set your webhook to ensure that your camera will work!!!!!! Set this on line 9 of the server sided script!!!!!')
+        if not warnedMissingWebhook then
+            warnedMissingWebhook = true
+            print('^1[qb-phone] Camera webhook missing. Add "set qb_phone_webhook YOUR_DISCORD_WEBHOOK" to server.cfg and restart qb-phone.^7')
+        end
         cb(nil)
     end
 end)
@@ -1003,7 +1007,7 @@ RegisterNetEvent('qb-phone:server:TransferMoney', function(iban, amount)
             sender.Functions.RemoveMoney('bank', amount, 'phone-transfered')
         end
     else
-        TriggerClientEvent('QBCore:Notify', src, "This account number doesn't exist!", 'error')
+        TriggerClientEvent('QBCore:Notify', src, 'Esse número de conta não existe!', 'error')
     end
 end)
 
@@ -1179,13 +1183,13 @@ end)
 RegisterNetEvent('qb-phone:server:sendPing', function(data)
     local src = source
     if src == data then
-        TriggerClientEvent('QBCore:Notify', src, 'You cannot ping yourself', 'error')
+        TriggerClientEvent('QBCore:Notify', src, 'Você não pode marcar a si mesmo', 'error')
     end
 end)
 
 -- Command
 
-QBCore.Commands.Add('setmetadata', 'Set Player Metadata (God Only)', {}, false, function(source, args)
+QBCore.Commands.Add('setmetadata', 'Definir metadata do jogador (God)', {}, false, function(source, args)
     local Player = QBCore.Functions.GetPlayer(source)
     if args[1] then
         if args[1] == 'trucker' then
@@ -1198,7 +1202,7 @@ QBCore.Commands.Add('setmetadata', 'Set Player Metadata (God Only)', {}, false, 
     end
 end, 'god')
 
-QBCore.Commands.Add('bill', 'Bill A Player', { { name = 'id', help = 'Player ID' }, { name = 'amount', help = 'Fine Amount' } }, false, function(source, args)
+QBCore.Commands.Add('bill', 'Cobrar um jogador', { { name = 'id', help = 'ID do jogador' }, { name = 'amount', help = 'Valor da cobrança' } }, false, function(source, args)
     local biller = QBCore.Functions.GetPlayer(source)
     local billed = QBCore.Functions.GetPlayer(tonumber(args[1]))
     local amount = tonumber(args[2])
@@ -1211,18 +1215,18 @@ QBCore.Commands.Add('bill', 'Bill A Player', { { name = 'id', help = 'Player ID'
                         { billed.PlayerData.citizenid, amount, biller.PlayerData.job.name,
                             biller.PlayerData.charinfo.firstname, biller.PlayerData.citizenid })
                     TriggerClientEvent('qb-phone:RefreshPhone', billed.PlayerData.source)
-                    TriggerClientEvent('QBCore:Notify', source, 'Invoice Successfully Sent', 'success')
-                    TriggerClientEvent('QBCore:Notify', billed.PlayerData.source, 'New Invoice Received')
+                    TriggerClientEvent('QBCore:Notify', source, 'Fatura enviada com sucesso', 'success')
+                    TriggerClientEvent('QBCore:Notify', billed.PlayerData.source, 'Nova fatura recebida')
                 else
-                    TriggerClientEvent('QBCore:Notify', source, 'Must Be A Valid Amount Above 0', 'error')
+                    TriggerClientEvent('QBCore:Notify', source, 'Informe um valor válido acima de 0', 'error')
                 end
             else
-                TriggerClientEvent('QBCore:Notify', source, 'You Cannot Bill Yourself', 'error')
+                TriggerClientEvent('QBCore:Notify', source, 'Você não pode cobrar a si mesmo', 'error')
             end
         else
-            TriggerClientEvent('QBCore:Notify', source, 'Player Not Online', 'error')
+            TriggerClientEvent('QBCore:Notify', source, 'Jogador offline', 'error')
         end
     else
-        TriggerClientEvent('QBCore:Notify', source, 'No Access', 'error')
+        TriggerClientEvent('QBCore:Notify', source, 'Sem acesso', 'error')
     end
 end)
