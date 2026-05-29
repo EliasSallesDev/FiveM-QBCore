@@ -3,13 +3,13 @@ Config = Config or {}
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true' -- Use qb-target interactions (don't change this, go to your server.cfg and add `setr UseTarget true` to use this and just that from true to false or the other way around)
 
 Config.AvailableJobs = {                                     -- Only used when not using qb-jobs.
-    ['trucker'] = { ['label'] = 'Trucker', ['isManaged'] = false },
+    ['trucker'] = { ['label'] = 'Caminhoneiro', ['isManaged'] = false },
     ['taxi'] = { ['label'] = 'Taxi', ['isManaged'] = false },
-    ['tow'] = { ['label'] = 'Tow Truck', ['isManaged'] = false },
-    ['reporter'] = { ['label'] = 'News Reporter', ['isManaged'] = false },
-    ['garbage'] = { ['label'] = 'Garbage Collector', ['isManaged'] = false },
-    ['bus'] = { ['label'] = 'Bus Driver', ['isManaged'] = false },
-    ['hotdog'] = { ['label'] = 'Hot Dog Stand', ['isManaged'] = false }
+    ['tow'] = { ['label'] = 'Guincho', ['isManaged'] = false },
+    ['reporter'] = { ['label'] = 'Jornalista', ['isManaged'] = false },
+    ['garbage'] = { ['label'] = 'Coletor de lixo', ['isManaged'] = false },
+    ['bus'] = { ['label'] = 'Motorista de onibus', ['isManaged'] = false },
+    ['hotdog'] = { ['label'] = 'Vendedor de hot-dog', ['isManaged'] = false }
 }
 
 Config.Cityhalls = {
@@ -21,20 +21,20 @@ Config.Cityhalls = {
             display = 4,
             scale = 0.65,
             colour = 0,
-            title = 'City Services'
+            title = 'Servicos da cidade'
         },
         licenses = {
             ['id_card'] = {
-                label = 'ID Card',
+                label = 'Identidade',
                 cost = 50,
             },
             ['driver_license'] = {
-                label = 'Driver License',
+                label = 'Carteira de motorista',
                 cost = 50,
                 metadata = 'driver'
             },
             ['weaponlicense'] = {
-                label = 'Weapon License',
+                label = 'Licenca de armas',
                 cost = 50,
                 metadata = 'weapon'
             },

@@ -239,7 +239,7 @@ RegisterNetEvent('hospital:server:SendDoctorAlert', function(hospitalName)
 			doctorCalled = false
 		end)
 	else
-		TriggerClientEvent('QBCore:Notify', src, 'Doctor has already been notified', 'error')
+		TriggerClientEvent('QBCore:Notify', src, 'O medico ja foi notificado', 'error')
 	end
 end)
 

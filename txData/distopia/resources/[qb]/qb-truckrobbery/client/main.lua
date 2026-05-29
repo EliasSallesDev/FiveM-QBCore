@@ -337,7 +337,7 @@ function startMission()
 				if warning == 0 then
 					warning = 1
 					stopAndBeAngry()
-					QBCore.Functions.Notify("Get rid of the guards before you place the bomb.", "error")
+					QBCore.Functions.Notify("Elimine os guardas antes de colocar a bomba.", "error")
 					AlertPolice()
 				end
 
@@ -382,7 +382,7 @@ function CheckVehicleInformation()
 				DetachEntity(prop)
 				AttachEntityToEntity(prop, transport, GetEntityBoneIndexByName(transport, 'door_pside_r'), -0.7, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
 				hideLastHint()
-				QBCore.Functions.Notify('The load will be detonated in '..Config.TimeToBlow ..' seconds.', "error")
+				QBCore.Functions.Notify('A carga sera detonada em ' .. Config.TimeToBlow .. ' segundos.', "error")
 				FreezeEntityPosition(PlayerPedId(), false)
 				Wait(Config.TimeToBlow*1000)
 				local transCoords = GetEntityCoords(transport)
@@ -392,16 +392,16 @@ function CheckVehicleInformation()
 				-- ApplyForceToEntity(transport, 0, transCoords.x,transCoords.y,transCoords.z, 0.0, 0.0, 0.0, 1, false, true, true, true, true)
 				BlownUp = 1
 				lootable = 1
-				QBCore.Functions.Notify('You can start collecting cash.', "success")
+				QBCore.Functions.Notify('Voce pode comecar a coletar o dinheiro.', "success")
 				RemoveBlip(TruckBlip)
 			else
-				QBCore.Functions.Notify('Get out of the water', "error")
+				QBCore.Functions.Notify('Saia da agua', "error")
 			end
 		else
-			QBCore.Functions.Notify('The vehicle must be empty to place the load', "error")
+			QBCore.Functions.Notify('O veiculo precisa estar vazio para colocar a carga', "error")
 		end
 	else
-		QBCore.Functions.Notify('You can not rob a vehicle that is moving.', "error")
+		QBCore.Functions.Notify('Voce nao pode roubar um veiculo em movimento.', "error")
 	end
 end
 
@@ -454,7 +454,7 @@ function TakingMoney()
 	AttachEntityToEntity(bag, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 57005), 0.0, 0.0, -0.16, 250.0, -30.0, 0.0, false, false, false, false, 2, true)
 	TaskPlayAnim(PlayerPedId(), "anim@heists@ornate_bank@grab_cash_heels", "grab", 8.0, -8.0, -1, 1, 0, false, false, false)
 	FreezeEntityPosition(PlayerPedId(), true)
-	QBCore.Functions.Notify('You are packing cash into a bag', "success")
+	QBCore.Functions.Notify('Voce esta colocando o dinheiro em uma bolsa', "success")
 	local _time = GetGameTimer()
 	while GetGameTimer() - _time < 20000 do
 		if IsControlPressed(0, 47) then

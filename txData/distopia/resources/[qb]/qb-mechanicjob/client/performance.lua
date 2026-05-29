@@ -1,5 +1,5 @@
 local function GetArmor(vehicle)
-    local armorMenu = { { header = 'Armor', isMenuHeader = true, icon = 'fas fa-shield' } }
+    local armorMenu = { { header = Lang:t('menu.armor'), isMenuHeader = true, icon = 'fas fa-shield' } }
     for i = -1, GetNumVehicleMods(vehicle, 16) - 1 do
         local header = Lang:t('menu.armor') .. ': ' .. (i >= 0 and i or Lang:t('menu.stock'))
         local disabled = GetVehicleMod(vehicle, 16) == i
@@ -22,7 +22,7 @@ local function GetArmor(vehicle)
 end
 
 local function GetBrakes(vehicle)
-    local brakesMenu = { { header = 'Brakes', isMenuHeader = true, icon = 'fas fa-car' } }
+    local brakesMenu = { { header = Lang:t('menu.brakes'), isMenuHeader = true, icon = 'fas fa-car' } }
     for i = -1, GetNumVehicleMods(vehicle, 12) - 1 do
         local header = Lang:t('menu.brakes') .. ': ' .. (i >= 0 and i or Lang:t('menu.stock'))
         local disabled = GetVehicleMod(vehicle, 12) == i
@@ -45,7 +45,7 @@ local function GetBrakes(vehicle)
 end
 
 local function GetEngine(vehicle)
-    local engineMenu = { { header = 'Engine', isMenuHeader = true, icon = 'fas fa-oil-can' } }
+    local engineMenu = { { header = Lang:t('menu.engine'), isMenuHeader = true, icon = 'fas fa-oil-can' } }
     for i = -1, GetNumVehicleMods(vehicle, 11) - 1 do
         local header = Lang:t('menu.engine') .. ': ' .. (i >= 0 and i or Lang:t('menu.stock'))
         local disabled = GetVehicleMod(vehicle, 11) == i
@@ -91,7 +91,7 @@ local function GetSuspension(vehicle)
 end
 
 local function GetTransmission(vehicle)
-    local transmissionMenu = { { header = 'Transmission', isMenuHeader = true, icon = 'fas fa-oil-can' } }
+    local transmissionMenu = { { header = Lang:t('menu.transmission'), isMenuHeader = true, icon = 'fas fa-oil-can' } }
     for i = -1, GetNumVehicleMods(vehicle, 13) - 1 do
         local header = Lang:t('menu.transmission') .. ': ' .. (i >= 0 and i or Lang:t('menu.stock'))
         local disabled = GetVehicleMod(vehicle, 13) == i

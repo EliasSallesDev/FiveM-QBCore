@@ -55,13 +55,13 @@ RegisterNetEvent('qb-inventory:client:setupDropTarget', function(dropId)
             },
             {
                 icon = 'fas fa-hand-pointer',
-                label = 'Pick up bag',
+                label = 'Pegar bolsa',
                 action = function()
                     if IsPedArmed(PlayerPedId(), 4) then
-                        return QBCore.Functions.Notify("You can not be holding a Gun and a Bag!", "error", 5500)
+                        return QBCore.Functions.Notify("Voce nao pode segurar uma arma e uma bolsa ao mesmo tempo!", "error", 5500)
                     end
                     if HoldingDrop then
-                        return QBCore.Functions.Notify("Your already holding a bag, Go Drop it!", "error", 5500)
+                        return QBCore.Functions.Notify("Voce ja esta segurando uma bolsa, solte ela primeiro!", "error", 5500)
                     end
                     AttachEntityToEntity(
                         bag,

@@ -5,11 +5,11 @@ local Translations = {
         extra_deactivated = "O extra %{extra} foi desativado",
         extra_not_present = "O extra %{extra} não está presente neste veículo",
         not_driver = "Você não é o motorista do veículo",
-        vehicle_driving_fast = "Este veículo está muito rápido",
+        vehicle_driving_fast = "Este veículo está indo muito rápido",
         seat_occupied = "Este assento está ocupado",
-        race_harness_on = "Você está usando um cinto de corrida, não pode trocar de assento",
+        race_harness_on = "Você está usando um arnês de corrida, não pode alternar",
         obj_not_found = "Não foi possível criar o objeto solicitado",
-        not_near_ambulance = "Você não está perto de uma ambulância",
+        not_near_ambulance = "Você não está perto de uma Ambulância",
         far_away = "Você está muito longe",
         stretcher_in_use = "Esta maca já está em uso",
         not_kidnapped = "Você não sequestrou esta pessoa",
@@ -23,35 +23,35 @@ local Translations = {
     },
     success = {
         extra_activated = "O extra %{extra} foi ativado",
-        entered_trunk = "Você entrou no porta-malas"
+        entered_trunk = "Você está no porta-malas"
     },
     info = {
-        no_variants = "Não parece haver variações para isso",
+        no_variants = "Não parece haver variantes para isso",
         wrong_ped = "Este modelo de personagem não permite essa opção",
         nothing_to_remove = "Parece que você não tem nada para remover",
         already_wearing = "Você já está usando isso",
         switched_seats = "Agora você está no %{seat}"
     },
     general = {
-        command_description = "Abrir menu radial",
-        push_stretcher_button = "[E] - Empurrar maca",
-        stop_pushing_stretcher_button = "~g~E~w~ - Parar de empurrar",
-        lay_stretcher_button = "[G] - Deitar na maca",
-        push_position_drawtext = "Empurre aqui",
-        get_off_stretcher_button = "[G] - Sair da maca",
+        command_description = "Abrir Menu Radial",
+        push_stretcher_button = "[E] - Empurrar Maca",
+        stop_pushing_stretcher_button = "~g~E~w~ - Parar de Empurrar",
+        lay_stretcher_button = "[G] - Deitar na Maca",
+        push_position_drawtext = "Empurre Aqui",
+        get_off_stretcher_button = "[G] - Sair da Maca",
         get_out_trunk_button = "[E] Sair do porta-malas",
         close_trunk_button = "[G] Fechar o porta-malas",
         open_trunk_button = "[G] Abrir o porta-malas",
-        getintrunk_command_desc = "Entrar no porta-malas",
-        putintrunk_command_desc = "Colocar jogador no porta-malas"
+        getintrunk_command_desc = "Entrar no Porta-Malas",
+        putintrunk_command_desc = "Colocar Jogador no Porta-Malas"
     },
     options = {
-        emergency_button = "Botão de emergência",
-        driver_seat = "Assento do motorista",
-        passenger_seat = "Assento do passageiro",
-        other_seats = "Outros assentos",
-        rear_left_seat = "Assento traseiro esquerdo",
-        rear_right_seat = "Assento traseiro direito"
+        emergency_button = "Botão de Emergência",
+        driver_seat = "Assento do Motorista",
+        passenger_seat = "Assento do Passageiro",
+        other_seats = "Outros Assentos",
+        rear_left_seat = "Assento Traseiro Esquerdo",
+        rear_right_seat = "Assento Traseiro Direito"
     },
 }
 

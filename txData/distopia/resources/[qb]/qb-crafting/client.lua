@@ -40,7 +40,7 @@ local function CraftItem(craftedItem, requiredItems, amountToCraft, xpEarned, xp
                     local randomItem = requiredItems[math.random(#requiredItems)]
                     local randomAmount = math.random(1, randomItem.amount)
                     TriggerServerEvent('qb-crafting:server:removeMaterials', randomItem.item, randomAmount)
-                    QBCore.Functions.Notify('Crafting failed, some materials have been lost!', 'error')
+                    QBCore.Functions.Notify('A fabricacao falhou, alguns materiais foram perdidos!', 'error')
                 end
             else
                 QBCore.Functions.Progressbar('crafting_item', 'Crafting ' .. QBCore.Shared.Items[craftedItem].label, (math.random(2000, 5000) * amountToCraft), false, true, {
@@ -65,13 +65,13 @@ end
 local function CraftAmount(craftedItem, requiredItems, xpGain, xpType)
     local dialog = exports['qb-input']:ShowInput({
         header = string.format(Lang:t('menus.entercraftAmount')),
-        submitText = 'Confirm',
+        submitText = 'Confirmar',
         inputs = {
             {
                 type = 'number',
                 name = 'amount',
-                label = 'Amount',
-                text = 'Enter Amount',
+                label = 'Quantidade',
+                text = 'Digite a quantidade',
                 isRequired = true
             },
         },

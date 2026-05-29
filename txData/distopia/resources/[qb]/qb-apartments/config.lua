@@ -4,7 +4,7 @@ Apartments.SpawnOffset = 30
 Apartments.Locations = {
     ["apartment1"] = {
         name = "apartment1",
-        label = "South Rockford Drive",
+        label = "Rua South Rockford",
         coords = {
             enter = vector4(-667.02, -1105.24, 14.63, 242.32),
         },
@@ -21,7 +21,7 @@ Apartments.Locations = {
     },
     ["apartment2"] = {
         name = "apartment2",
-        label = "Morningwood Blvd",
+        label = "Avenida Morningwood",
         coords = {
             enter = vector4(-1288.52, -430.51, 35.15, 124.81),
         },
@@ -38,7 +38,7 @@ Apartments.Locations = {
     },
     ["apartment3"] = {
         name = "apartment3",
-        label = "Integrity Way",
+        label = "Rua Integrity",
         coords = {
             enter = vector4(269.73, -640.75, 42.02, 249.07),
         },
@@ -55,7 +55,7 @@ Apartments.Locations = {
     },
     ["apartment4"] = {
         name = "apartment4",
-        label = "Tinsel Towers",
+        label = "Torres Tinsel",
         coords = {
             enter = vector4(-619.29, 37.69, 43.59, 181.03),
         },
@@ -72,7 +72,7 @@ Apartments.Locations = {
     },
     ["apartment5"] = {
         name = "apartment5",
-        label = "Fantastic Plaza",
+        label = "Praca Fantastic",
         coords = {
             enter = vector4(291.517, -1078.674, 29.405, 270.75),
         },

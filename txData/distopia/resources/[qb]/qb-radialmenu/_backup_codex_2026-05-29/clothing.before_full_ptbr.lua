@@ -702,9 +702,9 @@ local Extras = {
 			male = 252,
 			female = 74,
 			Extra = {
-				{ Drawable = 8,  Id = 15, Tex = 0, Name = 'Camiseta extra' },
-				{ Drawable = 3,  Id = 15, Tex = 0, Name = 'Luvas extras' },
-				{ Drawable = 10, Id = 0,  Tex = 0, Name = 'Adesivos extras' },
+				{ Drawable = 8,  Id = 15, Tex = 0, Name = 'Extra Undershirt' },
+				{ Drawable = 3,  Id = 15, Tex = 0, Name = 'Extra Gloves' },
+				{ Drawable = 10, Id = 0,  Tex = 0, Name = 'Extra Decals' },
 			}
 		},
 		Emote = { Dict = 'clothingtie', Anim = 'try_tie_negative_a', Move = 51, Dur = 1200 }

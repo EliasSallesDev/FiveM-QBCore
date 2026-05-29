@@ -1318,7 +1318,7 @@ RegisterNetEvent('qb-clothing:client:loadOutfit', function(oData)
     end
 
     if oData.outfitName ~= nil then
-        QBCore.Functions.Notify("You have chosen "..oData.outfitName.."! Press Confirm to confirm outfit.")
+        QBCore.Functions.Notify("Voce escolheu " .. oData.outfitName .. "! Pressione Confirmar para confirmar a roupa.")
     end
 end)
 RegisterNetEvent("qb-clothing:client:adjustfacewear", function(type)

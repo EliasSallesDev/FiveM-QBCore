@@ -99,25 +99,25 @@ end
 local function openCityhallMenu()
     local mainMenu = {
         {
-            header = 'City Hall',
+            header = 'Prefeitura',
             isMenuHeader = true
         },
         {
-            header = 'ID Card',
-            txt = 'Get your ID Card',
+            header = 'Identidade',
+            txt = 'Pegue sua identidade',
             params = {
                 event = 'qb-cityhall:client:openIdentityMenu'
             }
         },
         {
-            header = 'Job Center',
-            txt = 'Available Jobs',
+            header = 'Central de empregos',
+            txt = 'Empregos disponiveis',
             params = {
                 event = 'qb-cityhall:client:openJobMenu'
             }
         },
         {
-            header = 'Close Menu',
+            header = 'Fechar menu',
             txt = '',
             params = {
                 event = 'qb-menu:client:closeMenu'
@@ -132,11 +132,11 @@ local function openIdentityMenu()
     QBCore.Functions.TriggerCallback('qb-cityhall:server:getIdentityData', function(licenses)
         local identityMenu = {
             {
-                header = 'Identity',
+                header = 'Documentos',
                 isMenuHeader = true
             },
             {
-                header = '← Go Back',
+                header = '<- Voltar',
                 params = {
                     event = 'qb-cityhall:client:openCityhallMenu'
                 }
@@ -146,7 +146,7 @@ local function openIdentityMenu()
         for license, data in pairs(licenses) do
             table.insert(identityMenu, {
                 header = data.label,
-                txt = 'Cost: $' .. data.cost,
+                txt = 'Custo: $' .. data.cost,
                 params = {
                     event = 'qb-cityhall:client:requestId',
                     args = {
@@ -165,11 +165,11 @@ local function openJobMenu()
     QBCore.Functions.TriggerCallback('qb-cityhall:server:receiveJobs', function(jobs)
         local jobMenu = {
             {
-                header = 'Job Center',
+                header = 'Central de empregos',
                 isMenuHeader = true
             },
             {
-                header = '← Go Back',
+                header = '<- Voltar',
                 params = {
                     event = 'qb-cityhall:client:openCityhallMenu'
                 }
@@ -179,7 +179,7 @@ local function openJobMenu()
         for jobName, jobData in pairs(jobs) do
             table.insert(jobMenu, {
                 header = jobData.label,
-                txt = 'Apply for this job',
+                txt = 'Candidatar-se a este emprego',
                 params = {
                     event = 'qb-cityhall:client:applyJob',
                     args = {
@@ -212,7 +212,7 @@ local function spawnPeds()
             local opts = nil
             if current.drivingschool then
                 opts = {
-                    label = 'Take Driving Lessons',
+                    label = 'Fazer aulas de direcao',
                     icon = 'fa-solid fa-car-side',
                     action = function()
                         TriggerServerEvent('qb-cityhall:server:sendDriverTest', Config.DrivingSchools[closestDrivingSchool].instructors)
@@ -220,7 +220,7 @@ local function spawnPeds()
                 }
             elseif current.cityhall then
                 opts = {
-                    label = 'Open Cityhall',
+                    label = 'Abrir prefeitura',
                     icon = 'fa-solid fa-city',
                     action = function()
                         inRangeCityhall = true
@@ -249,10 +249,10 @@ local function spawnPeds()
                         if inside then
                             if current.drivingschool then
                                 inRangeDrivingSchool = true
-                                exports['qb-core']:DrawText('[E] Take Driving Lessons')
+                                exports['qb-core']:DrawText('[E] Fazer aulas de direcao')
                             elseif current.cityhall then
                                 inRangeCityhall = true
-                                exports['qb-core']:DrawText('[E] Open Cityhall')
+                                exports['qb-core']:DrawText('[E] Abrir prefeitura')
                             end
                         else
                             exports['qb-core']:HideText()
@@ -320,7 +320,7 @@ RegisterNetEvent('qb-cityhall:client:requestId', function(data)
         local license = Config.Cityhalls[closestCityhall].licenses[data.type]
         if license and data.cost == license.cost then
             TriggerServerEvent('qb-cityhall:server:requestId', data.type, closestCityhall)
-            QBCore.Functions.Notify(('You have received your %s for $%s'):format(license.label, data.cost), 'success', 3500)
+            QBCore.Functions.Notify(('Voce recebeu seu documento %s por $%s'):format(license.label, data.cost), 'success', 3500)
         else
             QBCore.Functions.Notify(Lang:t('error.not_in_range'), 'error')
         end

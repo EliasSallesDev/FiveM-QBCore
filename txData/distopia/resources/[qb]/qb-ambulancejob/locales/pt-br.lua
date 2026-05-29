@@ -113,8 +113,8 @@ local Translations = {
         bed_out = '[E] - Para sair da maca..',
         call_doc = '[E] - Ligue para o médico',
         call = 'Ligar',
-        check_in = '[E] Check in',
-        check = 'Check In',
+        check_in = '[E] Registrar atendimento',
+        check = 'Registrar atendimento',
         lie_bed = '[E] - Para deitar na maca'
     },
     body = {

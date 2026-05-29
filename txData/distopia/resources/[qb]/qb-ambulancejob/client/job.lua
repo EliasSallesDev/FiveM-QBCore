@@ -490,7 +490,7 @@ if Config.UseTarget then
                         type = 'client',
                         event = 'EMSToggle:Duty',
                         icon = 'fa fa-clipboard',
-                        label = 'Sign In/Off duty',
+                        label = 'Entrar/sair de servico',
                         job = 'ambulance'
                     }
                 },
@@ -511,7 +511,7 @@ if Config.UseTarget then
                         type = 'server',
                         event = 'qb-ambulancejob:server:stash',
                         icon = 'fa fa-hand',
-                        label = 'Open Stash',
+                        label = 'Abrir bau',
                         job = 'ambulance'
                     }
                 },
@@ -532,7 +532,7 @@ if Config.UseTarget then
                         type = 'client',
                         event = 'qb-ambulancejob:elevator_roof',
                         icon = 'fas fa-hand-point-up',
-                        label = 'Take Elevator',
+                        label = 'Usar elevador',
                         job = 'ambulance'
                     },
                 },
@@ -553,7 +553,7 @@ if Config.UseTarget then
                         type = 'client',
                         event = 'qb-ambulancejob:elevator_main',
                         icon = 'fas fa-hand-point-up',
-                        label = 'Take Elevator',
+                        label = 'Usar elevador',
                         job = 'ambulance'
                     },
                 },

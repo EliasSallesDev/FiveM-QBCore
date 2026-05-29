@@ -142,7 +142,7 @@ RegisterNetEvent('qb-inventory:server:openVending', function(data)
     if not Player then return end
     CreateShop({
         name = 'vending',
-        label = 'Vending Machine',
+        label = 'Maquina de vendas',
         coords = data.coords,
         slots = #Config.VendingItems,
         items = Config.VendingItems
@@ -304,7 +304,7 @@ QBCore.Functions.CreateCallback('qb-inventory:server:createDrop', function(sourc
         if not Drops[newDropId] then
             Drops[newDropId] = {
                 name = newDropId,
-                label = 'Drop',
+                label = 'Chao',
                 items = itemsTable,
                 entityId = dropId,
                 createdTime = os.time(),
@@ -358,13 +358,13 @@ QBCore.Functions.CreateCallback('qb-inventory:server:attemptPurchase', function(
     end
 
     if amount > shopInfo.items[itemInfo.slot].amount or shopInfo.items[itemInfo.slot].amount <= 0 then
-        TriggerClientEvent('QBCore:Notify', source, 'Não é possível comprar mais do que o estoque disponível', 'error')
+        TriggerClientEvent('QBCore:Notify', source, 'Nao e possivel comprar mais do que o estoque disponivel', 'error')
         cb(false)
         return
     end
 
     if not CanAddItem(source, itemInfo.name, amount) then
-        TriggerClientEvent('QBCore:Notify', source, 'Você não tem espaço no inventário', 'error')
+        TriggerClientEvent('QBCore:Notify', source, 'Voce nao tem espaco no inventario', 'error')
         cb(false)
         return
     end
@@ -377,7 +377,7 @@ QBCore.Functions.CreateCallback('qb-inventory:server:attemptPurchase', function(
         TriggerEvent('qb-shops:server:UpdateShopItems', shop, itemInfo, amount)
         cb(true)
     else
-        TriggerClientEvent('QBCore:Notify', source, 'You do not have enough money', 'error')
+        TriggerClientEvent('QBCore:Notify', source, 'Voce nao tem dinheiro suficiente', 'error')
         cb(false)
     end
 end)

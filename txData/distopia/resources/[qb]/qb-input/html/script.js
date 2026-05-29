@@ -37,7 +37,7 @@ const OpenMenu = (data) => {
                 form.push(`<div class="label">${item.text}</div>`);
         }
     });
-    form.push(`<div class="footer"><button type="submit" class="btn btn-success" id="submit">${data.submitText ? data.submitText : "Submit"}</button></div>`);
+    form.push(`<div class="footer"><button type="submit" class="btn btn-success" id="submit">${data.submitText ? data.submitText : "Confirmar"}</button></div>`);
 
     form.push("</form>");
 

@@ -448,37 +448,37 @@ end
 local function OpenPermsMenu(permsply)
     QBCore.Functions.TriggerCallback('qb-admin:server:getrank', function(rank)
         if rank then
-            local selectedgroup = 'Unknown'
+            local selectedgroup = 'Desconhecido'
             MenuV:OpenMenu(menu11)
             menu11:ClearItems()
             menu11:AddSlider({
                 icon = '',
-                label = 'Group',
+                label = 'Grupo',
                 value = 'user',
                 values = { {
-                    label = 'User',
+                    label = 'Usuario',
                     value = 'user',
-                    description = 'Group'
+                    description = 'Grupo'
                 }, {
                     label = 'Admin',
                     value = 'admin',
-                    description = 'Group'
+                    description = 'Grupo'
                 }, {
-                    label = 'God',
+                    label = 'Fundador',
                     value = 'god',
-                    description = 'Group'
+                    description = 'Grupo'
                 } },
                 change = function(_, newValue, _)
                     local vcal = newValue
                     if vcal == 1 then
                         selectedgroup = {}
-                        selectedgroup[#selectedgroup + 1] = { rank = 'user', label = 'User' }
+                        selectedgroup[#selectedgroup + 1] = { rank = 'user', label = 'Usuario' }
                     elseif vcal == 2 then
                         selectedgroup = {}
                         selectedgroup[#selectedgroup + 1] = { rank = 'admin', label = 'Admin' }
                     elseif vcal == 3 then
                         selectedgroup = {}
-                        selectedgroup[#selectedgroup + 1] = { rank = 'god', label = 'God' }
+                        selectedgroup[#selectedgroup + 1] = { rank = 'god', label = 'Fundador' }
                     end
                 end
             })
@@ -487,12 +487,12 @@ local function OpenPermsMenu(permsply)
                 icon = '',
                 label = Lang:t('info.confirm'),
                 value = 'giveperms',
-                description = 'Give the permission group',
+                description = 'Aplicar grupo de permissao',
                 select = function(_)
-                    if selectedgroup ~= 'Unknown' then
+                    if selectedgroup ~= 'Desconhecido' then
                         TriggerServerEvent('qb-admin:server:setPermissions', permsply.id, selectedgroup)
                         QBCore.Functions.Notify(Lang:t('success.changed_perm'), 'success')
-                        selectedgroup = 'Unknown'
+                        selectedgroup = 'Desconhecido'
                     else
                         QBCore.Functions.Notify(Lang:t('error.changed_perm_failed'), 'error')
                     end
@@ -1078,7 +1078,7 @@ local function CopyToClipboard(dataType)
             local rotZ = QBCore.Shared.Round(entityRotation.z, 2)
             local h = QBCore.Shared.Round(entityHeading, 2)
             SendNUIMessage({
-                string = string.format('Model Name:\t%s\nModel Hash:\t%s\n\nHeading:\t%s\nCoords:\t\tvector3(%s, %s, %s)\nRotation:\tvector3(%s, %s, %s)', entityName, entityHash, h, x, y, z, rotX, rotY, rotZ)
+                string = string.format('Nome do modelo:\t%s\nHash do modelo:\t%s\n\nDirecao:\t%s\nCoordenadas:\t\tvector3(%s, %s, %s)\nRotacao:\tvector3(%s, %s, %s)', entityName, entityHash, h, x, y, z, rotX, rotY, rotZ)
             })
             QBCore.Functions.Notify(Lang:t('success.entity_copy'), 'success')
         else

@@ -641,7 +641,7 @@ CreateThread(function()
                                     if PlayerJob.onduty then
                                         TaxiGarage()
                                     else
-                                        QBCore.Functions.Notify('You need to be on duty')
+                                        QBCore.Functions.Notify('Voce precisa estar em servico')
                                     end
                                 end
                             end

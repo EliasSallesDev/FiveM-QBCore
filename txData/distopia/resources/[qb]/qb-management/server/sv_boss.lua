@@ -83,20 +83,20 @@ RegisterNetEvent('qb-bossmenu:server:GradeUpdate', function(data)
 		return
 	end
 	if data.grade > Player.PlayerData.job.grade.level then
-		TriggerClientEvent('QBCore:Notify', src, 'You cannot promote to this rank!', 'error')
+		TriggerClientEvent('QBCore:Notify', src, 'Voce nao pode promover para este cargo!', 'error')
 		return
 	end
 
 	if Employee then
 		if Employee.Functions.SetJob(Player.PlayerData.job.name, data.grade) then
-			TriggerClientEvent('QBCore:Notify', src, 'Sucessfully promoted!', 'success')
+			TriggerClientEvent('QBCore:Notify', src, 'Promovido com sucesso!', 'success')
 			Employee.Functions.Save()
 
 			if Employee.PlayerData.source then -- Player is online
-				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'You have been promoted to ' .. data.gradename .. '.', 'success')
+				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'Voce foi promovido para ' .. data.gradename .. '.', 'success')
 			end
 		else
-			TriggerClientEvent('QBCore:Notify', src, 'Promotion grade does not exist.', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Esse grau de promocao nao existe.', 'error')
 		end
 	end
 	TriggerClientEvent('qb-bossmenu:client:OpenMenu', src)
@@ -115,22 +115,22 @@ RegisterNetEvent('qb-bossmenu:server:FireEmployee', function(target)
 
 	if Employee then
 		if target == Player.PlayerData.citizenid then
-			TriggerClientEvent('QBCore:Notify', src, 'You can\'t fire yourself', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Voce nao pode demitir a si mesmo', 'error')
 			return
 		elseif Employee.PlayerData.job.grade.level > Player.PlayerData.job.grade.level then
-			TriggerClientEvent('QBCore:Notify', src, 'You cannot fire this citizen!', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Voce nao pode demitir este cidadao!', 'error')
 			return
 		end
 		if Employee.Functions.SetJob('unemployed', '0') then
 			Employee.Functions.Save()
-			TriggerClientEvent('QBCore:Notify', src, 'Employee fired!', 'success')
+			TriggerClientEvent('QBCore:Notify', src, 'Funcionario demitido!', 'success')
 			TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Job Fire', 'red', Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname .. ' successfully fired ' .. Employee.PlayerData.charinfo.firstname .. ' ' .. Employee.PlayerData.charinfo.lastname .. ' (' .. Player.PlayerData.job.name .. ')', false)
 
 			if Employee.PlayerData.source then -- Player is online
-				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'You have been fired! Good luck.', 'error')
+				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'Voce foi demitido! Boa sorte.', 'error')
 			end
 		else
-			TriggerClientEvent('QBCore:Notify', src, 'Error..', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Erro.', 'error')
 		end
 	end
 	TriggerClientEvent('qb-bossmenu:client:OpenMenu', src)
@@ -148,8 +148,8 @@ RegisterNetEvent('qb-bossmenu:server:HireEmployee', function(recruit)
 	end
 
 	if Target and Target.Functions.SetJob(Player.PlayerData.job.name, 0) then
-		TriggerClientEvent('QBCore:Notify', src, 'You hired ' .. (Target.PlayerData.charinfo.firstname .. ' ' .. Target.PlayerData.charinfo.lastname) .. ' come ' .. Player.PlayerData.job.label .. '', 'success')
-		TriggerClientEvent('QBCore:Notify', Target.PlayerData.source, 'You were hired as ' .. Player.PlayerData.job.label .. '', 'success')
+		TriggerClientEvent('QBCore:Notify', src, 'Voce contratou ' .. (Target.PlayerData.charinfo.firstname .. ' ' .. Target.PlayerData.charinfo.lastname) .. ' como ' .. Player.PlayerData.job.label, 'success')
+		TriggerClientEvent('QBCore:Notify', Target.PlayerData.source, 'Voce foi contratado como ' .. Player.PlayerData.job.label, 'success')
 		TriggerEvent('qb-log:server:CreateLog', 'bossmenu', 'Recruit', 'lightgreen', (Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname) .. ' successfully recruited ' .. (Target.PlayerData.charinfo.firstname .. ' ' .. Target.PlayerData.charinfo.lastname) .. ' (' .. Player.PlayerData.job.name .. ')', false)
 	end
 	TriggerClientEvent('qb-bossmenu:client:OpenMenu', src)

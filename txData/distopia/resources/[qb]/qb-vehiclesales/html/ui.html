@@ -22,49 +22,49 @@
                 <div id="the-form" class="centred">
                     <div class="form-entry">
                         <div id="seller-name" class="form-field" >{{ sellerName }}</div>
-                        <span class="form-field-summary">(Name of Seller)</span>
+                        <span class="form-field-summary">(Nome do vendedor)</span>
                     </div>
                     <div class="form-entry">
                         <div id="seller-banknr" class="form-field">{{ bankAccount }}</div>
-                        <span class="form-field-summary">(Bank Account Number)</span>
+                        <span class="form-field-summary">(Numero da conta bancaria)</span>
                     </div>
                     <div class="form-entry">
                         <div id="seller-telnr" class="form-field">{{ phoneNumber }}</div>
-                        <span class="form-field-summary">(Telephone Number)</span>
+                        <span class="form-field-summary">(Numero de telefone)</span>
                     </div>
                     <div class="form-entry">
                         <div id="vehicle-plate" class="form-field">{{ licensePlate }}</div>
-                        <span class="form-field-summary">(Vehicle License Plate)</span>
+                        <span class="form-field-summary">(Placa do veiculo)</span>
                     </div>
                     <div class="form-entry">
                         <div class="form-field" v-if="mode==='sellVehicle'">
                             <input type="text"
                                 class="vehicle-description"
                                 maxlength="500"
-                                placeholder="Enter Your Vehicle Description Here, Maximum 500 Characters"
+                                placeholder="Digite a descricao do veiculo aqui, maximo de 500 caracteres"
                                 v-model="vehicleDescription">
                         </div>
-                        <span class="form-field-summary"v-if="mode==='sellVehicle'">(Vehicle Description. max 500)</span>
+                        <span class="form-field-summary"v-if="mode==='sellVehicle'">(Descricao do veiculo. max 500)</span>
                         <div id="vehicle-plate" class="form-field" v-if="mode==='buyVehicle'">{{ vehicleDescription }}</div>
                     </div>
 
                     <div class="form-entry" v-if="mode==='sellVehicle'">
                         <table class="pricing-table centred-h">
-                            <tr><td><span class="table-field-heading">Selling Price:</span>
+                            <tr><td><span class="table-field-heading">Preco de venda:</span>
                                 <input type="text"
                                     class="vehicle-sell-price"
-                                    placeholder="Enter Vehicle Price Here"
+                                    placeholder="Digite o preco do veiculo aqui"
                                     v-model="sellPrice">
                             </td></tr>
-                            <tr><td><span class="table-field-heading">Tax:</span><span id="tax"> &dollar; {{ tax }}</span></td></tr>
-                            <tr><td><span class="table-field-heading">Mosely's Cut:</span><span id="mosley-cut"> &dollar; {{ mosleys }}</span></td></tr>
-                            <tr><td><span class="table-field-heading">Total Yield:</span><span id="total-money"> &dollar; {{ total }}</span></td></tr>
+                            <tr><td><span class="table-field-heading">Taxa:</span><span id="tax"> &dollar; {{ tax }}</span></td></tr>
+                            <tr><td><span class="table-field-heading">Comissao da Mosley:</span><span id="mosley-cut"> &dollar; {{ mosleys }}</span></td></tr>
+                            <tr><td><span class="table-field-heading">Total recebido:</span><span id="total-money"> &dollar; {{ total }}</span></td></tr>
                         </table>
                     </div>
 
                     <div class="form-entry" v-if="mode==='buyVehicle'">
                         <table class="pricing-table centred-h">
-                            <tr><td><span class="table-field-heading">Vehicle Price:</span><span id="tax"> &dollar; {{ sellPrice }}</span></td></tr>
+                            <tr><td><span class="table-field-heading">Preco do veiculo:</span><span id="tax"> &dollar; {{ sellPrice }}</span></td></tr>
                         </table>
                     </div>
 

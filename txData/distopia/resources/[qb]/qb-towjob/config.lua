@@ -18,7 +18,7 @@ Config.Locations = {
         coords = vector4(489.65, -1331.82, 29.33, 306.5),
     },
     ["dropoff"] = {
-        label = "Vehicle Drop Off Location",
+        label = "Local de entrega de veiculos",
         coords = vector3(491.00, -1314.69, 29.25)
     },
     ["towspots"] = {

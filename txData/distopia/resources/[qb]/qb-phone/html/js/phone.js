@@ -216,9 +216,9 @@ QB.Phone.Functions.LoadContacts = function(myContacts) {
             $(ContactsObject).append(ContactElement);
             $("[data-contactid='"+i+"']").data('contactData', contact);
         });
-        $("#total-contacts").text(TotalContacts+ " contacts");
+        $("#total-contacts").text(TotalContacts+ " contatos");
     } else {
-        $("#total-contacts").text("0 contacten #SAD");
+        $("#total-contacts").text("0 contatos");
     }
 };
 
@@ -457,7 +457,7 @@ $(document).on('click', '#add-contact-save', function(e){
             if ((amount - 1) === 0) {
                 amount = 0
             }
-            $(".amount-of-suggested-contacts").html(amount + " contacts");
+            $(".amount-of-suggested-contacts").html(amount + " contatos");
         }
     } else {
         QB.Phone.Notifications.Add("fas fa-exclamation-circle", "Add Contact", "Fill out all fields!");
@@ -727,7 +727,7 @@ QB.Phone.Functions.SetupSuggestedContacts = function(Suggested) {
     $(".suggested-contacts").html("");
     AmountOfSuggestions = Suggested.length;
     if (AmountOfSuggestions > 0) {
-        $(".amount-of-suggested-contacts").html(AmountOfSuggestions + " contacts");
+        $(".amount-of-suggested-contacts").html(AmountOfSuggestions + " contatos");
         Suggested = Suggested.reverse();
         $.each(Suggested, function(index, suggest){
             var elem = '<div class="suggested-contact" id="suggest-'+index+'"> <i class="fas fa-exclamation-circle"></i> <span class="suggested-name">'+suggest.name[0]+' '+suggest.name[1]+' &middot; <span class="suggested-number">'+suggest.number+'</span></span> </div>';
@@ -735,7 +735,7 @@ QB.Phone.Functions.SetupSuggestedContacts = function(Suggested) {
             $("#suggest-"+index).data('SuggestionData', suggest);
         });
     } else {
-        $(".amount-of-suggested-contacts").html("0 contacts");
+        $(".amount-of-suggested-contacts").html("0 contatos");
     }
 }
 

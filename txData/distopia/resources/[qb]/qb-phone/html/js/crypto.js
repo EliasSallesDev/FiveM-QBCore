@@ -163,11 +163,11 @@ $(document).on('click', '#buy-crypto', function(e){
                     QB.Phone.Data.PlayerData.money.bank = parseInt(QB.Phone.Data.PlayerData.money.bank) - parseInt(Price);
                     QB.Phone.Notifications.Add("fas fa-university", "QBank", "&#36; "+Price+",- has been withdrawn from your balance!", "#badc58", 2500);
                 } else {
-                    QB.Phone.Notifications.Add("fas fa-chart-pie", "Crypto", "You don't have enough money..", "#badc58", 1500);
+                    QB.Phone.Notifications.Add("fas fa-chart-pie", "Crypto", "Voce nao tem dinheiro suficiente.", "#badc58", 1500);
                 }
             });
         } else {
-            QB.Phone.Notifications.Add("fas fa-chart-pie", "Crypto", "You don't have enough money..", "#badc58", 1500);
+            QB.Phone.Notifications.Add("fas fa-chart-pie", "Crypto", "Voce nao tem dinheiro suficiente.", "#badc58", 1500);
         }
     } else {
         QB.Phone.Notifications.Add("fas fa-chart-pie", "Crypto", "Fill out all fields!", "#badc58", 1500);
@@ -252,7 +252,7 @@ $(".crypto-action-page-buy-crypto-input-coins").keyup(function(){
     var MoneyInput = this.value
     var MoneyAmount = Math.ceil(CryptoData.Worth * MoneyInput)
 
-    $(".crypto-action-page-buy-crypto-input-money").html(MoneyAmount+" Dollars");
+    $(".crypto-action-page-buy-crypto-input-money").html(MoneyAmount+" Dolares");
 });
 
 // $(".crypto-action-page-sell-crypto-input-money").keyup(function(){
@@ -265,5 +265,5 @@ $(".crypto-action-page-sell-crypto-input-coins").keyup(function(){
     var MoneyInput = this.value
     var MoneyAmount = Math.ceil(CryptoData.Worth * MoneyInput)
 
-    $(".crypto-action-page-sell-crypto-input-money").html(MoneyAmount+" Dollars");
+    $(".crypto-action-page-sell-crypto-input-money").html(MoneyAmount+" Dolares");
 });

@@ -64,7 +64,7 @@ CreateThread(function()
         options = {
             {
                 icon = 'fas fa-wrench',
-                label = 'Push Vehicle',
+                label = 'Empurrar veiculo',
                 action = function(entity)
                     if GetEntityHealth(entity) > Config.DamageNeeded then
                         QBCore.Functions.Notify(Lang:t('pushcar.notDamaged'), 'error')

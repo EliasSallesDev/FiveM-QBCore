@@ -27,6 +27,18 @@ local Translations = {
     },
     progress = {
         atm = 'Accessing ATM',
+    },
+    target = {
+        bank = 'Abrir banco',
+        atm = 'Abrir caixa eletronico',
+    },
+    text = {
+        bank = 'Abrir banco',
+    },
+    command = {
+        givecash = 'Give cash',
+        id = 'Player ID',
+        amount = 'Amount',
     }
 }
 

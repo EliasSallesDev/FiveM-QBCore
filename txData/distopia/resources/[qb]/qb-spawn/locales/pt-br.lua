@@ -1,8 +1,8 @@
 local Translations = {
     ui = {
-        last_location = "Última Localização",
+        last_location = "Ultima localizacao",
         confirm = "Confirmar",
-        where_would_you_like_to_start = "Onde você gostaria de começar?",
+        where_would_you_like_to_start = "Onde voce gostaria de comecar?",
     }
 }
 

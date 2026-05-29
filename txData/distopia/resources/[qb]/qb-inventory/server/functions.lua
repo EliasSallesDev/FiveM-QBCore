@@ -627,7 +627,7 @@ function OpenInventory(source, identifier, data)
     local inventory = Inventories[identifier]
 
     if inventory and inventory.isOpen then
-        TriggerClientEvent('QBCore:Notify', source, 'This inventory is currently in use', 'error')
+        TriggerClientEvent('QBCore:Notify', source, 'Este inventario esta em uso no momento', 'error')
         return
     end
 

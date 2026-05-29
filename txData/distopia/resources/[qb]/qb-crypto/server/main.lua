@@ -139,7 +139,7 @@ QBCore.Commands.Add('setcryptoworth', 'Set crypto value', { { name = 'crypto', h
                     NewWorth = NewWorth
                 }
 
-                TriggerClientEvent('QBCore:Notify', src, 'You have changed the value of ' .. Crypto.Labels[crypto] .. ' from: $' .. Crypto.Worth[crypto] .. ' to: $' .. NewWorth .. ' (' .. ChangeLabel .. ' ' .. PercentageChange .. '%)')
+                TriggerClientEvent('QBCore:Notify', src, 'Voce alterou o valor de ' .. Crypto.Labels[crypto] .. ' de: $' .. Crypto.Worth[crypto] .. ' para: $' .. NewWorth .. ' (' .. ChangeLabel .. ' ' .. PercentageChange .. '%)')
                 Crypto.Worth[crypto] = NewWorth
                 TriggerClientEvent('qb-crypto:client:UpdateCryptoWorth', -1, crypto, NewWorth)
                 MySQL.insert('INSERT INTO crypto (worth, history) VALUES (:worth, :history) ON DUPLICATE KEY UPDATE worth = :worth, history = :history', {
@@ -316,12 +316,12 @@ QBCore.Functions.CreateCallback('qb-crypto:server:TransferCrypto', function(sour
                 WalletId = Player.PlayerData.metadata['walletid'],
             }
             Player.Functions.RemoveMoney('crypto', tonumber(data.Coins), 'transfer crypto')
-            TriggerClientEvent('qb-phone:client:AddTransaction', source, Player, data, 'You have ' .. tonumber(data.Coins) .. " Qbit('s) transferred!", 'Debit')
+            TriggerClientEvent('qb-phone:client:AddTransaction', source, Player, data, 'Voce transferiu ' .. tonumber(data.Coins) .. " Qbit(s)!", 'Debito')
             local Target = QBCore.Functions.GetPlayerByCitizenId(result[1].citizenid)
 
             if Target ~= nil then
                 Target.Functions.AddMoney('crypto', tonumber(data.Coins), 'transfer crypto')
-                TriggerClientEvent('qb-phone:client:AddTransaction', Target.PlayerData.source, Player, data, 'There are ' .. tonumber(data.Coins) .. " Qbit('s) credited!", 'Credit')
+                TriggerClientEvent('qb-phone:client:AddTransaction', Target.PlayerData.source, Player, data, 'Foram creditados ' .. tonumber(data.Coins) .. " Qbit(s)!", 'Credito')
             else
                 local MoneyData = json.decode(result[1].money)
                 MoneyData.crypto = MoneyData.crypto + tonumber(data.Coins)

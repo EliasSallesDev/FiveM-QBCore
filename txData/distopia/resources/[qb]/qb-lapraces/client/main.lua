@@ -159,10 +159,10 @@ local function DeleteCheckpoint()
             end
             CreatorData.Checkpoints = NewCheckpoints
         else
-            QBCore.Functions.Notify('You cant go to fast', 'error')
+            QBCore.Functions.Notify('Voce nao pode ir tao rapido', 'error')
         end
     else
-        QBCore.Functions.Notify('You cant go too fast', 'error')
+        QBCore.Functions.Notify('Voce nao pode ir rapido demais', 'error')
     end
 end
 
@@ -180,7 +180,7 @@ local function SaveRace()
 
     TriggerServerEvent('qb-lapraces:server:SaveRace', CreatorData)
 
-    QBCore.Functions.Notify('Race: '..CreatorData.RaceName..' is saved!', 'success')
+    QBCore.Functions.Notify('Corrida: ' .. CreatorData.RaceName .. ' foi salva!', 'success')
 
     for id,_ in pairs(CreatorData.Checkpoints) do
         if CreatorData.Checkpoints[id].blip ~= nil then
@@ -272,7 +272,7 @@ local function CreatorLoop()
                     if CreatorData.Checkpoints ~= nil and next(CreatorData.Checkpoints) ~= nil then
                         DeleteCheckpoint()
                     else
-                        QBCore.Functions.Notify('You have not placed any checkpoints yet..', 'error')
+                        QBCore.Functions.Notify('Voce ainda nao colocou nenhum checkpoint.', 'error')
                     end
                 end
 
@@ -280,7 +280,7 @@ local function CreatorLoop()
                     if CreatorData.Checkpoints ~= nil and #CreatorData.Checkpoints >= 2 then
                         SaveRace()
                     else
-                        QBCore.Functions.Notify('You must have at least 10 checkpoints', 'error')
+                        QBCore.Functions.Notify('Voce precisa ter pelo menos 10 checkpoints', 'error')
                     end
                 end
 
@@ -288,7 +288,7 @@ local function CreatorLoop()
                     if CreatorData.TireDistance + 1.0 ~= 16.0 then
                         CreatorData.TireDistance = CreatorData.TireDistance + 1.0
                     else
-                        QBCore.Functions.Notify('You can not go higher than 15')
+                        QBCore.Functions.Notify('Voce nao pode passar de 15')
                     end
                 end
 
@@ -296,7 +296,7 @@ local function CreatorLoop()
                     if CreatorData.TireDistance - 1.0 ~= 1.0 then
                         CreatorData.TireDistance = CreatorData.TireDistance - 1.0
                     else
-                        QBCore.Functions.Notify('You cannot go lower than 2')
+                        QBCore.Functions.Notify('Voce nao pode colocar menos que 2')
                     end
                 end
             else
@@ -307,7 +307,7 @@ local function CreatorLoop()
             if IsControlJustPressed(0, 163) or IsDisabledControlJustPressed(0, 163) then
                 if not CreatorData.ConfirmDelete then
                     CreatorData.ConfirmDelete = true
-                    QBCore.Functions.Notify('Press [9] again to confirm', 'error', 5000)
+                    QBCore.Functions.Notify('Pressione [9] novamente para confirmar', 'error', 5000)
                 else
                     for _, CheckpointData in pairs(CreatorData.Checkpoints) do
                         if CheckpointData.blip ~= nil then
@@ -336,7 +336,7 @@ local function CreatorLoop()
                     RaceData.InCreator = false
                     CreatorData.RaceName = nil
                     CreatorData.Checkpoints = {}
-                    QBCore.Functions.Notify('Race-editor canceled!', 'error')
+                    QBCore.Functions.Notify('Editor de corrida cancelado!', 'error')
                     CreatorData.ConfirmDelete = false
                 end
             end
@@ -507,9 +507,9 @@ end
 local function FinishRace()
     TriggerServerEvent('qb-lapraces:server:FinishPlayer', CurrentRaceData, CurrentRaceData.TotalTime, CurrentRaceData.TotalLaps, CurrentRaceData.BestLap)
     if CurrentRaceData.BestLap ~= 0 then
-        QBCore.Functions.Notify('Race finished in '..SecondsToClock(CurrentRaceData.TotalTime)..', with the best lap: '..SecondsToClock(CurrentRaceData.BestLap))
+        QBCore.Functions.Notify('Corrida finalizada em ' .. SecondsToClock(CurrentRaceData.TotalTime) .. ', melhor volta: ' .. SecondsToClock(CurrentRaceData.BestLap))
     else
-        QBCore.Functions.Notify('Race finished in '..SecondsToClock(CurrentRaceData.TotalTime))
+        QBCore.Functions.Notify('Corrida finalizada em ' .. SecondsToClock(CurrentRaceData.TotalTime))
     end
     for k, _ in pairs(CurrentRaceData.Checkpoints) do
         if CurrentRaceData.Checkpoints[k].blip ~= nil then
@@ -580,7 +580,7 @@ RegisterNetEvent('qb-lapraces:client:StartRaceEditor', function(RaceName)
         CreatorUI()
         CreatorLoop()
     else
-        QBCore.Functions.Notify('You are already making a race.', 'error')
+        QBCore.Functions.Notify('Voce ja esta criando uma corrida.', 'error')
     end
 end)
 
@@ -596,12 +596,12 @@ RegisterNetEvent('qb-lapraces:client:JoinRace', function(Data, Laps)
         SetupRace(Data, Laps)
         TriggerServerEvent('qb-lapraces:server:UpdateRaceState', CurrentRaceData.RaceId, false, true)
     else
-        QBCore.Functions.Notify('Youre already in a race..', 'error')
+        QBCore.Functions.Notify('Voce ja esta em uma corrida.', 'error')
     end
 end)
 
 RegisterNetEvent('qb-lapraces:client:LeaveRace', function(_)
-    QBCore.Functions.Notify('You have completed the race!')
+    QBCore.Functions.Notify('Voce completou a corrida!')
     for k, _ in pairs(CurrentRaceData.Checkpoints) do
         if CurrentRaceData.Checkpoints[k].blip ~= nil then
             RemoveBlip(CurrentRaceData.Checkpoints[k].blip)
@@ -642,7 +642,7 @@ RegisterNetEvent('qb-lapraces:client:RaceCountdown', function()
         while Countdown ~= 0 do
             if CurrentRaceData.RaceName ~= nil then
                 if Countdown == 10 then
-                    QBCore.Functions.Notify('The race will start in 10 seconds', 'error', 2500)
+                    QBCore.Functions.Notify('A corrida vai comecar em 10 segundos', 'error', 2500)
                     PlaySound(-1, "slow", "SHORT_PLAYER_SWITCH_SOUND_SET", 0, 0, 1)
                 elseif Countdown <= 5 then
                     QBCore.Functions.Notify(Countdown, 'error', 500)
@@ -657,7 +657,7 @@ RegisterNetEvent('qb-lapraces:client:RaceCountdown', function()
         end
         if CurrentRaceData.RaceName ~= nil then
             SetNewWaypoint(CurrentRaceData.Checkpoints[CurrentRaceData.CurrentCheckpoint + 1].coords.x, CurrentRaceData.Checkpoints[CurrentRaceData.CurrentCheckpoint + 1].coords.y)
-            QBCore.Functions.Notify('GO!', 'success', 1000)
+            QBCore.Functions.Notify('VAI!', 'success', 1000)
             SetBlipScale(CurrentRaceData.Checkpoints[CurrentRaceData.CurrentCheckpoint + 1].blip, 1.0)
             FreezeEntityPosition(GetVehiclePedIsIn(PlayerPedId(), true), false)
             DoPilePfx()
@@ -668,7 +668,7 @@ RegisterNetEvent('qb-lapraces:client:RaceCountdown', function()
             Countdown = 10
         end
     else
-        QBCore.Functions.Notify('You are not currently in a race..', 'error')
+        QBCore.Functions.Notify('Voce nao esta em uma corrida.', 'error')
     end
 end)
 
@@ -693,7 +693,7 @@ RegisterNetEvent('qb-lapraces:client:WaitingDistanceCheck', function()
                     if dist > 115.0 then
                         if ToFarCountdown ~= 0 then
                             ToFarCountdown = ToFarCountdown - 1
-                            QBCore.Functions.Notify('Go back to the start or you will be kicked from the race: '..ToFarCountdown..'s', 'error', 500)
+                            QBCore.Functions.Notify('Volte para a largada ou voce sera removido da corrida: ' .. ToFarCountdown .. 's', 'error', 500)
                         else
                             TriggerServerEvent('qb-lapraces:server:LeaveRace', CurrentRaceData)
                             ToFarCountdown = 10

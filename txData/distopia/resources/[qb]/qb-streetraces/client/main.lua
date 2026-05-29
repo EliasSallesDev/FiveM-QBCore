@@ -72,7 +72,7 @@ RegisterNetEvent('qb-streetraces:RaceDone', function(race, winner)
     if RaceId ~= 0 and RaceId == race then
         RaceId = 0
         InRace = false
-        QBCore.Functions.Notify('Race Is Over! The Winner Is ' .. winner .. '!')
+        QBCore.Functions.Notify('A corrida acabou! O vencedor e ' .. winner .. '!')
     end
 end)
 
@@ -107,10 +107,10 @@ RegisterNetEvent('qb-streetraces:CreateRace', function(amount)
             }
             TriggerServerEvent('qb-streetraces:NewRace', race)
         else
-            QBCore.Functions.Notify('End Position Is Too Close', 'error')
+            QBCore.Functions.Notify('A posicao final esta perto demais', 'error')
         end
     else
-        QBCore.Functions.Notify('You Need To Drop A Marker', 'error')
+        QBCore.Functions.Notify('Voce precisa colocar um marcador', 'error')
     end
 end)
 

@@ -191,6 +191,14 @@ QBCore.Functions.CreateCallback('qb-multicharacter:server:setupCharacters', func
             result[i].charinfo = json.decode(result[i].charinfo)
             result[i].money = json.decode(result[i].money)
             result[i].job = json.decode(result[i].job)
+            local job = result[i].job
+            local jobInfo = job and QBCore.Shared.Jobs[job.name]
+            if jobInfo then
+                job.label = jobInfo.label
+                if job.grade and job.grade.level ~= nil and jobInfo.grades[tostring(job.grade.level)] then
+                    job.grade.name = jobInfo.grades[tostring(job.grade.level)].name
+                end
+            end
             plyChars[#plyChars + 1] = result[i]
         end
         cb(plyChars)

@@ -64,20 +64,20 @@ RegisterNetEvent('qb-gangmenu:server:GradeUpdate', function(data)
 		return
 	end
 	if data.grade > Player.PlayerData.gang.grade.level then
-		TriggerClientEvent('QBCore:Notify', src, 'You cannot promote to this rank!', 'error')
+		TriggerClientEvent('QBCore:Notify', src, 'Voce nao pode promover para este cargo!', 'error')
 		return
 	end
 
 	if Employee then
 		if Employee.Functions.SetGang(Player.PlayerData.gang.name, data.grade) then
-			TriggerClientEvent('QBCore:Notify', src, 'Successfully promoted!', 'success')
+			TriggerClientEvent('QBCore:Notify', src, 'Promovido com sucesso!', 'success')
 			Employee.Functions.Save()
 
 			if Employee.PlayerData.source then
-				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'You have been promoted to ' .. data.gradename .. '.', 'success')
+				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'Voce foi promovido para ' .. data.gradename .. '.', 'success')
 			end
 		else
-			TriggerClientEvent('QBCore:Notify', src, 'Grade does not exist.', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Esse grau nao existe.', 'error')
 		end
 	end
 	TriggerClientEvent('qb-gangmenu:client:OpenMenu', src)
@@ -96,22 +96,22 @@ RegisterNetEvent('qb-gangmenu:server:FireMember', function(target)
 
 	if Employee then
 		if target == Player.PlayerData.citizenid then
-			TriggerClientEvent('QBCore:Notify', src, 'You can\'t kick yourself out of the gang!', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Voce nao pode expulsar a si mesmo da gangue!', 'error')
 			return
 		elseif Employee.PlayerData.gang.grade.level > Player.PlayerData.gang.grade.level then
-			TriggerClientEvent('QBCore:Notify', src, 'You cannot fire this citizen!', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Voce nao pode expulsar este cidadao!', 'error')
 			return
 		end
 		if Employee.Functions.SetGang('none', '0') then
 			Employee.Functions.Save()
 			TriggerEvent('qb-log:server:CreateLog', 'gangmenu', 'Gang Fire', 'orange', Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname .. ' successfully fired ' .. Employee.PlayerData.charinfo.firstname .. ' ' .. Employee.PlayerData.charinfo.lastname .. ' (' .. Player.PlayerData.gang.name .. ')', false)
-			TriggerClientEvent('QBCore:Notify', src, 'Gang Member fired!', 'success')
+			TriggerClientEvent('QBCore:Notify', src, 'Membro da gangue expulso!', 'success')
 
 			if Employee.PlayerData.source then -- Player is online
-				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'You have been expelled from the gang!', 'error')
+				TriggerClientEvent('QBCore:Notify', Employee.PlayerData.source, 'Voce foi expulso da gangue!', 'error')
 			end
 		else
-			TriggerClientEvent('QBCore:Notify', src, 'Error.', 'error')
+			TriggerClientEvent('QBCore:Notify', src, 'Erro.', 'error')
 		end
 	end
 	TriggerClientEvent('qb-gangmenu:client:OpenMenu', src)
@@ -129,8 +129,8 @@ RegisterNetEvent('qb-gangmenu:server:HireMember', function(recruit)
 	end
 
 	if Target and Target.Functions.SetGang(Player.PlayerData.gang.name, 0) then
-		TriggerClientEvent('QBCore:Notify', src, 'You hired ' .. (Target.PlayerData.charinfo.firstname .. ' ' .. Target.PlayerData.charinfo.lastname) .. ' come ' .. Player.PlayerData.gang.label .. '', 'success')
-		TriggerClientEvent('QBCore:Notify', Target.PlayerData.source, 'You have been hired as ' .. Player.PlayerData.gang.label .. '', 'success')
+		TriggerClientEvent('QBCore:Notify', src, 'Voce recrutou ' .. (Target.PlayerData.charinfo.firstname .. ' ' .. Target.PlayerData.charinfo.lastname) .. ' para ' .. Player.PlayerData.gang.label, 'success')
+		TriggerClientEvent('QBCore:Notify', Target.PlayerData.source, 'Voce foi recrutado para ' .. Player.PlayerData.gang.label, 'success')
 		TriggerEvent('qb-log:server:CreateLog', 'gangmenu', 'Recruit', 'yellow', (Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname) .. ' successfully recruited ' .. Target.PlayerData.charinfo.firstname .. ' ' .. Target.PlayerData.charinfo.lastname .. ' (' .. Player.PlayerData.gang.name .. ')', false)
 	end
 	TriggerClientEvent('qb-gangmenu:client:OpenMenu', src)

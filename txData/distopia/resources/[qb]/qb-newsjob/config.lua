@@ -16,11 +16,11 @@ Config.Locations = {
         coords = vector4(-598.25, -929.86, 23.86, 86.5),
     },
     ["vehicle"] = {
-        label = "Vehicle Storage",
+        label = "Garagem de veiculos",
         coords = vector4(-552.24, -925.61, 23.86, 242.5),
     },
     ["heli"] = {
-        label = "Helicopter Storage",
+        label = "Garagem de helicopteros",
         coords = vector4(-583.08, -930.55, 36.83, 89.26),
     }
 }
