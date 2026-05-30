@@ -9,3 +9,6 @@ txData/**/data/
 txData/default/data/
 txData/admins.json
 txData/distopia/server.cfg
+txData/distopia/resources/[[]defaultmaps[]]/forests_city/
+txData/distopia/resources/[[]defaultmaps[]]/forests_sa_n/
+txData/distopia/resources/[[]defaultmaps[]]/forests_sa_s/
