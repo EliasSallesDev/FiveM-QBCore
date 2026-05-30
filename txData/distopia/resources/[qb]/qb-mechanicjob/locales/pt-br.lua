@@ -54,7 +54,7 @@ local Translations = {
         window_tint = 'Insulfilm',
         plate = 'Placa',
 
-        camera_hint = '[A/D] girar | [W/S] zoom | [Q/E] altura | [Backspace] fechar câmera',
+        camera_hint = '[A/D] girar | [W/S] zoom | [Q/E] altura | [ESC] sair do menu',
 
         repair = 'Reparar',
         unknown = 'Desconhecido',

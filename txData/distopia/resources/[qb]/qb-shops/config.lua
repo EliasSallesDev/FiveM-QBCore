@@ -1,5 +1,6 @@
 Config = {}
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
+Config.UseTextPrompt = true -- Keep [E] Loja available even when target circles are enabled.
 
 -- Deliveries
 Config.ShopsInvJsonFile = './json/shops-inventory.json'

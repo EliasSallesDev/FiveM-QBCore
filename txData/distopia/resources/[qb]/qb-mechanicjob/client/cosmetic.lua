@@ -40,8 +40,6 @@ local function DisableCosmeticCamera()
         DestroyCam(cosmeticCamera, false)
     end
 
-    SetNuiFocusKeepInput(false)
-
     cosmeticCamera = nil
     cosmeticCameraVehicle = nil
 end
@@ -83,13 +81,33 @@ local function HandleCosmeticCameraControls()
     end
 end
 
+local function HandleCosmeticCameraKey(key)
+    if not cosmeticCameraActive then return end
+
+    key = string.lower(key or '')
+
+    if key == 'a' or key == 'arrowleft' then
+        cosmeticCameraAngle = cosmeticCameraAngle - 8.0
+    elseif key == 'd' or key == 'arrowright' then
+        cosmeticCameraAngle = cosmeticCameraAngle + 8.0
+    elseif key == 'w' or key == 'arrowup' then
+        cosmeticCameraDistance = Clamp(cosmeticCameraDistance - 0.25, 2.0, 10.0)
+    elseif key == 's' or key == 'arrowdown' then
+        cosmeticCameraDistance = Clamp(cosmeticCameraDistance + 0.25, 2.0, 10.0)
+    elseif key == 'q' then
+        cosmeticCameraHeight = Clamp(cosmeticCameraHeight - 0.15, 0.6, 3.8)
+    elseif key == 'e' then
+        cosmeticCameraHeight = Clamp(cosmeticCameraHeight + 0.15, 0.6, 3.8)
+    end
+
+    UpdateCosmeticCamera()
+end
+
 local function EnableCosmeticCamera(vehicle)
     if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then return end
 
     cosmeticCameraActive = true
     cosmeticCameraVehicle = vehicle
-
-    SetNuiFocusKeepInput(true)
 
     if not cosmeticCamera or not DoesCamExist(cosmeticCamera) then
         cosmeticCamera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
@@ -107,8 +125,6 @@ local function EnableCosmeticCamera(vehicle)
         Wait(300)
 
         while cosmeticCameraActive do
-            SetNuiFocusKeepInput(true)
-
             if not cosmeticCameraVehicle or not DoesEntityExist(cosmeticCameraVehicle) then
                 break
             end
@@ -154,6 +170,16 @@ end
 local function OpenCosmeticMenu(menu, vehicle)
     EnableCosmeticCamera(vehicle)
     exports['qb-menu']:openMenu(menu)
+end
+
+local function AddCloseOption(menu)
+    menu[#menu + 1] = {
+        header = Lang:t('menu.close'),
+        icon = 'fas fa-times',
+        params = {
+            event = 'qb-menu:client:closeMenu'
+        }
+    }
 end
 
 -- Paint
@@ -322,6 +348,7 @@ end
 
 local function OpenInteriors(vehicle)
     local mods = { { header = Lang:t('menu.interior'), isMenuHeader = true, icon = 'fas fa-car-side' } }
+    AddCloseOption(mods)
     for i = 1, #Config.InteriorCategories do
         local modCount = GetNumVehicleMods(vehicle, Config.InteriorCategories[i].id)
         if modCount > 0 then
@@ -342,6 +369,7 @@ end
 
 function InteriorModList(id, vehicle, label)
     local mods = { { header = label, isMenuHeader = true, icon = 'fas fa-car-side' } }
+    AddCloseOption(mods)
     mods[#mods + 1] = {
         header = Lang:t('menu.back'),
         icon = 'fas fa-backward',
@@ -351,6 +379,20 @@ function InteriorModList(id, vehicle, label)
                 OpenInteriors(vehicle)
             end,
             args = {}
+        }
+    }
+    mods[#mods + 1] = {
+        header = Lang:t('menu.stock'),
+        params = {
+            isAction = true,
+            event = function(data)
+                SetVehicleModKit(vehicle, 0)
+                SetVehicleMod(vehicle, data.modType, -1, false)
+                InteriorModList(id, vehicle, label)
+            end,
+            args = {
+                modType = id
+            }
         }
     }
     for i = 0, GetNumVehicleMods(vehicle, id) - 1 do
@@ -388,6 +430,7 @@ end
 
 local function OpenExteriors(vehicle)
     local mods = { { header = Lang:t('menu.exterior'), isMenuHeader = true, icon = 'fas fa-car-side' } }
+    AddCloseOption(mods)
     for i = 1, #Config.ExteriorCategories do
         local modCount = GetNumVehicleMods(vehicle, Config.ExteriorCategories[i].id)
         if modCount > 0 then
@@ -408,6 +451,7 @@ end
 
 function ExteriorModList(id, vehicle, label)
     local mods = { { header = label, isMenuHeader = true, icon = 'fas fa-car-side' } }
+    AddCloseOption(mods)
     mods[#mods + 1] = {
         header = Lang:t('menu.back'),
         icon = 'fas fa-backward',
@@ -419,7 +463,19 @@ function ExteriorModList(id, vehicle, label)
             args = {}
         }
     }
-    for i = 1, GetNumVehicleMods(vehicle, id) - 1 do
+    mods[#mods + 1] = {
+        header = Lang:t('menu.stock'),
+        params = {
+            isAction = true,
+            event = function()
+                SetVehicleModKit(vehicle, 0)
+                SetVehicleMod(vehicle, id, -1, false)
+                ExteriorModList(id, vehicle, label)
+            end,
+            args = {}
+        }
+    }
+    for i = 0, GetNumVehicleMods(vehicle, id) - 1 do
         mods[#mods + 1] = {
             header = GetLabelText(GetModTextLabel(vehicle, id, i)),
             params = {
@@ -513,6 +569,7 @@ end
 
 local function OpenWheels(vehicle)
     local mods = { { header = Lang:t('menu.wheels'), isMenuHeader = true, icon = 'fas fa-truck-monster' } }
+    AddCloseOption(mods)
     mods[#mods + 1] = {
         header = Lang:t('menu.tire_smoke'),
         icon = 'fas fa-smog',
@@ -541,6 +598,7 @@ end
 
 function OpenWheelList(id, vehicle, label)
     local mods = { { header = label, isMenuHeader = true, icon = 'fas fa-truck-monster' } }
+    AddCloseOption(mods)
     mods[#mods + 1] = {
         header = Lang:t('menu.back'),
         icon = 'fas fa-backward',
@@ -553,7 +611,20 @@ function OpenWheelList(id, vehicle, label)
         }
     }
     SetVehicleWheelType(vehicle, id)
-    for i = 1, GetNumVehicleMods(vehicle, 23) - 1 do
+    mods[#mods + 1] = {
+        header = Lang:t('menu.stock'),
+        params = {
+            isAction = true,
+            event = function()
+                SetVehicleModKit(vehicle, 0)
+                SetVehicleWheelType(vehicle, id)
+                SetVehicleMod(vehicle, 23, -1, false)
+                OpenWheelList(id, vehicle, label)
+            end,
+            args = {}
+        }
+    }
+    for i = 0, GetNumVehicleMods(vehicle, 23) - 1 do
         mods[#mods + 1] = {
             header = GetLabelText(GetModTextLabel(vehicle, 23, i)),
             params = {
@@ -683,7 +754,6 @@ local function GetXenonList()
 end
 
 local function OpenXenon(vehicle)
-    EnableCosmeticCamera(vehicle)
     local dialog = exports['qb-input']:ShowInput({
         header = Lang:t('menu.xenon'),
         submitText = Lang:t('menu.submit'),
@@ -717,7 +787,6 @@ local function OpenXenon(vehicle)
             }
         }
     })
-    DisableCosmeticCamera()
     if not dialog then return end
 
     if dialog.toggle == 'disable' then
@@ -749,6 +818,19 @@ end
 
 local function WindowTint(vehicle)
     local tints = { { header = Lang:t('menu.window_tint'), isMenuHeader = true, icon = 'fas fa-window-maximize' } }
+    AddCloseOption(tints)
+    tints[#tints + 1] = {
+        header = Lang:t('menu.stock'),
+        params = {
+            isAction = true,
+            event = function()
+                SetVehicleModKit(vehicle, 0)
+                SetVehicleWindowTint(vehicle, 0)
+                WindowTint(vehicle)
+            end,
+            args = {}
+        }
+    }
     if GetNumVehicleWindowTints() > 0 then
         for i = 1, #Config.WindowTints do
             tints[#tints + 1] = {
@@ -772,6 +854,18 @@ end
 
 local function PlateIndex(vehicle)
     local plates = { { header = Lang:t('menu.plate'), isMenuHeader = true, icon = 'fas fa-id-card' } }
+    AddCloseOption(plates)
+    plates[#plates + 1] = {
+        header = Lang:t('menu.stock'),
+        params = {
+            isAction = true,
+            event = function()
+                SetVehicleNumberPlateTextIndex(vehicle, 0)
+                PlateIndex(vehicle)
+            end,
+            args = {}
+        }
+    }
     for i = 1, #Config.PlateIndexes do
         plates[#plates + 1] = {
             header = Config.PlateIndexes[i].label,
@@ -789,6 +883,10 @@ local function PlateIndex(vehicle)
 end
 
 -- Events
+
+RegisterNetEvent('qb-menu:client:keyDown', function(key)
+    HandleCosmeticCameraKey(key)
+end)
 
 RegisterNetEvent('qb-menu:client:menuClosed', function()
     DisableCosmeticCamera()

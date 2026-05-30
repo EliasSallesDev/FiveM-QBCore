@@ -1,3 +1,5 @@
+local QBCore = exports['qb-core']:GetCoreObject()
+
 local function GetArmor(vehicle)
     local armorMenu = { { header = Lang:t('menu.armor'), isMenuHeader = true, icon = 'fas fa-shield' } }
     for i = -1, GetNumVehicleMods(vehicle, 16) - 1 do

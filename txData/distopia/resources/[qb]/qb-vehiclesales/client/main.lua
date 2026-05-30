@@ -408,14 +408,14 @@ CreateThread(function()
 
         SpawnZone[k]:onPlayerInOut(function(isPointInside)
             if isPointInside and IsPedInAnyVehicle(PlayerPedId(), false) then
-                exports['qb-core']:DrawText(Lang:t('menu.interaction'), 'left')
+                exports['qb-core']:DrawText(Lang:t('menu.interaction'), 'left', 'qb-vehiclesales')
                 TextShown = true
                 Listen4Control()
             else
                 listen = false
                 if TextShown then
                     TextShown = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-vehiclesales')
                 end
             end
         end)
@@ -430,14 +430,14 @@ CreateThread(function()
 
                 VehicleZones:onPlayerInOut(function(isPointInside)
                     if isPointInside and IsCarSpawned(k2) then
-                        exports['qb-core']:DrawText(Lang:t('menu.view_contract_int'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('menu.view_contract_int'), 'left', 'qb-vehiclesales')
                         TextShown = true
                         Listen4Control(k2)
                     else
                         listen = false
                         if TextShown then
                             TextShown = false
-                            exports['qb-core']:HideText()
+                            exports['qb-core']:HideText('qb-vehiclesales')
                         end
                     end
                 end)

@@ -346,6 +346,17 @@ QBCore.Commands.Add('admin', Lang:t('commands.open_admin'), {}, false, function(
     TriggerClientEvent('qb-admin:client:openMenu', source)
 end, 'admin')
 
+AddEventHandler('onResourceStart', function(resourceName)
+    if resourceName ~= GetCurrentResourceName() then return end
+
+    CreateThread(function()
+        Wait(1000)
+        for _, src in ipairs(QBCore.Functions.GetPlayers()) do
+            QBCore.Commands.Refresh(src)
+        end
+    end)
+end)
+
 QBCore.Commands.Add('report', Lang:t('info.admin_report'), { { name = 'mensagem', help = 'Mensagem' } }, true, function(source, args)
     local src = source
     local msg = table.concat(args, ' ')

@@ -101,7 +101,7 @@ local function GetDeliveryLocation()
     PolyZone:onPlayerInOut(function(isPointInside)
         if isPointInside then
             inRange = true
-            exports["qb-core"]:DrawText(Lang:t('info.busstop_text'), 'rgb(220, 20, 60)')
+            exports["qb-core"]:DrawText(Lang:t('info.busstop_text'), 'rgb(220, 20, 60)', 'qb-busjob')
             CreateThread(function()
                 repeat
                     Wait(0)
@@ -126,14 +126,14 @@ local function GetDeliveryLocation()
                         resetNpcTask()
                         nextStop()
                         TriggerEvent('qb-busjob:client:DoBusNpc')
-                        exports["qb-core"]:HideText()
+                        exports['qb-core']:HideText('qb-busjob')
                         PolyZone:destroy()
                         break
                     end
                 until not inRange
             end)
         else
-            exports["qb-core"]:HideText()
+            exports['qb-core']:HideText('qb-busjob')
             inRange = false
         end
     end)
@@ -247,7 +247,7 @@ RegisterNetEvent('qb-busjob:client:DoBusNpc', function()
             PolyZone:onPlayerInOut(function(isPointInside)
                 if isPointInside then
                     inRange = true
-                    exports["qb-core"]:DrawText(Lang:t('info.busstop_text'), 'rgb(220, 20, 60)')
+                    exports["qb-core"]:DrawText(Lang:t('info.busstop_text'), 'rgb(220, 20, 60)', 'qb-busjob')
                     CreateThread(function()
                         repeat
                             Wait(5)
@@ -273,14 +273,14 @@ RegisterNetEvent('qb-busjob:client:DoBusNpc', function()
                                 GetDeliveryLocation()
                                 NpcData.NpcTaken = true
                                 TriggerServerEvent('qb-busjob:server:NpcPay')
-                                exports["qb-core"]:HideText()
+                                exports['qb-core']:HideText('qb-busjob')
                                 PolyZone:destroy()
                                 break
                             end
                         until not inRange
                     end)
                 else
-                    exports["qb-core"]:HideText()
+                    exports['qb-core']:HideText('qb-busjob')
                     inRange = false
                 end
             end)
@@ -309,21 +309,21 @@ CreateThread(function()
                     repeat
                         Wait(5)
                         if not inVeh then
-                            exports["qb-core"]:DrawText(Lang:t('info.busstop_text'), 'left')
+                            exports["qb-core"]:DrawText(Lang:t('info.busstop_text'), 'left', 'qb-busjob')
                             if IsControlJustReleased(0, 38) then
                                 busGarage()
-                                exports["qb-core"]:HideText()
+                                exports['qb-core']:HideText('qb-busjob')
                                 break
                             end
                         else
-                            exports["qb-core"]:DrawText(Lang:t('info.bus_stop_work'), 'left')
+                            exports["qb-core"]:DrawText(Lang:t('info.bus_stop_work'), 'left', 'qb-busjob')
                             if IsControlJustReleased(0, 38) then
                                 if (not NpcData.Active or NpcData.Active and NpcData.NpcTaken == false) then
                                     if IsPedInAnyVehicle(PlayerPedId(), false) then
                                         BusData.Active = false;
                                         DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
                                         RemoveBlip(NpcData.NpcBlip)
-                                        exports["qb-core"]:HideText()
+                                        exports['qb-core']:HideText('qb-busjob')
                                         resetNpcTask()
                                         break
                                     end
@@ -335,7 +335,7 @@ CreateThread(function()
                     until not inRange
                 end)
             else
-                exports["qb-core"]:HideText()
+                exports['qb-core']:HideText('qb-busjob')
                 inRange = false
             end
         end

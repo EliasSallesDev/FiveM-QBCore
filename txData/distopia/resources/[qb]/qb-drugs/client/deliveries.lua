@@ -61,7 +61,7 @@ local function KnockDoorAnim(home)
                 Lang:t('info.fred_knock_message', { firstName = myData.charinfo.firstname })
             }
         })
-        exports['qb-core']:DrawText(Lang:t('info.other_dealers_button'), 'left')
+        exports['qb-core']:DrawText(Lang:t('info.other_dealers_button'), 'left', 'qb-drugs')
         AwaitingInput()
     else
         TriggerServerEvent('InteractSound_SV:PlayOnSource', 'knock_door', 0.2)
@@ -359,15 +359,15 @@ function InitZones()
         dealerCombo:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 if not dealerIsHome then
-                    exports['qb-core']:DrawText(Lang:t('info.knock_button'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('info.knock_button'), 'left', 'qb-drugs')
                     AwaitingInput()
                 elseif dealerIsHome then
-                    exports['qb-core']:DrawText(Lang:t('info.other_dealers_button'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('info.other_dealers_button'), 'left', 'qb-drugs')
                     AwaitingInput()
                 end
             else
                 waitingKeyPress = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-drugs')
             end
         end)
     end
@@ -436,7 +436,7 @@ RegisterNetEvent('qb-drugs:client:setLocation', function(locationData)
         drugDeliveryZone:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 local inDeliveryZone = true
-                exports['qb-core']:DrawText(Lang:t('info.deliver_items_button', { itemAmount = activeDelivery['amount'], itemLabel = QBCore.Shared.Items[activeDelivery['itemData']['item']]['label'] }), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.deliver_items_button', { itemAmount = activeDelivery['amount'], itemLabel = QBCore.Shared.Items[activeDelivery['itemData']['item']]['label'] }), 'left', 'qb-drugs')
                 CreateThread(function()
                     while inDeliveryZone do
                         if IsControlJustPressed(0, 38) then
@@ -450,7 +450,7 @@ RegisterNetEvent('qb-drugs:client:setLocation', function(locationData)
                 end)
             else
                 inDeliveryZone = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-drugs')
             end
         end)
     end

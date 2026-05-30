@@ -90,14 +90,14 @@ CreateThread(function()
             local washCombo = ComboZone:Create(washPoly, {name = "washPoly"})
             washCombo:onPlayerInOut(function(isPointInside)
                 if isPointInside and IsPedInAnyVehicle(PlayerPedId(), false) then
-                    exports['qb-core']:DrawText(Lang:t('wash.wash_vehicle'),'left')
+                    exports['qb-core']:DrawText(Lang:t('wash.wash_vehicle'),'left', 'qb-smallresources')
                     if not listen then
                         listen = true
                         washLoop()
                     end
                 else
                     listen = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-smallresources')
                 end
             end)
         end

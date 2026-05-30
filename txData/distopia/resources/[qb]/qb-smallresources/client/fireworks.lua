@@ -43,12 +43,12 @@ local function startFirework(asset, coords)
     CreateThread(function()
         while fireworkTime > 0 do
             if #(pedCoords - vector3(coords.x, coords.y, coords.z)) < 50.0 then
-               exports['qb-core']:DrawText(Lang:t('firework.time_left') .. ' ' .. fireworkTime)
+               exports['qb-core']:DrawText(Lang:t('firework.time_left') .. ' ' .. fireworkTime, 'left', 'qb-smallresources')
             end
             Wait(1000)
             fireworkTime -= 1
         end
-        exports['qb-core']:HideText()
+        exports['qb-core']:HideText('qb-smallresources')
         UseParticleFxAssetNextCall('scr_indep_fireworks')
         for _ = 1, math.random(5, 10), 1 do
             local firework = fireworkList[asset][math.random(1, #fireworkList[asset])]

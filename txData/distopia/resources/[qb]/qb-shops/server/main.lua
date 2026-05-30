@@ -1,5 +1,30 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore
 local Bail = {}
+
+local function GetQBCore()
+    if QBCore then return QBCore end
+
+    while GetResourceState('qb-core') ~= 'started' do
+        Wait(100)
+    end
+
+    while not QBCore do
+        local ok, core = pcall(function()
+            return exports['qb-core']:GetCoreObject()
+        end)
+        if ok and core then
+            QBCore = core
+        else
+            Wait(100)
+        end
+    end
+
+    return QBCore
+end
+
+CreateThread(function()
+    GetQBCore()
+end)
 
 local function isTrucker(Player)
     return Player and Player.PlayerData.job and Player.PlayerData.job.name == 'trucker'
@@ -37,7 +62,7 @@ local function saveShopInv(shop, products)
 end
 
 local function deliveryPay(source, shop)
-    local Player = QBCore.Functions.GetPlayer(source)
+    local Player = GetQBCore().Functions.GetPlayer(source)
     if not Player then return end
     local playerPed = GetPlayerPed(source)
     local playerCoords = GetEntityCoords(playerPed)
@@ -78,7 +103,7 @@ end)
 
 RegisterNetEvent('qb-shops:server:DoBail', function(bool)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local Player = GetQBCore().Functions.GetPlayer(src)
     if not Player then return end
     if bool then
         if not isTrucker(Player) then
@@ -113,7 +138,7 @@ RegisterNetEvent('qb-shops:server:PaySlip', function(drops)
     local coords = Config.DeliveryLocations['main'].coords
     local distance = #(playerCoords - vector3(coords.x, coords.y, coords.z))
     if distance > 10 then return end
-    local Player = QBCore.Functions.GetPlayer(src)
+    local Player = GetQBCore().Functions.GetPlayer(src)
     if not Player then return end
     if not isTrucker(Player) then
         TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_trucker'), 'error')
@@ -132,18 +157,24 @@ end)
 
 RegisterNetEvent('qb-shops:server:openShop', function(data)
     local src = source
+    if type(data) == 'string' then
+        data = { shop = data }
+    end
+    if type(data) ~= 'table' or not data.shop then return end
+
     local shopName = data.shop
     local shopData = Config.Locations[shopName]
     if not shopData then return end
-    local Player = QBCore.Functions.GetPlayer(src)
+    local Player = GetQBCore().Functions.GetPlayer(src)
     if not Player then return end
     local playerData = Player.PlayerData
     local products = shopData.products
+    if type(products) ~= 'table' then return end
     local items = {}
 
     if shopData.useStock then
-        local shopInvJson = json.decode(LoadResourceFile(GetCurrentResourceName(), Config.ShopsInvJsonFile))
-        if shopInvJson[shopName] then
+        local shopInvJson = json.decode(LoadResourceFile(GetCurrentResourceName(), Config.ShopsInvJsonFile) or '{}') or {}
+        if shopInvJson[shopName] and shopInvJson[shopName].products then
             for k, v in pairs(shopInvJson[shopName].products) do
                 if products[k] then
                     products[k].amount = v.amount
@@ -156,23 +187,23 @@ RegisterNetEvent('qb-shops:server:openShop', function(data)
         local curProduct = products[i]
         local addProduct = true
 
-        if curProduct.requiredGrade and playerData.job.grade.level < curProduct.requiredGrade then
+        if curProduct.requiredGrade and (not playerData.job or not playerData.job.grade or playerData.job.grade.level < curProduct.requiredGrade) then
             addProduct = false
         end
 
-        if addProduct and curProduct.requiredJob and not checkTable(playerData.job.name, curProduct.requiredJob) then
+        if addProduct and curProduct.requiredJob and (not playerData.job or not checkTable(playerData.job.name, curProduct.requiredJob)) then
             addProduct = false
         end
 
-        if addProduct and curProduct.requiredGang and not checkTable(playerData.gang.name, curProduct.requiredGang) then
+        if addProduct and curProduct.requiredGang and (not playerData.gang or not checkTable(playerData.gang.name, curProduct.requiredGang)) then
             addProduct = false
         end
 
-        if addProduct and curProduct.requiredLicense and not checkTable(playerData.metadata['licences'], curProduct.requiredLicense) then
+        if addProduct and curProduct.requiredLicense and (not playerData.metadata or not checkTable(playerData.metadata['licences'], curProduct.requiredLicense)) then
             addProduct = false
         end
 
-        if addProduct then
+        if addProduct and curProduct.name then
             curProduct.slot = #items + 1
             items[#items + 1] = curProduct
         end

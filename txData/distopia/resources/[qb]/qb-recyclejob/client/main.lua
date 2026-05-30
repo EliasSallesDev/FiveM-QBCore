@@ -260,10 +260,10 @@ local function Start()
             sellZone:onPlayerInOut(function(isPointInside)
                 if isPointInside then
                     inZone['sellPed'] = true
-                    exports['qb-core']:DrawText(Lang:t('text.point_sell_materials'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('text.point_sell_materials'), 'left', 'qb-recyclejob')
                 else
                     inZone['sellPed'] = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-recyclejob')
                 end
             end)
         end
@@ -312,11 +312,11 @@ local function Start()
                 if isPointInside then
                     if k == packageCoords then
                        inZone['targetCrate'] = true
-                        exports['qb-core']:DrawText(Lang:t('text.point_get_package'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('text.point_get_package'), 'left', 'qb-recyclejob')
                     end
                 else
                     inZone['targetCrate'] = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-recyclejob')
                 end
             end)
         end
@@ -430,28 +430,28 @@ local function Start()
         })
         enterZone:onPlayerInOut(function(isPointInside)
             if isPointInside then
-                exports['qb-core']:DrawText(Lang:t('text.point_enter_warehouse'), 'left')
+                exports['qb-core']:DrawText(Lang:t('text.point_enter_warehouse'), 'left', 'qb-recyclejob')
                 inZone['enterLocation'] = isPointInside
             else
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-recyclejob')
                 inZone['enterLocation'] = isPointInside
             end
         end)
         exitZone:onPlayerInOut(function(isPointInside)
             if isPointInside then
-                exports['qb-core']:DrawText(Lang:t('text.point_exit_warehouse'), 'left')
+                exports['qb-core']:DrawText(Lang:t('text.point_exit_warehouse'), 'left', 'qb-recyclejob')
                 inZone['exitLocation'] = isPointInside
             else
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-recyclejob')
                 inZone['exitLocation'] = isPointInside
             end
         end)
         dutyZone:onPlayerInOut(function(isPointInside)
             if isPointInside then
-                exports['qb-core']:DrawText(Lang:t('text.point_toggle_duty'), 'left')
+                exports['qb-core']:DrawText(Lang:t('text.point_toggle_duty'), 'left', 'qb-recyclejob')
                 inZone['dutyLocation'] = isPointInside
             else
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-recyclejob')
                 inZone['dutyLocation'] = isPointInside
             end
         end)
@@ -459,10 +459,10 @@ local function Start()
             if isPointInside then
                 if carryPackage then
                     inZone['turnIn'] = isPointInside
-                    exports['qb-core']:DrawText(Lang:t('text.point_hand_in_package'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('text.point_hand_in_package'), 'left', 'qb-recyclejob')
                 end
             else
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-recyclejob')
                 inZone['turnIn'] = isPointInside
             end
         end)
@@ -496,7 +496,7 @@ local function Start()
                 repeat
                     Wait(1)
                 until IsControlJustReleased(0, 38) or not inZone['targetCrate']
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-recyclejob')
                 if inZone['targetCrate'] then
                     if not isBusy then 
                         pickUp()

@@ -1,4 +1,15 @@
 const { ref, onBeforeUnmount } = Vue;
+const hudGate = { ready: false };
+
+function setHudGateReady(ready) {
+    hudGate.ready = ready === true;
+    if (document.body) {
+        document.body.classList.toggle("hud-unlocked", hudGate.ready);
+        document.body.classList.toggle("hud-locked", !hudGate.ready);
+    }
+}
+
+setHudGateReady(false);
 
 const app = Vue.createApp({
     data: function () {
@@ -630,6 +641,24 @@ const moneyHud = Vue.createApp({
             showCash: false,
             showBank: false,
             showUpdate: false,
+            playerId: 0,
+            playerName: 'Carregando...',
+            serverName: 'DISTOPIA RP',
+            street1: '',
+            street2: '',
+            currentTime: '--:--',
+            jobLabel: 'Desempregado',
+            show: false,
+            voice: 0,
+            voiceMode: 'Normal',
+            voiceState: 'normal',
+            voiceIcon: 'fas fa-microphone',
+            talking: false,
+            radio: 0,
+            radioActive: false,
+            showAmmo: false,
+            ammoClip: 0,
+            ammoReserve: 0,
         };
     },
     destroyed() {
@@ -638,19 +667,73 @@ const moneyHud = Vue.createApp({
     mounted() {
         this.listener = window.addEventListener("message", (event) => {
             switch (event.data.action) {
+                case "lockHud":
+                    setHudGateReady(false);
+                    this.show = false;
+                    this.showUpdate = false;
+                    this.showCash = false;
+                    this.showBank = false;
+                    break;
+                case "unlockHud":
+                    setHudGateReady(true);
+                    break;
+                case "hideHud":
+                    setHudGateReady(false);
+                    this.show = false;
+                    this.showUpdate = false;
+                    this.showCash = false;
+                    this.showBank = false;
+                    break;
                 case "showconstant":
+                    if (!hudGate.ready) break;
                     this.showConstant(event.data);
                     break;
                 case "updatemoney":
+                    if (!hudGate.ready) break;
                     this.update(event.data);
                     break;
                 case "show":
+                    if (!hudGate.ready) break;
                     this.showAccounts(event.data);
+                    break;
+                case "hudtick":
+                    if (!hudGate.ready) {
+                        this.show = false;
+                        this.showUpdate = false;
+                        break;
+                    }
+                    this.updatePremiumInfo(event.data);
+                    break;
+                case "baseplate":
+                    if (!hudGate.ready) break;
+                    this.street1 = event.data.street1 || this.street1;
+                    this.street2 = event.data.street2 || '';
                     break;
             }
         });
     },
     methods: {
+        updateVoice(data) {
+            this.voice = Number(data.voice || 0);
+            this.talking = !!data.talking;
+            this.radio = data.radio || 0;
+            this.radioActive = !!data.radioActive;
+            if (this.radio != 0 && this.radio !== undefined) {
+                this.voiceIcon = 'fas fa-headset';
+            } else {
+                this.voiceIcon = 'fas fa-microphone';
+            }
+            if (this.voice <= 2) {
+                this.voiceMode = 'Baixo';
+                this.voiceState = 'baixo';
+            } else if (this.voice <= 4) {
+                this.voiceMode = 'Normal';
+                this.voiceState = 'normal';
+            } else {
+                this.voiceMode = 'Gritando';
+                this.voiceState = 'gritando';
+            }
+        },
         // CONFIGURE YOUR CURRENCY HERE
         // https://www.w3schools.com/tags/ref_language_codes.asp LANGUAGE CODES
         // https://www.w3schools.com/tags/ref_country_codes.asp COUNTRY CODES
@@ -661,6 +744,26 @@ const moneyHud = Vue.createApp({
                 minimumFractionDigits: 0,
             });
             return formatter.format(value);
+        },
+        formatSimple(value) {
+            const number = Number(value || 0);
+            return '$ ' + number.toLocaleString('pt-BR');
+        },
+        updatePremiumInfo(data) {
+            this.show = data.show === true && data.isPaused !== 1;
+            this.playerId = data.playerId || this.playerId || 0;
+            this.playerName = data.playerName || this.playerName || 'Jogador';
+            this.serverName = data.serverName || this.serverName || 'DISTOPIA RP';
+            this.currentTime = data.currentTime || this.currentTime || '--:--';
+            this.jobLabel = data.jobLabel || this.jobLabel || 'Desempregado';
+            this.showAmmo = data.showAmmo === true;
+            this.ammoClip = Number.isFinite(Number(data.ammoClip)) ? Math.max(0, Math.round(Number(data.ammoClip))) : 0;
+            this.ammoReserve = Number.isFinite(Number(data.ammoReserve)) ? Math.max(0, Math.round(Number(data.ammoReserve))) : 0;
+            if (data.cash !== undefined) this.cash = data.cash;
+            if (data.bank !== undefined) this.bank = data.bank;
+            this.showCash = true;
+            this.showBank = true;
+            this.updateVoice(data);
         },
         showConstant(data) {
             this.showCash = true;
@@ -765,6 +868,8 @@ const playerHud = {
             showHarness: false,
             showParachute: false,
             showDev: false,
+            showGunpowder: false,
+            gunpowder: false,
             voiceIcon: "fas fa-microphone",
             talkingColor: "#FFFFFF",
             nosColor: "",
@@ -782,7 +887,25 @@ const playerHud = {
     },
     mounted() {
         this.listener = window.addEventListener("message", (event) => {
+            if (event.data.action === "lockHud") {
+                setHudGateReady(false);
+                this.show = false;
+                return;
+            }
+            if (event.data.action === "unlockHud") {
+                setHudGateReady(true);
+                return;
+            }
+            if (event.data.action === "hideHud") {
+                setHudGateReady(false);
+                this.show = false;
+                return;
+            }
             if (event.data.action === "hudtick") {
+                if (!hudGate.ready) {
+                    this.show = false;
+                    return;
+                }
                 this.hudTick(event.data);
             }
             // else if(event.data.update) {
@@ -793,7 +916,7 @@ const playerHud = {
     },
     methods: {
         hudTick(data) {
-            this.show = data.show;
+            this.show = data.show === true && data.isPaused !== 1;
             this.health = data.health;
             this.armor = data.armor;
             this.hunger = data.hunger;
@@ -803,6 +926,7 @@ const playerHud = {
             this.talking = data.talking;
             this.radio = data.radio;
             this.radioActive = data.radioActive;
+            this.gunpowder = data.gunpowder === true;
             this.nos = data.nos;
             this.oxygen = data.oxygen;
             this.cruise = data.cruise;
@@ -998,7 +1122,23 @@ const playerHud = {
                 this.showDev = false;
             }
 
-            if (data.isPaused === 1) {
+            // HUD V5: indicadores principais sempre visíveis e seguros
+            this.showVoice = true;
+            this.showHealth = true;
+            this.showHunger = true;
+            this.showThirst = true;
+            this.showArmor = Number(data.armor || 0) > 0;
+            this.showStress = Number(data.stress || 0) > 0;
+            this.showOxygen = Number(data.oxygen || 0) < 100;
+            this.showArmed = false;
+            this.showGunpowder = this.gunpowder === true;
+            this.health = Number.isFinite(Number(this.health)) ? Math.max(0, Math.min(100, Math.round(Number(this.health)))) : 0;
+            this.armor = Number.isFinite(Number(this.armor)) ? Math.max(0, Math.min(100, Math.round(Number(this.armor)))) : 0;
+            this.hunger = Number.isFinite(Number(this.hunger)) ? Math.max(0, Math.min(100, Math.round(Number(this.hunger)))) : 0;
+            this.thirst = Number.isFinite(Number(this.thirst)) ? Math.max(0, Math.min(100, Math.round(Number(this.thirst)))) : 0;
+            this.stress = Number.isFinite(Number(this.stress)) ? Math.max(0, Math.min(100, Math.round(Number(this.stress)))) : 0;
+
+            if (data.isPaused === 1 || data.show !== true) {
                 this.show = false;
             }
         },
@@ -1013,19 +1153,34 @@ app2.mount("#ui-container");
 const vehHud = {
     data() {
         return {
-            speedometer: 66,
-            fuelgauge: 69,
+            speedometer: 0,
+            fuelgauge: 0,
             altitudegauge: 75,
+            lastRpmDeg: 0,
             fuel: 0,
             speed: 0,
             seatbelt: 0,
             showSquareB: 0,
             show: false,
-            showAltitude: true,
+            showAltitude: false,
             showSeatbelt: true,
             showSquare: false,
             showCircle: false,
             seatbeltColor: "",
+            safeFuel: 0,
+            fuelDeg: 0,
+            rpm: 0,
+            rpmDisplay: "0.0",
+            rpmDeg: 0,
+            speedDeg: 0,
+            speedNeedleDeg: 135,
+            speedPercent: 0,
+            rpmPercent: 0,
+            rpmColor: "#ffffff",
+            rpmPeak: false,
+            nos: 0,
+            nitroPercent: 0,
+            gear: 0,
         };
     },
 
@@ -1034,41 +1189,110 @@ const vehHud = {
     },
     mounted() {
         this.listener = window.addEventListener("message", (event) => {
+            if (event.data.action === "lockHud") {
+                setHudGateReady(false);
+                this.vehicleHud({ show: false, isPaused: 1 });
+                return;
+            }
+            if (event.data.action === "unlockHud") {
+                setHudGateReady(true);
+                return;
+            }
+            if (event.data.action === "hideHud") {
+                setHudGateReady(false);
+                this.vehicleHud({ show: false, isPaused: 1 });
+                return;
+            }
             if (event.data.action === "car") {
+                if (!hudGate.ready) {
+                    this.vehicleHud({ show: false, isPaused: 1 });
+                    return;
+                }
                 this.vehicleHud(event.data);
             }
         });
     },
     methods: {
+        nitroOn(index) {
+            return this.nitroPercent >= (index * 10);
+        },
         vehicleHud(data) {
-            this.show = data.show;
-            this.speed = data.speed;
-            this.altitude = data.altitude;
-            this.fuel = data.fuel * 0.71;
-            this.showSeatbelt = data.showSeatbelt;
-            this.showAltitude = data.showAltitude;
+            this.show = data.show === true && data.isPaused !== 1;
+            if (!this.show) {
+                this.speed = 0;
+                this.safeFuel = 0;
+                this.rpm = 0;
+                this.rpmPercent = 0;
+                this.rpmColor = "#ffffff";
+                this.rpmPeak = false;
+                this.nitroPercent = 0;
+                this.seatbelt = 0;
+                this.gear = 0;
+                this.showSeatbelt = false;
+                this.showAltitude = false;
+                return;
+            }
+            this.speed = Number.isFinite(Number(data.speed)) ? Math.max(0, Math.round(Number(data.speed))) : 0;
+            this.altitude = Number.isFinite(Number(data.altitude)) ? Math.round(Number(data.altitude)) : 0;
+            const fuelValue = Number(data.fuel);
+            this.fuel = Number.isFinite(fuelValue) ? Math.max(0, Math.min(100, Math.round(fuelValue))) : 0;
+            this.safeFuel = this.fuel;
+            const rpmValue = Number(data.rpm);
+            this.rpm = Number.isFinite(rpmValue) ? Math.max(0, Math.min(1, rpmValue)) : 0;
+            const rpmSeven = this.rpm * 7;
+            this.rpmDisplay = rpmSeven.toFixed(1);
+            // V16: número mostra velocidade, barra principal responde ao RPM.
+            // Resposta mais presente: aplicamos uma curva leve para a barra encher mais cedo.
+            const maxSpeed = 220;
+            const speedRatio = Math.max(0, Math.min(1, this.speed / maxSpeed));
+            this.speedPercent = Math.max(0, Math.min(100, Math.round(speedRatio * 100)));
+            const rpmCurve = Math.pow(this.rpm, 0.72);
+            this.rpmPercent = Math.max(0, Math.min(100, Math.round(rpmCurve * 100)));
+            if (this.rpm >= 0.94) {
+                this.rpmColor = "#ff334d";
+                this.rpmPeak = true;
+            } else if (this.rpm >= 0.82) {
+                this.rpmColor = "#ff9f24";
+                this.rpmPeak = false;
+            } else if (this.rpm >= 0.62) {
+                this.rpmColor = "#ffd166";
+                this.rpmPeak = false;
+            } else if (this.rpm >= 0.38) {
+                this.rpmColor = "#7dffb2";
+                this.rpmPeak = false;
+            } else {
+                this.rpmColor = "#ffffff";
+                this.rpmPeak = false;
+            }
+            this.speedDeg = Math.max(2, Math.min(270, speedRatio * 270));
+            this.speedNeedleDeg = 135 + (speedRatio * 270);
+            const targetDeg = Math.max(2, Math.min(270, this.rpm * 270));
+            this.rpmDeg = targetDeg;
+            const nosValue = Number(data.nos);
+            this.nos = Number.isFinite(nosValue) ? Math.max(0, Math.min(100, Math.round(nosValue))) : 0;
+            this.nitroPercent = this.nos;
+            const gearValue = Number(data.gear);
+            this.gear = Number.isFinite(gearValue) ? Math.max(0, Math.min(9, Math.round(gearValue))) : 0;
+            this.showSeatbelt = data.showSeatbelt === true;
+            this.showAltitude = false;
             this.showSquareB = data.showSquareB;
             this.showCircleB = data.showCircleB;
             if (data.seatbelt === true) {
                 this.seatbelt = 1;
-                this.seatbeltColor = "transparent";
+                this.seatbeltColor = "#23f28b";
             } else {
                 this.seatbelt = 0;
-                this.seatbeltColor = "#FF5100";
+                this.seatbeltColor = "#ff334d";
             }
             if (data.showSeatbelt === true) {
                 this.showSeatbelt = true;
             } else {
                 this.showSeatbelt = false;
             }
-            if (data.showAltitude === true) {
-                this.showAltitude = true;
-            } else {
-                this.showAltitude = false;
-            }
-            if (data.fuel <= 20) {
+            this.showAltitude = false;
+            if (this.fuel <= 20) {
                 this.fuelColor = "#ff0000";
-            } else if (data.fuel <= 30) {
+            } else if (this.fuel <= 30) {
                 this.fuelColor = "#dd6e14";
             } else {
                 this.fuelColor = "#FFFFFF";
@@ -1083,7 +1307,7 @@ const vehHud = {
             } else {
                 this.showCircle = false;
             }
-            if (data.isPaused === 1) {
+            if (data.isPaused === 1 || data.show !== true) {
                 this.show = false;
             }
         },
@@ -1112,6 +1336,20 @@ const baseplateHud = {
     },
     mounted() {
         this.listener = window.addEventListener("message", (event) => {
+            if (event.data.action === "lockHud") {
+                setHudGateReady(false);
+                this.show = false;
+                return;
+            }
+            if (event.data.action === "unlockHud") {
+                setHudGateReady(true);
+                return;
+            }
+            if (event.data.action === "hideHud") {
+                setHudGateReady(false);
+                this.show = false;
+                return;
+            }
             if (event.data.action == "update") {
                 type = event.data.type;
                 value = event.data.value;
@@ -1124,6 +1362,10 @@ const baseplateHud = {
                 }
             }
             if (event.data.action === "baseplate") {
+                if (!hudGate.ready) {
+                    this.show = false;
+                    return;
+                }
                 this.baseplateHud(event.data);
             }
         });

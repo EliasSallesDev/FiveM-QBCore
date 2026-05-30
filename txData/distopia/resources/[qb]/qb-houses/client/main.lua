@@ -163,9 +163,9 @@ local function RegisterStashTarget()
 
     stashTargetBox:onPlayerInOut(function(isPointInside)
         if isPointInside and not entering and isOwned then
-            exports['qb-core']:DrawText(Lang:t('target.open_stash'), 'left')
+            exports['qb-core']:DrawText(Lang:t('target.open_stash'), 'left', 'qb-houses')
         else
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-houses')
         end
 
         isInsideStashTarget = isPointInside
@@ -187,9 +187,9 @@ local function RegisterOutfitsTarget()
 
     outfitsTargetBox:onPlayerInOut(function(isPointInside)
         if isPointInside and not entering and isOwned then
-            exports['qb-core']:DrawText(Lang:t('target.outfits'), 'left')
+            exports['qb-core']:DrawText(Lang:t('target.outfits'), 'left', 'qb-houses')
         else
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-houses')
         end
 
         isInsideOutfitsTarget = isPointInside
@@ -211,9 +211,9 @@ local function RegisterCharactersTarget()
 
     charactersTargetBox:onPlayerInOut(function(isPointInside)
         if isPointInside and not entering and isOwned then
-            exports['qb-core']:DrawText(Lang:t('target.change_character'), 'left')
+            exports['qb-core']:DrawText(Lang:t('target.change_character'), 'left', 'qb-houses')
         else
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-houses')
         end
 
         isInsiteCharactersTarget = isPointInside
@@ -1544,7 +1544,7 @@ CreateThread(function()
                 wait = 0
                 if IsControlJustPressed(0, 38) then
                     openHouseStash()
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-houses')
                 end
             end
 
@@ -1552,7 +1552,7 @@ CreateThread(function()
                 wait = 0
                 if IsControlJustPressed(0, 38) then
                     openOutfitMenu()
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-houses')
                 end
             end
 
@@ -1560,7 +1560,7 @@ CreateThread(function()
                 wait = 0
                 if IsControlJustPressed(0, 38) then
                     changeCharacter()
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-houses')
                 end
             end
         end

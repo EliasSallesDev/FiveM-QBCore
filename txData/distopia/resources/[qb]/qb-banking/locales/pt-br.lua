@@ -29,11 +29,11 @@ local Translations = {
         atm = 'Acessando caixa eletrônico',
     },
     target = {
-        bank = 'Abrir banco',
+        bank = '[E] Abrir banco',
         atm = 'Abrir caixa eletrônico',
     },
     text = {
-        bank = 'Abrir banco',
+        bank = '[E] Abrir banco',
     },
     command = {
         givecash = 'Dar dinheiro',

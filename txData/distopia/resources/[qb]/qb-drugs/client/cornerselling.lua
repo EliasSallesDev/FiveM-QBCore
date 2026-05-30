@@ -93,7 +93,7 @@ local function RobberyPed()
                     if not Config.UseTarget and #(pos - pedpos) < 1.5 then
                         if not textDrawn then
                             textDrawn = true
-                            exports['qb-core']:DrawText(Lang:t('info.pick_up_button'))
+                            exports['qb-core']:DrawText(Lang:t('info.pick_up_button'), 'left', 'qb-drugs')
                         end
                         if IsControlJustReleased(0, 38) then
                             exports['qb-core']:KeyPressed()
@@ -271,7 +271,7 @@ local function SellToPed(ped)
                     elseif not Config.UseTarget then
                         if not textDrawn then
                             textDrawn = true
-                            exports['qb-core']:DrawText(Lang:t('info.drug_offer', { bags = bagAmount, drugLabel = currentOfferDrug.label, randomPrice = randomPrice }))
+                            exports['qb-core']:DrawText(Lang:t('info.drug_offer', { bags = bagAmount, drugLabel = currentOfferDrug.label, randomPrice = randomPrice }), 'left', 'qb-drugs')
                         end
                         if IsControlJustPressed(0, 38) then
                             if IsPedInAnyVehicle(PlayerPedId(), false) then
@@ -325,7 +325,7 @@ local function SellToPed(ped)
                         exports['qb-target']:RemoveZone('sellingPed')
                     else
                         if textDrawn then
-                            exports['qb-core']:HideText()
+                            exports['qb-core']:HideText('qb-drugs')
                             textDrawn = false
                         end
                     end

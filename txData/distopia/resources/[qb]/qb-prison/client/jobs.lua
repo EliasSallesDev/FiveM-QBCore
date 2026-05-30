@@ -130,10 +130,10 @@ CreateThread(function()
                 jobZone:onPlayerInOut(function(isPointInside)
                     isInside = isPointInside and inJail and currentJob and not Config.Locations.jobs[k][i].done and not isWorking
                     if isInside then
-                        exports['qb-core']:DrawText(Lang:t('info.job_interaction'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('info.job_interaction'), 'left', 'qb-prison')
                     else
                         verifiedLocation = currentLocation
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-prison')
                     end
                 end)
             end
@@ -153,7 +153,7 @@ CreateThread(function()
                         sleep = 1000
                     end
                 elseif textShown then
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-prison')
                     textShown = false
                 end
             end

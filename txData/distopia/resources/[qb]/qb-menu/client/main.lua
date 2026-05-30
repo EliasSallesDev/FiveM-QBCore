@@ -30,7 +30,6 @@ local function openMenu(data, sort, skipFirst)
     end
 
     SetNuiFocus(true, true)
-    SetNuiFocusKeepInput(true)
 
     headerShown = false
     sendData = data
@@ -45,7 +44,7 @@ local function closeMenu()
     sendData = nil
     headerShown = false
 
-    SetNuiFocus(false, false)
+    SetNuiFocus(false)
     SetNuiFocusKeepInput(false)
 
     SendNUIMessage({
@@ -82,7 +81,7 @@ RegisterNUICallback('clickedButton', function(option, cb)
 
     PlaySoundFrontend(-1, 'Highlight_Cancel', 'DLC_HEIST_PLANNING_BOARD_SOUNDS', 1)
 
-    SetNuiFocus(false, false)
+    SetNuiFocus(false)
     SetNuiFocusKeepInput(false)
 
     if sendData then
@@ -120,11 +119,22 @@ RegisterNUICallback('closeMenu', function(_, cb)
     headerShown = false
     sendData = nil
 
-    SetNuiFocus(false, false)
+    SetNuiFocus(false)
     SetNuiFocusKeepInput(false)
 
     cb('ok')
     TriggerEvent("qb-menu:client:menuClosed")
+end)
+
+RegisterNUICallback('menuKeyDown', function(data, cb)
+    TriggerEvent('qb-menu:client:keyDown', data.key)
+    cb('ok')
+end)
+
+AddEventHandler('onClientResourceStart', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+    SetNuiFocus(false)
+    SetNuiFocusKeepInput(false)
 end)
 
 -- Command and Keymapping

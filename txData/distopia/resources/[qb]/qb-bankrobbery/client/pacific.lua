@@ -226,12 +226,12 @@ CreateThread(function()
             })
             lockerZone:onPlayerInOut(function(inside)
                 if inside and not IsDrilling and Config.BigBanks["pacific"]["isOpened"] and not Config.BigBanks["pacific"]["lockers"][k]["isBusy"] and not Config.BigBanks["pacific"]["lockers"][k]["isOpened"] then
-                    exports['qb-core']:DrawText(Lang:t("general.break_safe_open_option_drawtext"), 'right')
+                    exports['qb-core']:DrawText(Lang:t("general.break_safe_open_option_drawtext"), 'right', 'qb-bankrobbery')
                     currentLocker = k
                 else
                     if currentLocker == k then
                         currentLocker = 0
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-bankrobbery')
                     end
                 end
             end)
@@ -246,7 +246,7 @@ CreateThread(function()
                     if IsControlJustPressed(0, 38) then
                         exports['qb-core']:KeyPressed()
                         Wait(500)
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-bankrobbery')
                         if CurrentCops >= Config.MinimumPacificPolice then
                             openLocker("pacific", currentLocker)
                         else

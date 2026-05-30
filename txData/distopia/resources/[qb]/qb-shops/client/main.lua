@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore
 local currentShop, playerData
 local pedSpawned = false
 local listen = false
@@ -6,6 +6,36 @@ local ShopPed = {}
 local NewZones = {}
 
 -- Functions
+
+local function GetQBCore()
+    if QBCore then return QBCore end
+
+    while GetResourceState('qb-core') ~= 'started' do
+        Wait(100)
+    end
+
+    while not QBCore do
+        local ok, core = pcall(function()
+            return exports['qb-core']:GetCoreObject()
+        end)
+        if ok and core then
+            QBCore = core
+        else
+            Wait(100)
+        end
+    end
+
+    return QBCore
+end
+
+CreateThread(function()
+    GetQBCore()
+end)
+
+local function refreshPlayerData()
+    playerData = GetQBCore().Functions.GetPlayerData()
+    return playerData
+end
 
 local function createBlips()
     if pedSpawned then return end
@@ -29,12 +59,18 @@ local function listenForControl()
     if listen then return end
     CreateThread(function()
         listen = true
+        local nextPromptRefresh = 0
+        local nextInteraction = 0
         while listen do
-            if IsControlJustPressed(0, 38) then -- E
+            if currentShop and GetGameTimer() >= nextPromptRefresh then
+                exports['qb-core']:DrawText(Lang:t('info.open_shop'), 'left', 'qb-shops')
+                nextPromptRefresh = GetGameTimer() + 500
+            end
+
+            if currentShop and IsControlJustPressed(0, 38) and GetGameTimer() >= nextInteraction then -- E
+                nextInteraction = GetGameTimer() + 1000
                 exports['qb-core']:KeyPressed()
                 TriggerServerEvent('qb-shops:server:openShop', { shop = currentShop })
-                listen = false
-                break
             end
             Wait(0)
         end
@@ -107,11 +143,13 @@ local function deletePeds()
 end
 
 local function tableCheck(inputValue, requiredValue)
+    if not inputValue or not inputValue.job or not inputValue.gang then return false end
     local playerJob = inputValue.job.name
-    local playerJobGrade = inputValue.job.grade.level
+    local playerJobGrade = inputValue.job.grade and inputValue.job.grade.level or 0
     local playerGang = inputValue.gang.name
-    local playerGangGrade = inputValue.gang.grade.level
+    local playerGangGrade = inputValue.gang.grade and inputValue.gang.grade.level or 0
     local shopData = Config.Locations[requiredValue]
+    if not shopData then return false end
 
     local jobCheck = false
     local gangCheck = false
@@ -159,7 +197,7 @@ end
 -- Events
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    playerData = QBCore.Functions.GetPlayerData()
+    refreshPlayerData()
     createBlips()
     createPeds()
 end)
@@ -175,7 +213,7 @@ end)
 
 AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
-    playerData = QBCore.Functions.GetPlayerData()
+    refreshPlayerData()
     createBlips()
     createPeds()
 end)
@@ -186,7 +224,7 @@ AddEventHandler('onResourceStop', function(resourceName)
 end)
 
 -- Threads
-if not Config.UseTarget then
+if Config.UseTextPrompt then
     CreateThread(function()
         for shop in pairs(Config.Locations) do
             NewZones[#NewZones + 1] = CircleZone:Create(vector3(Config.Locations[shop]['coords']['x'], Config.Locations[shop]['coords']['y'], Config.Locations[shop]['coords']['z']), Config.Locations[shop]['radius'] or 1.5, {
@@ -199,13 +237,19 @@ if not Config.UseTarget then
         local combo = ComboZone:Create(NewZones, { name = 'RandomZOneName', debugPoly = false })
         combo:onPlayerInOut(function(isPointInside, _, zone)
             if isPointInside then
+                refreshPlayerData()
                 if tableCheck(playerData, zone.name) then
                     currentShop = zone.name
-                    exports['qb-core']:DrawText(Lang:t('info.open_shop'))
+                    exports['qb-core']:DrawText(Lang:t('info.open_shop'), 'left', 'qb-shops')
                     listenForControl()
+                else
+                    currentShop = nil
+                    exports['qb-core']:HideText('qb-shops')
+                    listen = false
                 end
             else
-                exports['qb-core']:HideText()
+                currentShop = nil
+                exports['qb-core']:HideText('qb-shops')
                 listen = false
             end
         end)

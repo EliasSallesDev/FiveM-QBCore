@@ -129,7 +129,7 @@ local function Listen4Control(case)
                         QBCore.Functions.Notify(Lang:t('error.wrong_weapon'), 'error')
                     end
                 else
-                    exports['qb-core']:DrawText(Lang:t('general.drawtextui_broken'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('general.drawtextui_broken'), 'left', 'qb-jewelery')
                 end
             end
             Wait(1)
@@ -182,10 +182,10 @@ CreateThread(function()
             boxZone:onPlayerInOut(function(isPointInside)
                 if isPointInside then
                     Listen4Control(k)
-                    exports['qb-core']:DrawText(Lang:t('general.drawtextui_grab'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('general.drawtextui_grab'), 'left', 'qb-jewelery')
                 else
                     listen = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-jewelery')
                 end
             end)
         end

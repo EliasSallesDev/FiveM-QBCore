@@ -760,11 +760,11 @@ CreateThread(function()
         local sleep = 1000
         if isInHospitalBed and canLeaveBed then
             sleep = 0
-            exports['qb-core']:DrawText(Lang:t('text.bed_out'))
+            exports['qb-core']:DrawText(Lang:t('text.bed_out'), 'left', 'qb-ambulancejob')
             if IsControlJustReleased(0, 38) then
                 exports['qb-core']:KeyPressed(38)
                 LeaveBed()
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-ambulancejob')
             end
         end
         Wait(sleep)
@@ -995,15 +995,15 @@ else
             checkingCombo:onPlayerInOut(function(isPointInside)
                 if isPointInside then
                     if doctorCount >= Config.MinimalDoctors then
-                        exports['qb-core']:DrawText(Lang:t('text.call_doc'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('text.call_doc'), 'left', 'qb-ambulancejob')
                         CheckInControls('checkin')
                     else
-                        exports['qb-core']:DrawText(Lang:t('text.check_in'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('text.check_in'), 'left', 'qb-ambulancejob')
                         CheckInControls('checkin')
                     end
                 else
                     listen = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-ambulancejob')
                 end
             end)
         end
@@ -1024,12 +1024,12 @@ else
                 local bedCombo = ComboZone:Create(bedPoly, { name = 'bedCombo', debugPoly = false })
                 bedCombo:onPlayerInOut(function(isPointInside, _, zone)
                     if isPointInside and not isInHospitalBed then
-                        exports['qb-core']:DrawText(Lang:t('text.lie_bed'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('text.lie_bed'), 'left', 'qb-ambulancejob')
                         local bedId = zone.data.bedId
                         CheckInControls('beds', hospitalKey, bedId)
                     else
                         listen = false
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-ambulancejob')
                     end
                 end)
             end

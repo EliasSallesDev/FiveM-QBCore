@@ -89,7 +89,12 @@ window.addEventListener('mousemove', (event) => {
 
 document.onkeyup = function (event) {
     const charCode = event.key;
-    if (charCode == "Escape") {
+    if (charCode == "Escape" || charCode == "Backspace") {
+        event.preventDefault();
         cancelMenu();
     }
+};
+
+document.onkeydown = function (event) {
+    $.post(`https://${GetParentResourceName()}/menuKeyDown`, JSON.stringify({ key: event.key }));
 };

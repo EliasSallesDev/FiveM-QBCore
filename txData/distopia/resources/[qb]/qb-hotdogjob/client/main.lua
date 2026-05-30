@@ -892,7 +892,7 @@ CreateThread(function()
                 inZone = true
                 if PlayerData.job.name == 'hotdog' then
                     if not IsWorking then
-                        exports['qb-core']:DrawText(Lang:t('info.start_working'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('info.start_working'), 'left', 'qb-hotdogjob')
                         CreateThread(function()
                             while inZone do
                                 Wait(0)
@@ -902,7 +902,7 @@ CreateThread(function()
                             end
                         end)
                     else
-                        exports['qb-core']:DrawText(Lang:t('info.stop_working'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('info.stop_working'), 'left', 'qb-hotdogjob')
                         CreateThread(function()
                             while inZone do
                                 Wait(0)
@@ -915,7 +915,7 @@ CreateThread(function()
                 end
             else
                 inZone = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-hotdogjob')
             end
         end)
     end

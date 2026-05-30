@@ -271,14 +271,14 @@ local function setupZones()
             entry.zone:onPlayerInOut(function(isPointInside)
                 if isPointInside and not isBusy then
                     if entry.action == 'request' then
-                        exports['qb-core']:DrawText(Lang:t('text.request_job'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('text.request_job'), 'left', 'qb-scrapyard')
                     else
-                        exports['qb-core']:DrawText(Lang:t('text.disassemble_vehicle'), 'left')
+                        exports['qb-core']:DrawText(Lang:t('text.disassemble_vehicle'), 'left', 'qb-scrapyard')
                     end
                     keyListener(entry.action, entry.locationId)
                 else
                     listen = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-scrapyard')
                 end
             end)
         end

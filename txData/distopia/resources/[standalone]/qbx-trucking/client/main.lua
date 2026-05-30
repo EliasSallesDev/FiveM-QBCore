@@ -40,7 +40,7 @@ local function clearContract()
     NearPickup = false
     NearDropoff = false
     removeRouteBlip()
-    exports['qb-core']:HideText()
+    exports['qb-core']:HideText('qbx-trucking')
 end
 
 local function getPlayerVehicle()
@@ -289,16 +289,16 @@ CreateThread(function()
         end
 
         if NearDepot then
-            exports['qb-core']:DrawText(Lang:t('text.open_depot'), 'left')
+            exports['qb-core']:DrawText(Lang:t('text.open_depot'), 'left', 'qbx-trucking')
             if IsControlJustReleased(0, 38) then openDepotMenu() end
         elseif NearPickup then
-            exports['qb-core']:DrawText(Lang:t('text.pickup'), 'left')
+            exports['qb-core']:DrawText(Lang:t('text.pickup'), 'left', 'qbx-trucking')
             if IsControlJustReleased(0, 38) then loadCargo() end
         elseif NearDropoff then
-            exports['qb-core']:DrawText(Lang:t('text.dropoff'), 'left')
+            exports['qb-core']:DrawText(Lang:t('text.dropoff'), 'left', 'qbx-trucking')
             if IsControlJustReleased(0, 38) then finishContract() end
         else
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qbx-trucking')
         end
 
         Wait(sleep)

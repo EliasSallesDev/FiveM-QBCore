@@ -443,11 +443,11 @@ CreateThread(function()
         })
         boxZone:onPlayerInOut(function(isPointInside)
             if isPointInside and PlayerJob.name == 'ambulance' and onDuty then
-                exports['qb-core']:DrawText(Lang:t('text.veh_button'), 'left')
+                exports['qb-core']:DrawText(Lang:t('text.veh_button'), 'left', 'qb-ambulancejob')
                 EMSVehicle(i)
             else
                 CheckVehicle = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-ambulancejob')
             end
         end)
     end
@@ -463,11 +463,11 @@ CreateThread(function()
         })
         boxZone:onPlayerInOut(function(isPointInside)
             if isPointInside and PlayerJob.name == 'ambulance' and onDuty then
-                exports['qb-core']:DrawText(Lang:t('text.heli_button'), 'left')
+                exports['qb-core']:DrawText(Lang:t('text.heli_button'), 'left', 'qb-ambulancejob')
                 EMSHelicopter(i)
             else
                 CheckHeli = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-ambulancejob')
             end
         end)
     end
@@ -579,15 +579,15 @@ else
         signCombo:onPlayerInOut(function(isPointInside)
             if isPointInside and PlayerJob.name == 'ambulance' then
                 if not onDuty then
-                    exports['qb-core']:DrawText(Lang:t('text.onduty_button'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('text.onduty_button'), 'left', 'qb-ambulancejob')
                     EMSControls('sign')
                 else
-                    exports['qb-core']:DrawText(Lang:t('text.offduty_button'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('text.offduty_button'), 'left', 'qb-ambulancejob')
                     EMSControls('sign')
                 end
             else
                 check = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-ambulancejob')
             end
         end)
 
@@ -607,12 +607,12 @@ else
         stashCombo:onPlayerInOut(function(isPointInside)
             if isPointInside and PlayerJob.name == 'ambulance' then
                 if onDuty then
-                    exports['qb-core']:DrawText(Lang:t('text.pstash_button'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('text.pstash_button'), 'left', 'qb-ambulancejob')
                     EMSControls('stash')
                 end
             else
                 check = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-ambulancejob')
             end
         end)
 
@@ -632,14 +632,14 @@ else
         roofCombo:onPlayerInOut(function(isPointInside)
             if isPointInside and PlayerJob.name == 'ambulance' then
                 if onDuty then
-                    exports['qb-core']:DrawText(Lang:t('text.elevator_main'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('text.elevator_main'), 'left', 'qb-ambulancejob')
                     EMSControls('main')
                 else
-                    exports['qb-core']:DrawText(Lang:t('error.not_ems'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('error.not_ems'), 'left', 'qb-ambulancejob')
                 end
             else
                 check = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-ambulancejob')
             end
         end)
 
@@ -659,14 +659,14 @@ else
         mainCombo:onPlayerInOut(function(isPointInside)
             if isPointInside and PlayerJob.name == 'ambulance' then
                 if onDuty then
-                    exports['qb-core']:DrawText(Lang:t('text.elevator_roof'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('text.elevator_roof'), 'left', 'qb-ambulancejob')
                     EMSControls('roof')
                 else
-                    exports['qb-core']:DrawText(Lang:t('error.not_ems'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('error.not_ems'), 'left', 'qb-ambulancejob')
                 end
             else
                 check = false
-                exports['qb-core']:HideText()
+                exports['qb-core']:HideText('qb-ambulancejob')
             end
         end)
     end)

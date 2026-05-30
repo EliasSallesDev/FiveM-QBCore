@@ -143,6 +143,7 @@ RegisterNUICallback('chooseAppa', function(data, cb)
     SetCamActive(cam2, false)
     DestroyCam(cam2, true)
     SetEntityVisible(ped, true)
+    TriggerEvent('qb-hud:client:SetHudReady', true)
     cb('ok')
 end)
 
@@ -211,6 +212,7 @@ RegisterNUICallback('spawnplayer', function(data, cb)
         SetEntityHeading(ped, pos.w)
         PostSpawnPlayer()
     end
+    TriggerEvent('qb-hud:client:SetHudReady', true)
     cb('ok')
 end)
 

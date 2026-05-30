@@ -17,6 +17,15 @@ local isScanned = false
 local scanValue = 0
 local vehicle_detected = nil
 local locked_on_vehicle = nil
+local QBCore = QBCore or exports['qb-core']:GetCoreObject()
+
+local function GetCurrentJob()
+	if PlayerJob and PlayerJob.type then return PlayerJob end
+
+	local playerData = QBCore.Functions.GetPlayerData()
+	PlayerJob = playerData and playerData.job or {}
+	return PlayerJob
+end
 
 -- Functions
 
@@ -135,7 +144,8 @@ CreateThread(function()
 	while true do
 		Wait(0)
 		if LocalPlayer.state.isLoggedIn then
-			if PlayerJob.type == 'leo' and PlayerJob.onduty then
+			local job = GetCurrentJob()
+			if job.type == 'leo' and job.onduty then
 				if IsPlayerInPolmav() then
 					local lPed = PlayerPedId()
 					local heli = GetVehiclePedIsIn(lPed)

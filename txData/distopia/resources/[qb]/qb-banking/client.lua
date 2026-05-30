@@ -2,6 +2,7 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local zones = {}
 
 local isPlayerInsideBankZone = false
+local bankMenuOpen = false
 
 -- Functions
 
@@ -58,7 +59,13 @@ end
 -- NUI Callback
 
 RegisterNUICallback('closeApp', function(_, cb)
+    bankMenuOpen = false
     SetNuiFocus(false, false)
+
+    if isPlayerInsideBankZone then
+        exports['qb-core']:DrawText('[E] Abrir Banco', 'left', 'qb-banking')
+    end
+
     cb('ok')
 end)
 
@@ -187,11 +194,40 @@ if Config.useTarget then
 end
 
 if not Config.useTarget then
+    local bankPromptActive = false
+
+    local function GetBankPromptText()
+        local text = Lang:t('text.bank')
+
+        if not text or text == '' or text == 'text.bank' then
+            text = '[E] Abrir Banco'
+        end
+
+        return text
+    end
+
+    local function DrawBankText()
+        exports['qb-core']:DrawText(GetBankPromptText(), 'left', 'qb-banking')
+    end
+
+    local function HideBankText()
+        exports['qb-core']:HideText('qb-banking')
+    end
+
+    local function OpenBankWithPromptControl()
+        if bankMenuOpen then return end
+
+        bankMenuOpen = true
+        HideBankText()
+        OpenBank()
+    end
+
     CreateThread(function()
         for i = 1, #Config.locations do
             local zone = CircleZone:Create(Config.locations[i], 3.0, {
                 name = 'bank_' .. i,
                 debugPoly = false,
+                useZ = true,
             })
             zones[#zones + 1] = zone
         end
@@ -203,19 +239,37 @@ if not Config.useTarget then
 
         combo:onPlayerInOut(function(isPointInside)
             isPlayerInsideBankZone = isPointInside
-            if isPlayerInsideBankZone then
-                exports['qb-core']:DrawText(Lang:t('text.bank'))
-                CreateThread(function()
-                    while isPlayerInsideBankZone do
-                        Wait(0)
-                        if IsControlJustPressed(0, 38) then
-                            OpenBank()
+
+            if isPointInside then
+                DrawBankText()
+
+                if not bankPromptActive then
+                    bankPromptActive = true
+
+                    CreateThread(function()
+                        local nextPromptRefresh = 0
+
+                        while isPlayerInsideBankZone do
+                            Wait(0)
+
+                            if not bankMenuOpen and GetGameTimer() >= nextPromptRefresh then
+                                DrawBankText()
+                                nextPromptRefresh = GetGameTimer() + 500
+                            end
+
+                            if not bankMenuOpen and IsControlJustPressed(0, 38) then
+                                OpenBankWithPromptControl()
+                            end
                         end
-                    end
-                end)
+
+                        HideBankText()
+                        bankPromptActive = false
+                    end)
+                end
             else
-                exports['qb-core']:HideText()
+                HideBankText()
             end
         end)
     end)
 end
+

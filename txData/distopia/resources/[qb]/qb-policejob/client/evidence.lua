@@ -7,6 +7,20 @@ local CurrentBlooddrop = nil
 local Fingerprints = {}
 local CurrentFingerprint = 0
 local shotAmount = 0
+local QBCore = QBCore or exports['qb-core']:GetCoreObject()
+
+local function UpdateGunpowderState()
+    local status = CurrentStatusList and CurrentStatusList['gunpowder']
+    LocalPlayer.state:set('gunpowder', status ~= nil and (status.time or 0) > 0, false)
+end
+
+local function GetCurrentJob()
+    if PlayerJob and PlayerJob.type then return PlayerJob end
+
+    local playerData = QBCore.Functions.GetPlayerData()
+    PlayerJob = playerData and playerData.job or {}
+    return PlayerJob
+end
 
 local StatusList = {
     ['fight'] = Lang:t('evidence.red_hands'),
@@ -74,6 +88,21 @@ local function DnaHash(s)
 end
 
 -- Events
+AddEventHandler('onClientResourceStart', function(resourceName)
+    if resourceName == GetCurrentResourceName() then
+        UpdateGunpowderState()
+    end
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    UpdateGunpowderState()
+end)
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    CurrentStatusList = {}
+    UpdateGunpowderState()
+end)
+
 RegisterNetEvent('evidence:client:SetStatus', function(statusId, time)
     if time > 0 and StatusList[statusId] then
         if (CurrentStatusList == nil or CurrentStatusList[statusId] == nil) or
@@ -87,6 +116,7 @@ RegisterNetEvent('evidence:client:SetStatus', function(statusId, time)
     elseif StatusList[statusId] then
         CurrentStatusList[statusId] = nil
     end
+    UpdateGunpowderState()
     TriggerServerEvent('evidence:server:UpdateStatus', CurrentStatusList)
 end)
 
@@ -203,6 +233,7 @@ CreateThread(function()
                         CurrentStatusList[k].time = 0
                     end
                 end
+                UpdateGunpowderState()
                 TriggerServerEvent('evidence:server:UpdateStatus', CurrentStatusList)
             end
             if shotAmount > 0 then
@@ -314,7 +345,8 @@ CreateThread(function()
     while true do
         Wait(10)
         if LocalPlayer.state.isLoggedIn then
-            if PlayerJob.type == 'leo' and PlayerJob.onduty then
+            local job = GetCurrentJob()
+            if job.type == 'leo' and job.onduty then
                 if IsPlayerFreeAiming(PlayerId()) and GetSelectedPedWeapon(PlayerPedId()) == `WEAPON_FLASHLIGHT` then
                     if next(Casings) then
                         local pos = GetEntityCoords(PlayerPedId(), true)

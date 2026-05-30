@@ -32,6 +32,7 @@ local pcall = pcall
 local CheckOptions = CheckOptions
 local Bones = Load('bones')
 local listSprite = {}
+local persistentSpritesStarted = false
 
 ---------------------------------------
 --- Source: https://github.com/citizenfx/lua/blob/luaglm-dev/cfx/libs/scripts/examples/scripting_gta.lua
@@ -65,6 +66,78 @@ end
 
 -- Functions
 
+local function GetZoneCenter(zone)
+	if not zone or not zone.center then return end
+	if type(zone.center) == 'vector2' then
+		return vector3(zone.center.x, zone.center.y, zone.maxZ or zone.minZ or 0.0)
+	end
+	return zone.center
+end
+
+local function DrawZoneSprite(zone, highlighted)
+	local center = GetZoneCenter(zone)
+	if not center then return end
+
+	local r = zone.targetoptions.drawColor?[1] or Config.DrawColor[1]
+	local g = zone.targetoptions.drawColor?[2] or Config.DrawColor[2]
+	local b = zone.targetoptions.drawColor?[3] or Config.DrawColor[3]
+	local a = zone.targetoptions.drawColor?[4] or Config.DrawColor[4]
+
+	if highlighted or zone.success then
+		r = zone.targetoptions.successDrawColor?[1] or Config.SuccessDrawColor[1]
+		g = zone.targetoptions.successDrawColor?[2] or Config.SuccessDrawColor[2]
+		b = zone.targetoptions.successDrawColor?[3] or Config.SuccessDrawColor[3]
+		a = zone.targetoptions.successDrawColor?[4] or Config.SuccessDrawColor[4]
+	end
+
+	SetDrawOrigin(center.x, center.y, center.z, 0)
+	DrawSprite('shared', 'emptydot_32', 0, 0, 0.01, 0.02, 0, r, g, b, a)
+	ClearDrawOrigin()
+end
+
+local function DrawPersistentSprites()
+	if persistentSpritesStarted or not Config.DrawSprite or not Config.AlwaysDrawSprite then return end
+	persistentSpritesStarted = true
+
+	CreateThread(function()
+		while not HasStreamedTextureDictLoaded('shared') do
+			Wait(10)
+			RequestStreamedTextureDict('shared', true)
+		end
+
+		local sleep
+		local playerCoords
+		local center
+		local drawDistance
+
+		while Config.DrawSprite and Config.AlwaysDrawSprite do
+			sleep = 500
+
+			if Config.Standalone or LocalPlayer.state['isLoggedIn'] then
+				playerPed = PlayerPedId()
+
+				if not (Config.DisableInVehicle and IsPedInAnyVehicle(playerPed, false)) then
+					playerCoords = GetEntityCoords(playerPed)
+
+					for _, zone in pairs(Zones) do
+						center = GetZoneCenter(zone)
+						drawDistance = zone.targetoptions.drawDistance or Config.DrawDistance
+
+						if center and #(playerCoords - center) < drawDistance then
+							sleep = 0
+							DrawZoneSprite(zone, listSprite[zone.name] and listSprite[zone.name].success)
+						end
+					end
+				end
+			end
+
+			Wait(sleep)
+		end
+
+		persistentSpritesStarted = false
+	end)
+end
+
 local function DrawTarget()
 	CreateThread(function()
 		while not HasStreamedTextureDictLoaded('shared') do
@@ -72,27 +145,11 @@ local function DrawTarget()
 			RequestStreamedTextureDict('shared', true)
 		end
 		local sleep
-		local r, g, b, a
 		while targetActive do
 			sleep = 500
 			for _, zone in pairs(listSprite) do
 				sleep = 0
-
-				r = zone.targetoptions.drawColor?[1] or Config.DrawColor[1]
-				g = zone.targetoptions.drawColor?[2] or Config.DrawColor[2]
-				b = zone.targetoptions.drawColor?[3] or Config.DrawColor[3]
-				a = zone.targetoptions.drawColor?[4] or Config.DrawColor[4]
-
-				if zone.success then
-					r = zone.targetoptions.successDrawColor?[1] or Config.SuccessDrawColor[1]
-					g = zone.targetoptions.successDrawColor?[2] or Config.SuccessDrawColor[2]
-					b = zone.targetoptions.successDrawColor?[3] or Config.SuccessDrawColor[3]
-					a = zone.targetoptions.successDrawColor?[4] or Config.SuccessDrawColor[4]
-				end
-
-				SetDrawOrigin(zone.center.x, zone.center.y, zone.center.z, 0)
-				DrawSprite('shared', 'emptydot_32', 0, 0, 0.01, 0.02, 0, r, g, b, a)
-				ClearDrawOrigin()
+				DrawZoneSprite(zone, zone.success)
 			end
 			Wait(sleep)
 		end
@@ -277,7 +334,7 @@ local function EnableTarget()
 	playerPed = PlayerPedId()
 	screen.ratio = GetAspectRatio(true)
 	screen.fov = GetFinalRenderedCamFov()
-	if Config.DrawSprite then DrawTarget() end
+	if Config.DrawSprite and not Config.AlwaysDrawSprite then DrawTarget() end
 
 	SendNUIMessage({ response = 'openTarget' })
 	CreateThread(function()
@@ -1337,6 +1394,8 @@ CreateThread(function()
 	if table.type(Config.GlobalPlayerOptions) ~= 'empty' then
 		AddGlobalPlayer(Config.GlobalPlayerOptions)
 	end
+
+	DrawPersistentSprites()
 end)
 
 -- Events

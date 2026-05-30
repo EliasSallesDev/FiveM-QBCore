@@ -177,21 +177,20 @@ RegisterNetEvent('qb-inventory:server:closeInventory', function(inventory)
     MySQL.prepare('INSERT INTO inventories (identifier, items) VALUES (?, ?) ON DUPLICATE KEY UPDATE items = ?', { inventory, json.encode(Inventories[inventory].items), json.encode(Inventories[inventory].items) })
 end)
 
-RegisterNetEvent('qb-inventory:server:useItem', function(item)
-    local src = source
-    local itemData = GetItemBySlot(src, item.slot)
+local function UseInventoryItem(src, itemData)
     if not itemData then return end
     local itemInfo = QBCore.Shared.Items[itemData.name]
+    if not itemInfo then return end
     if itemData.type == 'weapon' then
         TriggerClientEvent('qb-weapons:client:UseWeapon', src, itemData, itemData.info.quality and itemData.info.quality > 0)
         TriggerClientEvent('qb-inventory:client:ItemBox', src, itemInfo, 'use')
     elseif itemData.name == 'id_card' then
         UseItem(itemData.name, src, itemData)
-        TriggerClientEvent('qb-inventory:client:ItemBox', source, itemInfo, 'use')
+        TriggerClientEvent('qb-inventory:client:ItemBox', src, itemInfo, 'use')
         local playerPed = GetPlayerPed(src)
         local playerCoords = GetEntityCoords(playerPed)
         local players = QBCore.Functions.GetPlayers()
-        local gender = item.info.gender == 0 and 'Male' or 'Female'
+        local gender = itemData.info.gender == 0 and 'Male' or 'Female'
         for _, v in pairs(players) do
             local targetPed = GetPlayerPed(v)
             local dist = #(playerCoords - GetEntityCoords(targetPed))
@@ -200,12 +199,12 @@ RegisterNetEvent('qb-inventory:server:useItem', function(item)
                     template = '<div class="chat-message advert" style="background: linear-gradient(to right, rgba(5, 5, 5, 0.6), #74807c); display: flex;"><div style="margin-right: 10px;"><i class="far fa-id-card" style="height: 100%;"></i><strong> {0}</strong><br> <strong>Civ ID:</strong> {1} <br><strong>First Name:</strong> {2} <br><strong>Last Name:</strong> {3} <br><strong>Birthdate:</strong> {4} <br><strong>Gender:</strong> {5} <br><strong>Nationality:</strong> {6}</div></div>',
                     args = {
                         'ID Card',
-                        item.info.citizenid,
-                        item.info.firstname,
-                        item.info.lastname,
-                        item.info.birthdate,
+                        itemData.info.citizenid,
+                        itemData.info.firstname,
+                        itemData.info.lastname,
+                        itemData.info.birthdate,
                         gender,
-                        item.info.nationality
+                        itemData.info.nationality
                     }
                 })
             end
@@ -224,10 +223,10 @@ RegisterNetEvent('qb-inventory:server:useItem', function(item)
                     template = '<div class="chat-message advert" style="background: linear-gradient(to right, rgba(5, 5, 5, 0.6), #657175); display: flex;"><div style="margin-right: 10px;"><i class="far fa-id-card" style="height: 100%;"></i><strong> {0}</strong><br> <strong>First Name:</strong> {1} <br><strong>Last Name:</strong> {2} <br><strong>Birth Date:</strong> {3} <br><strong>Licenses:</strong> {4}</div></div>',
                     args = {
                         'Drivers License',
-                        item.info.firstname,
-                        item.info.lastname,
-                        item.info.birthdate,
-                        item.info.type
+                        itemData.info.firstname,
+                        itemData.info.lastname,
+                        itemData.info.birthdate,
+                        itemData.info.type
                     }
                 }
                 )
@@ -237,6 +236,25 @@ RegisterNetEvent('qb-inventory:server:useItem', function(item)
         UseItem(itemData.name, src, itemData)
         TriggerClientEvent('qb-inventory:client:ItemBox', src, itemInfo, 'use')
     end
+end
+
+RegisterNetEvent('qb-inventory:server:useItem', function(item)
+    local src = source
+    if not item or not item.slot then return end
+    UseInventoryItem(src, GetItemBySlot(src, item.slot))
+end)
+
+RegisterNetEvent('qb-inventory:server:useSlot', function(slot)
+    local src = source
+    slot = tonumber(slot)
+    if not slot or slot < 1 or slot > 5 then return end
+    if Player(src).state.inv_busy then return end
+
+    local QBPlayer = QBCore.Functions.GetPlayer(src)
+    if not QBPlayer then return end
+    if QBPlayer.PlayerData.metadata['isdead'] or QBPlayer.PlayerData.metadata['inlaststand'] or QBPlayer.PlayerData.metadata['ishandcuffed'] then return end
+
+    UseInventoryItem(src, GetItemBySlot(src, slot))
 end)
 
 RegisterNetEvent('qb-inventory:server:openDrop', function(dropId)

@@ -6,7 +6,7 @@ local DynamicMenuItems = {}
 -- UTIL
 local function CloseMenuFullGang()
     exports['qb-menu']:closeMenu()
-    exports['qb-core']:HideText()
+    exports['qb-core']:HideText('qb-management')
     shownGangMenu = false
 end
 
@@ -254,12 +254,12 @@ CreateThread(function()
                                 if #(pos - coords) <= 1.5 then
                                     nearGangmenu = true
                                     if not shownGangMenu then
-                                        exports['qb-core']:DrawText(Lang:t('drawtextgang.label'), 'left')
+                                        exports['qb-core']:DrawText(Lang:t('drawtextgang.label'), 'left', 'qb-management')
                                         shownGangMenu = true
                                     end
 
                                     if IsControlJustReleased(0, 38) then
-                                        exports['qb-core']:HideText()
+                                        exports['qb-core']:HideText('qb-management')
                                         TriggerEvent('qb-gangmenu:client:OpenMenu')
                                     end
                                 end

@@ -295,6 +295,25 @@ end)
 
 -- Commands
 
+local lastHotbarUse = 0
+
+local function UseHotbarSlot(slot)
+    if IsNuiFocused() or IsPauseMenuActive() then return end
+
+    local currentTime = GetGameTimer()
+    if currentTime - lastHotbarUse < 300 then return end
+    lastHotbarUse = currentTime
+
+    if HoldingDrop then
+        local itemData = PlayerData and PlayerData.items and PlayerData.items[slot]
+        if itemData and itemData.type == "weapon" then
+            return QBCore.Functions.Notify("Voce ja esta segurando uma bolsa, solte ela primeiro!", "error", 5500)
+        end
+    end
+
+    TriggerServerEvent('qb-inventory:server:useSlot', slot)
+end
+
 RegisterCommand('openInv', function()
     if IsNuiFocused() or IsPauseMenuActive() then return end
     ExecuteCommand('inventory')
@@ -306,17 +325,29 @@ end, false)
 
 for i = 1, 5 do
     RegisterCommand('slot_' .. i, function()
-        local itemData = PlayerData.items[i]
-        if not itemData then return end
-        if itemData.type == "weapon" then
-            if HoldingDrop then
-                return QBCore.Functions.Notify("Voce ja esta segurando uma bolsa, solte ela primeiro!", "error", 5500)
-            end
-        end
-        TriggerServerEvent('qb-inventory:server:useItem', itemData)
+        UseHotbarSlot(i)
     end, false)
     RegisterKeyMapping('slot_' .. i, Lang:t('inf_mapping.use_item') .. i, 'keyboard', i)
 end
+
+CreateThread(function()
+    local hotbarControls = {
+        [1] = 157,
+        [2] = 158,
+        [3] = 159,
+        [4] = 160,
+        [5] = 161,
+    }
+
+    while true do
+        for slot, control in pairs(hotbarControls) do
+            if IsControlJustPressed(0, control) then
+                UseHotbarSlot(slot)
+            end
+        end
+        Wait(0)
+    end
+end)
 
 RegisterKeyMapping('openInv', Lang:t('inf_mapping.opn_inv'), 'keyboard', Config.Keybinds.Open)
 RegisterKeyMapping('toggleHotbar', Lang:t('inf_mapping.tog_slots'), 'keyboard', Config.Keybinds.Hotbar)

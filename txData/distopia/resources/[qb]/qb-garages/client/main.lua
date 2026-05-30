@@ -3,6 +3,8 @@ local PlayerData = {}
 local PlayerGang = {}
 local PlayerJob = {}
 local garageZones = {}
+local garageComboZone = nil
+local garageBlips = {}
 local listenForKey = false
 
 -- Functions
@@ -10,8 +12,8 @@ local listenForKey = false
 RegisterNetEvent('QBCore:Client:UpdateObject', function()
     QBCore = exports['qb-core']:GetCoreObject()
     PlayerData = QBCore.Functions.GetPlayerData()
-    PlayerGang = PlayerData.gang
-    PlayerJob = PlayerData.job
+    PlayerGang = PlayerData.gang or {}
+    PlayerJob = PlayerData.job or {}
 end)
 
 local function CheckPlayers(vehicle)
@@ -53,6 +55,7 @@ local function OpenGarageMenu(data)
             }
         end
         SetNuiFocus(true, true)
+        SetNuiFocusKeepInput(false)
         SendNUIMessage({
             action = 'VehicleList',
             garageLabel = Config.Garages[data.indexgarage].label,
@@ -99,6 +102,7 @@ local function CreateBlips(setloc)
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentSubstringPlayerName(setloc.blipName)
     EndTextCommandSetBlipName(Garage)
+    garageBlips[#garageBlips + 1] = Garage
 end
 
 local function CreateZone(index, garage, zoneType)
@@ -109,7 +113,8 @@ local function CreateZone(index, garage, zoneType)
         data = {
             indexgarage = index,
             type = garage.type,
-            category = garage.category
+            category = garage.category,
+            vehicle = garage.vehicle
         }
     })
 
@@ -117,18 +122,48 @@ local function CreateZone(index, garage, zoneType)
 end
 
 local function CreateBlipsZones()
-    PlayerData = QBCore.Functions.GetPlayerData()
-    PlayerGang = PlayerData.gang
-    PlayerJob = PlayerData.job
+    listenForKey = false
+    exports['qb-core']:HideText('qb-garages')
+
+    if garageComboZone then
+        pcall(function()
+            garageComboZone:destroy()
+        end)
+        garageComboZone = nil
+    end
+
+    if #garageZones > 0 then
+        for _, zone in pairs(garageZones) do
+            pcall(function()
+                zone:destroy()
+            end)
+        end
+        garageZones = {}
+    end
+
+    if #garageBlips > 0 then
+        for _, blip in pairs(garageBlips) do
+            if DoesBlipExist(blip) then
+                RemoveBlip(blip)
+            end
+        end
+        garageBlips = {}
+    end
+
+    PlayerData = QBCore.Functions.GetPlayerData() or {}
+    PlayerGang = PlayerData.gang or {}
+    PlayerJob = PlayerData.job or {}
+
+    if not Config.Garages or not next(Config.Garages) then return end
 
     for index, garage in pairs(Config.Garages) do
         local zone
         if garage.showBlip then
             CreateBlips(garage)
         end
-        if garage.type == 'job' and (PlayerJob.name == garage.job or PlayerJob.type == garage.jobType) then
+        if garage.type == 'job' and ((PlayerJob.name and PlayerJob.name == garage.job) or (PlayerJob.type and PlayerJob.type == garage.jobType)) then
             zone = CreateZone(index, garage, 'job')
-        elseif garage.type == 'gang' and PlayerGang.name == garage.job then
+        elseif garage.type == 'gang' and PlayerGang.name and PlayerGang.name == garage.job then
             zone = CreateZone(index, garage, 'gang')
         elseif garage.type == 'depot' then
             zone = CreateZone(index, garage, 'depot')
@@ -141,13 +176,32 @@ local function CreateBlipsZones()
         end
     end
 
-    local comboZone = ComboZone:Create(garageZones, { name = 'garageCombo', debugPoly = false })
+    if #garageZones == 0 then return end
 
-    comboZone:onPlayerInOut(function(isPointInside, _, zone)
+    garageComboZone = ComboZone:Create(garageZones, { name = 'garageCombo', debugPoly = false })
+
+    garageComboZone:onPlayerInOut(function(isPointInside, _, zone)
         if isPointInside then
             listenForKey = true
+            local displayText = Lang:t('info.car_e')
+            if zone.data.vehicle == 'sea' then
+                displayText = Lang:t('info.sea_e')
+            elseif zone.data.vehicle == 'air' then
+                displayText = Lang:t('info.air_e')
+            elseif zone.data.vehicle == 'rig' then
+                displayText = Lang:t('info.rig_e')
+            elseif zone.data.type == 'depot' then
+                displayText = Lang:t('info.depot_e')
+            end
+
             CreateThread(function()
+                local nextPromptRefresh = 0
                 while listenForKey do
+                    if GetGameTimer() >= nextPromptRefresh then
+                        exports['qb-core']:DrawText(displayText, 'left', 'qb-garages')
+                        nextPromptRefresh = GetGameTimer() + 500
+                    end
+
                     Wait(0)
                     if IsControlJustReleased(0, 38) then
                         if GetVehiclePedIsUsing(PlayerPedId()) ~= 0 then
@@ -164,21 +218,10 @@ local function CreateBlipsZones()
                     end
                 end
             end)
-
-            local displayText = Lang:t('info.car_e')
-            if zone.data.vehicle == 'sea' then
-                displayText = Lang:t('info.sea_e')
-            elseif zone.data.vehicle == 'air' then
-                displayText = Lang:t('info.air_e')
-            elseif zone.data.vehicle == 'rig' then
-                displayText = Lang:t('info.rig_e')
-            elseif zone.data.type == 'depot' then
-                displayText = Lang:t('info.depot_e')
-            end
-            exports['qb-core']:DrawText(displayText, 'left')
+            exports['qb-core']:DrawText(displayText, 'left', 'qb-garages')
         else
             listenForKey = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-garages')
         end
     end)
 end
@@ -244,6 +287,7 @@ end
 
 RegisterNUICallback('closeGarage', function(_, cb)
     SetNuiFocus(false, false)
+    SetNuiFocusKeepInput(false)
     cb('ok')
 end)
 
@@ -344,7 +388,13 @@ local function CreateHouseZone(index, garage, zoneType)
         if isPointInside then
             listenForKeyHouse = true
             CreateThread(function()
+                local nextPromptRefresh = 0
                 while listenForKeyHouse do
+                    if GetGameTimer() >= nextPromptRefresh then
+                        exports['qb-core']:DrawText(Lang:t('info.house_garage'), 'left', 'qb-garages')
+                        nextPromptRefresh = GetGameTimer() + 500
+                    end
+
                     Wait(0)
                     if IsControlJustReleased(0, 38) then
                         if GetVehiclePedIsUsing(PlayerPedId()) ~= 0 then
@@ -356,10 +406,10 @@ local function CreateHouseZone(index, garage, zoneType)
                     end
                 end
             end)
-            exports['qb-core']:DrawText(Lang:t('info.house_garage'), 'left')
+            exports['qb-core']:DrawText(Lang:t('info.house_garage'), 'left', 'qb-garages')
         else
             listenForKeyHouse = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-garages')
         end
     end)
 end
@@ -452,18 +502,41 @@ end)
 -- Handlers
 
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
-    CreateBlipsZones()
+    CreateThread(function()
+        Wait(2000)
+        PlayerData = QBCore.Functions.GetPlayerData() or {}
+        PlayerGang = PlayerData.gang or {}
+        PlayerJob = PlayerData.job or {}
+        CreateBlipsZones()
+    end)
 end)
 
 AddEventHandler('onResourceStart', function(res)
     if res ~= GetCurrentResourceName() then return end
-    CreateBlipsZones()
+
+    CreateThread(function()
+        Wait(2000)
+
+        local attempts = 0
+        while not LocalPlayer.state.isLoggedIn and attempts < 20 do
+            attempts = attempts + 1
+            Wait(500)
+        end
+
+        PlayerData = QBCore.Functions.GetPlayerData() or {}
+        PlayerGang = PlayerData.gang or {}
+        PlayerJob = PlayerData.job or {}
+
+        CreateBlipsZones()
+    end)
 end)
 
 RegisterNetEvent('QBCore:Client:OnGangUpdate', function(gang)
-    PlayerGang = gang
+    PlayerGang = gang or {}
+    CreateBlipsZones()
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(job)
-    PlayerJob = job
+    PlayerJob = job or {}
+    CreateBlipsZones()
 end)

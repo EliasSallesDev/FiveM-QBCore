@@ -249,13 +249,13 @@ local function spawnPeds()
                         if inside then
                             if current.drivingschool then
                                 inRangeDrivingSchool = true
-                                exports['qb-core']:DrawText('[E] Fazer aulas de direcao')
+                                exports['qb-core']:DrawText('[E] Fazer aulas de direcao', 'left', 'qb-cityhall')
                             elseif current.cityhall then
                                 inRangeCityhall = true
-                                exports['qb-core']:DrawText('[E] Abrir prefeitura')
+                                exports['qb-core']:DrawText(Lang:t('info.city_services_menu'), 'left', 'qb-cityhall')
                             end
                         else
-                            exports['qb-core']:HideText()
+                            exports['qb-core']:HideText('qb-cityhall')
                             if current.drivingschool then
                                 inRangeDrivingSchool = false
                             elseif current.cityhall then
@@ -358,6 +358,17 @@ AddEventHandler('onResourceStop', function(resource)
     deletePeds()
 end)
 
+
+RegisterNetEvent('qb-menu:client:menuClosed', function()
+    if not Config.UseTarget then
+        if inRangeCityhall then
+            exports['qb-core']:DrawText(Lang:t('info.city_services_menu'), 'left', 'qb-cityhall')
+        elseif inRangeDrivingSchool then
+            exports['qb-core']:DrawText('[E] Fazer aulas de direcao', 'left', 'qb-cityhall')
+        end
+    end
+end)
+
 -- Threads
 
 CreateThread(function()
@@ -375,30 +386,31 @@ end)
 CreateThread(function()
     initBlips()
     spawnPeds()
+
     if not Config.UseTarget then
         while true do
             local sleep = 1000
+
             if isLoggedIn and closestCityhall and closestDrivingSchool then
                 if inRangeCityhall then
                     sleep = 0
+
                     if IsControlJustPressed(0, 38) then
+                        exports['qb-core']:HideText('qb-cityhall')
                         openCityhallMenu()
-                        exports['qb-core']:KeyPressed()
-                        Wait(500)
-                        exports['qb-core']:HideText()
                         sleep = 1000
                     end
                 elseif inRangeDrivingSchool then
                     sleep = 0
+
                     if IsControlJustPressed(0, 38) then
+                        exports['qb-core']:HideText('qb-cityhall')
                         TriggerServerEvent('qb-cityhall:server:sendDriverTest', Config.DrivingSchools[closestDrivingSchool].instructors)
                         sleep = 5000
-                        exports['qb-core']:KeyPressed()
-                        Wait(500)
-                        exports['qb-core']:HideText()
                     end
                 end
             end
+
             Wait(sleep)
         end
     end

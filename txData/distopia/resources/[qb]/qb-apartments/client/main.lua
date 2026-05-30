@@ -113,9 +113,9 @@ local function RegisterApartmentEntranceZone(apartmentID, apartmentData)
 
     zone:onPlayerInOut(function(isPointInside)
         if isPointInside and not InApartment then
-            exports['qb-core']:DrawText(Lang:t('text.options'), 'left')
+            exports['qb-core']:DrawText(Lang:t('text.options'), 'left', 'qb-apartments')
         else
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-apartments')
         end
         IsInsideEntranceZone = isPointInside
     end)
@@ -201,9 +201,9 @@ local function RegisterInApartmentZone(targetKey, coords, heading, text)
 
     zone:onPlayerInOut(function(isPointInside)
         if isPointInside and text then
-            exports['qb-core']:DrawText(text, 'left')
+            exports['qb-core']:DrawText(text, 'left', 'qb-apartments')
         else
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-apartments')
         end
 
         if targetKey == 'entrancePos' then
@@ -745,7 +745,7 @@ else
                     sleep = 0
                     if IsControlJustPressed(0, 38) then
                         OpenEntranceMenu()
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-apartments')
                     end
                 end
             elseif InApartment then
@@ -756,28 +756,28 @@ else
                 if IsInsideExitZone then
                     if IsControlJustPressed(0, 38) then
                         OpenExitMenu()
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-apartments')
                     end
                 end
 
                 if IsInsideStashZone then
                     if IsControlJustPressed(0, 38) then
                         TriggerEvent('apartments:client:OpenStash')
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-apartments')
                     end
                 end
 
                 if IsInsideOutfitsZone then
                     if IsControlJustPressed(0, 38) then
                         TriggerEvent('apartments:client:ChangeOutfit')
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-apartments')
                     end
                 end
 
                 if IsInsideLogoutZone then
                     if IsControlJustPressed(0, 38) then
                         TriggerEvent('apartments:client:Logout')
-                        exports['qb-core']:HideText()
+                        exports['qb-core']:HideText('qb-apartments')
                     end
                 end
             end

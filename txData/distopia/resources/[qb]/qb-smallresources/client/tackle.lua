@@ -1,4 +1,29 @@
+local QBCore
 
+local function GetQBCore()
+    if QBCore then return QBCore end
+
+    while GetResourceState('qb-core') ~= 'started' do
+        Wait(100)
+    end
+
+    while not QBCore do
+        local ok, core = pcall(function()
+            return exports['qb-core']:GetCoreObject()
+        end)
+        if ok and core then
+            QBCore = core
+        else
+            Wait(100)
+        end
+    end
+
+    return QBCore
+end
+
+CreateThread(function()
+    GetQBCore()
+end)
 
 local function tackleAnim()
     local ped = PlayerPedId()
@@ -19,9 +44,16 @@ local function tackleAnim()
 end
 
 RegisterCommand('tackle', function()
-    local closestPlayer, distance = QBCore.Functions.GetClosestPlayer()
+    local core = GetQBCore()
+    if not core or not core.Functions then return end
+
+    local ok, closestPlayer, distance = pcall(core.Functions.GetClosestPlayer)
+    if not ok then return end
+
     local ped = PlayerPedId()
-    if distance ~= -1 and distance < 2 and GetEntitySpeed(ped) > 2.5 and not IsPedInAnyVehicle(ped, false) and not QBCore.Functions.GetPlayerData().metadata.ishandcuffed and not IsPedRagdoll(ped) then
+    local playerData = core.Functions.GetPlayerData()
+    local metadata = playerData and playerData.metadata or {}
+    if distance ~= -1 and distance < 2 and GetEntitySpeed(ped) > 2.5 and not IsPedInAnyVehicle(ped, false) and not metadata.ishandcuffed and not IsPedRagdoll(ped) then
         TriggerServerEvent("tackle:server:TacklePlayer", GetPlayerServerId(closestPlayer))
         tackleAnim()
     end

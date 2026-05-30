@@ -31,11 +31,11 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
 end)
 
 local function hintToDisplay(text)
-	exports['qb-core']:DrawText(text)
+	exports['qb-core']:DrawText(text, 'left', 'qb-truckrobbery')
 end
 
 local function hideLastHint()
-	exports['qb-core']:HideText()
+	exports['qb-core']:HideText('qb-truckrobbery')
 end
 
 local function DrawText3D(x, y, z, text)

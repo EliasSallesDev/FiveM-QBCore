@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore
 local JobsDone = 0
 local LocationsDone = {}
 local CurrentLocation = nil
@@ -20,6 +20,31 @@ local jobStartBusy = false
 
 -- Functions
 
+local function GetQBCore()
+    if QBCore then return QBCore end
+
+    while GetResourceState('qb-core') ~= 'started' do
+        Wait(100)
+    end
+
+    while not QBCore do
+        local ok, core = pcall(function()
+            return exports['qb-core']:GetCoreObject()
+        end)
+        if ok and core then
+            QBCore = core
+        else
+            Wait(100)
+        end
+    end
+
+    return QBCore
+end
+
+CreateThread(function()
+    GetQBCore()
+end)
+
 local function ShowMarker(active)
     showMarker = active
 end
@@ -29,7 +54,7 @@ local function SetDelivering(active)
 end
 
 local function isTrucker()
-    local PlayerData = QBCore.Functions.GetPlayerData()
+    local PlayerData = GetQBCore().Functions.GetPlayerData()
     return PlayerData.job and PlayerData.job.name == 'trucker'
 end
 
@@ -353,7 +378,7 @@ local function Deliver()
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone + 1] = CurrentLocation.id
             TriggerServerEvent('qb-shops:server:RestockShopItems', CurrentLocation.store)
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-shops')
             Delivering = false
             showMarker = false
             if CurrentBlip ~= nil then
@@ -384,6 +409,7 @@ end
 
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
+    GetQBCore()
     CurrentLocation = nil
     CurrentBlip = nil
     hasBox = false
@@ -400,6 +426,7 @@ AddEventHandler('onResourceStop', function(resourceName)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    GetQBCore()
     CurrentLocation = nil
     CurrentBlip = nil
     hasBox = false

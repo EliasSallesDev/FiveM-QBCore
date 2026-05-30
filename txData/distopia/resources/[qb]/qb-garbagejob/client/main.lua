@@ -209,17 +209,17 @@ local function RunWorkLoop()
                     if Distance < 1.5 then
                         if not GarbText then
                             GarbText = true
-                            exports['qb-core']:DrawText(Lang:t("info.grab_garbage"), 'left')
+                            exports['qb-core']:DrawText(Lang:t("info.grab_garbage"), 'left', 'qb-garbagejob')
                         end
                         if IsControlJustPressed(0, 51) then
                             hasBag = true
-                            exports['qb-core']:HideText()
+                            exports['qb-core']:HideText('qb-garbagejob')
                             TakeAnim()
                         end
                     elseif Distance < 10 then
                         if GarbText then
                             GarbText = false
-                            exports['qb-core']:HideText()
+                            exports['qb-core']:HideText('qb-garbagejob')
                         end
                     end
                 else
@@ -231,7 +231,7 @@ local function RunWorkLoop()
                         if TruckDist < 2 then
                             if not TrucText then
                                 TrucText = true
-                                exports['qb-core']:DrawText(Lang:t("info.dispose_garbage"), 'left')
+                                exports['qb-core']:DrawText(Lang:t("info.dispose_garbage"), 'left', 'qb-garbagejob')
                             end
                             if IsControlJustPressed(0, 51) and hasBag then
                                 StopAnimTask(PlayerPedId(), 'missfbi4prepp1', '_bag_walk_garbage_man', 1.0)
@@ -290,7 +290,7 @@ local function RunWorkLoop()
 
                                         Wait(1500)
                                         if TrucText then
-                                            exports['qb-core']:HideText()
+                                            exports['qb-core']:HideText('qb-garbagejob')
                                             TrucText = false
                                         end
                                     end, function() -- Cancel
@@ -326,7 +326,7 @@ local function CreateZone(x, y, z)
                 SetVehicleDoorOpen(garbageVehicle,5,false,false)
             else
                 if not Config.UseTarget then
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-garbagejob')
                     listen = false
                 end
                 SetVehicleDoorShut(garbageVehicle, 5, false)
@@ -412,11 +412,11 @@ local function spawnPeds()
                 zone:onPlayerInOut(function(inside)
                     if LocalPlayer.state.isLoggedIn then
                         if inside then
-                            exports['qb-core']:DrawText(Lang:t("info.talk"), 'left')
+                            exports['qb-core']:DrawText(Lang:t("info.talk"), 'left', 'qb-garbagejob')
                             Listen4Control()
                         else
                             ControlListen = false
-                            exports['qb-core']:HideText()
+                            exports['qb-core']:HideText('qb-garbagejob')
                         end
                     end
                 end)

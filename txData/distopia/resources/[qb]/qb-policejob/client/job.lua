@@ -741,15 +741,15 @@ else
         if isPointInside then
             dutylisten = true
             if not PlayerJob.onduty then
-                exports['qb-core']:DrawText(Lang:t('info.on_duty'), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.on_duty'), 'left', 'qb-policejob')
                 dutylistener()
             else
-                exports['qb-core']:DrawText(Lang:t('info.off_duty'), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.off_duty'), 'left', 'qb-policejob')
                 dutylistener()
             end
         else
             dutylisten = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 
@@ -771,12 +771,12 @@ else
         if isPointInside then
             inStash = true
             if PlayerJob.type == 'leo' and PlayerJob.onduty then
-                exports['qb-core']:DrawText(Lang:t('info.stash_enter'), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.stash_enter'), 'left', 'qb-policejob')
                 stash()
             end
         else
             inStash = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 
@@ -798,12 +798,12 @@ else
         if isPointInside then
             inTrash = true
             if PlayerJob.type == 'leo' and PlayerJob.onduty then
-                exports['qb-core']:DrawText(Lang:t('info.trash_enter'), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.trash_enter'), 'left', 'qb-policejob')
                 trash()
             end
         else
             inTrash = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 
@@ -825,12 +825,12 @@ else
         if isPointInside then
             inFingerprint = true
             if PlayerJob.type == 'leo' and PlayerJob.onduty then
-                exports['qb-core']:DrawText(Lang:t('info.scan_fingerprint'), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.scan_fingerprint'), 'left', 'qb-policejob')
                 fingerprint()
             end
         else
             inFingerprint = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 
@@ -852,12 +852,12 @@ else
         if isPointInside then
             inEvidence = true
             if PlayerJob.type == 'leo' and PlayerJob.onduty then
-                exports['qb-core']:DrawText(Lang:t('info.evidence_stash_prompt'), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.evidence_stash_prompt'), 'left', 'qb-policejob')
                 evidence()
             end
         else
             inEvidence = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 end
@@ -882,17 +882,17 @@ CreateThread(function()
             inHelicopter = true
             if PlayerJob.type == 'leo' and PlayerJob.onduty then
                 if IsPedInAnyVehicle(PlayerPedId(), false) then
-                    exports['qb-core']:HideText()
-                    exports['qb-core']:DrawText(Lang:t('info.store_heli'), 'left')
+                    exports['qb-core']:HideText('qb-policejob')
+                    exports['qb-core']:DrawText(Lang:t('info.store_heli'), 'left', 'qb-policejob')
                     heli()
                 else
-                    exports['qb-core']:DrawText(Lang:t('info.take_heli'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('info.take_heli'), 'left', 'qb-policejob')
                     heli()
                 end
             end
         else
             inHelicopter = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 
@@ -916,7 +916,7 @@ CreateThread(function()
             inImpound = true
             if PlayerJob.type == 'leo' and PlayerJob.onduty then
                 if IsPedInAnyVehicle(PlayerPedId(), false) then
-                    exports['qb-core']:DrawText(Lang:t('info.impound_veh'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('info.impound_veh'), 'left', 'qb-policejob')
                     impound()
                 else
                     local currentSelection = 0
@@ -943,7 +943,7 @@ CreateThread(function()
         else
             inImpound = false
             exports['qb-menu']:closeMenu()
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 
@@ -966,7 +966,7 @@ CreateThread(function()
             inGarage = true
             if PlayerJob.type == 'leo' and PlayerJob.onduty then
                 if IsPedInAnyVehicle(PlayerPedId(), false) then
-                    exports['qb-core']:DrawText(Lang:t('info.store_veh'), 'left')
+                    exports['qb-core']:DrawText(Lang:t('info.store_veh'), 'left', 'qb-policejob')
                     garage()
                 else
                     local currentSelection = 0
@@ -993,7 +993,7 @@ CreateThread(function()
         else
             inGarage = false
             exports['qb-menu']:closeMenu()
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-policejob')
         end
     end)
 end)

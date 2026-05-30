@@ -1,4 +1,17 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore
+while GetResourceState('qb-core') ~= 'started' do
+    Wait(100)
+end
+while not QBCore do
+    local ok, core = pcall(function()
+        return exports['qb-core']:GetCoreObject()
+    end)
+    if ok and core then
+        QBCore = core
+    else
+        Wait(100)
+    end
+end
 local PlayerData = QBCore.Functions.GetPlayerData()
 local config = Config
 local speedMultiplier = config.UseMPH and 2.23694 or 3.6
@@ -18,6 +31,9 @@ local hp = 100
 local armed = 0
 local parachute = -1
 local oxygen = 100
+local ammoClip = 0
+local ammoReserve = 0
+local showAmmo = false
 local dev = false
 local playerDead = false
 local showMenu = false
@@ -27,6 +43,37 @@ local Menu = config.Menu
 local CinematicHeight = 0.2
 local w = 0
 local radioActive = false
+local hudReady = false
+local spawnConfirmed = false
+local hideVehicleHud
+
+local function forceHideHud()
+    SendNUIMessage({ action = 'lockHud' })
+    SendNUIMessage({ action = 'hideHud' })
+    SendNUIMessage({ action = 'hudtick', show = false, isPaused = 1 })
+    SendNUIMessage({ action = 'car', show = false, isPaused = 1 })
+    SendNUIMessage({ action = 'baseplate', show = false })
+    DisplayRadar(false)
+end
+
+local function setHudVisible(bool)
+    if bool == true and not spawnConfirmed then
+        hudReady = false
+    else
+        hudReady = bool == true
+    end
+
+    SendNUIMessage({ action = hudReady and 'unlockHud' or 'lockHud' })
+
+    if not hudReady then
+        forceHideHud()
+    end
+end
+
+local function setSpawnConfirmed(bool)
+    spawnConfirmed = bool == true
+    setHudVisible(spawnConfirmed)
+end
 
 DisplayRadar(false)
 
@@ -91,6 +138,8 @@ local function hasHarness(items)
 end
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    spawnConfirmed = false
+    setHudVisible(false)
     Wait(2000)
     local hudSettings = GetResourceKvpString('hudSettings')
     if hudSettings then loadSettings(json.decode(hudSettings)) end
@@ -101,6 +150,42 @@ end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     PlayerData = {}
+    spawnConfirmed = false
+    setHudVisible(false)
+end)
+
+RegisterNetEvent('qb-spawn:client:openUI', function()
+    spawnConfirmed = false
+    setHudVisible(false)
+end)
+
+RegisterNetEvent('qb-spawn:client:setupSpawns', function()
+    spawnConfirmed = false
+    setHudVisible(false)
+end)
+
+RegisterNetEvent('qb-hud:client:SetHudReady', function(bool)
+    setSpawnConfirmed(bool)
+end)
+
+RegisterNetEvent('qb-multicharacter:client:chooseChar', function()
+    spawnConfirmed = false
+    setHudVisible(false)
+end)
+
+RegisterNetEvent('qb-multicharacter:client:closeNUI', function()
+    spawnConfirmed = false
+    setHudVisible(false)
+end)
+
+AddEventHandler('playerSpawned', function()
+    spawnConfirmed = false
+    setHudVisible(false)
+end)
+
+RegisterNetEvent('qb-spawn:client:closeUI', function()
+    spawnConfirmed = false
+    setHudVisible(false)
 end)
 
 RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
@@ -114,9 +199,22 @@ end)
 
 AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
+    spawnConfirmed = false
+    setHudVisible(false)
     Wait(2000)
     local hudSettings = GetResourceKvpString('hudSettings')
     if hudSettings then loadSettings(json.decode(hudSettings)) end
+end)
+
+CreateThread(function()
+    while true do
+        if not spawnConfirmed or not hudReady then
+            forceHideHud()
+            Wait(250)
+        else
+            Wait(1000)
+        end
+    end
 end)
 
 AddEventHandler('pma-voice:radioActive', function(data)
@@ -149,12 +247,10 @@ local function restartHud()
     QBCore.Functions.Notify(Lang:t('notify.hud_restart'), 'error')
     if IsPedInAnyVehicle(PlayerPedId()) then
         Wait(2600)
-        SendNUIMessage({ action = 'car', show = false })
-        SendNUIMessage({ action = 'car', show = true })
+        hideVehicleHud()
     end
     Wait(2600)
     SendNUIMessage({ action = 'hudtick', show = false })
-    SendNUIMessage({ action = 'hudtick', show = true })
     Wait(2600)
     QBCore.Functions.Notify(Lang:t('notify.hud_start'), 'success')
 end
@@ -393,7 +489,7 @@ RegisterNetEvent('hud:client:LoadMap', function()
         -- 0.025 = map raised up
         -- 0.262 = map stretched
         -- 0.315 = map shorten
-        SetMinimapComponentPosition('minimap_blur', 'L', 'B', -0.01 + minimapOffset, 0.025, 0.262, 0.300)
+        SetMinimapComponentPosition('minimap_blur', 'L', 'B', -10.0 + minimapOffset, -10.0, 0.0, 0.0)
         SetBlipAlpha(GetNorthRadarBlip(), 0)
         SetBigmapActive(true, false)
         SetMinimapClipType(0)
@@ -430,7 +526,7 @@ RegisterNetEvent('hud:client:LoadMap', function()
         -- 0.015 = map raised up
         -- 0.252 = map stretched
         -- 0.338 = map shorten
-        SetMinimapComponentPosition('minimap_blur', 'L', 'B', -0.00 + minimapOffset, 0.015, 0.252, 0.338)
+        SetMinimapComponentPosition('minimap_blur', 'L', 'B', -10.0 + minimapOffset, -10.0, 0.0, 0.0)
         SetBlipAlpha(GetNorthRadarBlip(), 0)
         SetMinimapClipType(1)
         SetBigmapActive(true, false)
@@ -593,10 +689,41 @@ RegisterNetEvent('qb-admin:client:ToggleDevmode', function()
     dev = not dev
 end)
 
-local prevPlayerStats = { nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil }
+local prevPlayerStats = { nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil }
+
+local function getJobLabel()
+    local job = PlayerData.job or {}
+    local grade = job.grade or {}
+    local label = job.name or job.label or 'desempregado'
+    local gradeLabel = grade.name or grade.label
+
+    if gradeLabel and gradeLabel ~= '' then
+        return label .. ' - ' .. gradeLabel
+    end
+
+    return label
+end
+
+local function getAmmoInfo(ped, weapon)
+    if weapon == `WEAPON_UNARMED` or not IsPedArmed(ped, 4) then
+        return false, 0, 0
+    end
+
+    local _, clipAmmo = GetAmmoInClip(ped, weapon)
+    local totalAmmo = GetAmmoInPedWeapon(ped, weapon)
+    clipAmmo = tonumber(clipAmmo) or 0
+    totalAmmo = tonumber(totalAmmo) or 0
+
+    return true, clipAmmo, math.max(totalAmmo - clipAmmo, 0)
+end
 
 local function updatePlayerHud(data)
     local shouldUpdate = false
+    data[32] = getJobLabel()
+    data[33] = LocalPlayer.state['gunpowder'] == true
+    data[34] = showAmmo
+    data[35] = ammoClip
+    data[36] = ammoReserve
     for k, v in pairs(data) do
         if prevPlayerStats[k] ~= v then
             shouldUpdate = true
@@ -608,6 +735,7 @@ local function updatePlayerHud(data)
         SendNUIMessage({
             action = 'hudtick',
             show = data[1],
+            isPaused = IsPauseMenuActive() and 1 or 0,
             dynamicHealth = data[2],
             dynamicArmor = data[3],
             dynamicHunger = data[4],
@@ -638,11 +766,42 @@ local function updatePlayerHud(data)
             cinematic = data[29],
             dev = data[30],
             radioActive = data[31],
+            playerId = GetPlayerServerId(PlayerId()),
+            serverName = 'DISTOPIA RP',
+            playerName = ((PlayerData.charinfo and ((PlayerData.charinfo.firstname or '') .. ' ' .. (PlayerData.charinfo.lastname or ''))) or GetPlayerName(PlayerId())),
+            cash = math.floor((PlayerData.money and PlayerData.money['cash']) or cashAmount or 0),
+            bank = math.floor((PlayerData.money and PlayerData.money['bank']) or bankAmount or 0),
+            jobLabel = data[32],
+            gunpowder = data[33],
+            showAmmo = data[34],
+            ammoClip = data[35],
+            ammoReserve = data[36],
+            currentTime = string.format('%02d:%02d', GetClockHours(), GetClockMinutes()),
         })
     end
 end
 
-local prevVehicleStats = { nil, nil, nil, nil, nil, nil, nil, nil, nil, nil }
+local prevVehicleStats = { nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil }
+
+hideVehicleHud = function()
+    prevVehicleStats = { nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil }
+    SendNUIMessage({
+        action = 'car',
+        show = false,
+        isPaused = 1,
+        seatbelt = false,
+        speed = 0,
+        fuel = 0,
+        altitude = 0,
+        showAltitude = false,
+        showSeatbelt = false,
+        showSquareB = false,
+        showCircleB = false,
+        rpm = 0,
+        nos = 0,
+        gear = 0,
+    })
+end
 
 local function updateVehicleHud(data)
     local shouldUpdate = false
@@ -666,6 +825,9 @@ local function updateVehicleHud(data)
             showSeatbelt = data[8],
             showSquareB = data[9],
             showCircleB = data[10],
+            rpm = data[11] or 0,
+            nos = data[12] or 0,
+            gear = data[13] or 0,
         })
     end
 end
@@ -686,17 +848,17 @@ end
 
 CreateThread(function()
     local wasInVehicle = false
+    local vehicleHudHidden = true
+    local nextVehicleHide = 0
     while true do
-        if Menu.isChangeFPSChecked then
-            Wait(500)
-        else
-            Wait(50)
-        end
+        -- DISTOPIA V14: atualização mais rápida para a velocidade responder melhor na HUD
+        Wait(25)
         if LocalPlayer.state.isLoggedIn then
             local show = true
             local player = PlayerPedId()
             local playerId = PlayerId()
             local weapon = GetSelectedPedWeapon(player)
+            showAmmo, ammoClip, ammoReserve = getAmmoInfo(player, weapon)
             -- Player hud
             if not config.WhitelistedWeaponArmed[weapon] then
                 if weapon ~= `WEAPON_UNARMED` then
@@ -705,7 +867,10 @@ CreateThread(function()
                     armed = false
                 end
             end
-            playerDead = IsEntityDead(player) or PlayerData.metadata['inlaststand'] or PlayerData.metadata['isdead'] or false
+
+            local metadata = PlayerData.metadata or {}
+
+            playerDead = IsEntityDead(player) or metadata['inlaststand'] or metadata['isdead'] or false
             parachute = GetPedParachuteState(player)
             -- Stamina
             if not IsEntityInWater(player) then
@@ -724,8 +889,12 @@ CreateThread(function()
             if IsPauseMenuActive() then
                 show = false
             end
-            local vehicle = GetVehiclePedIsIn(player)
-            if not (IsPedInAnyVehicle(player) and not IsThisModelABicycle(vehicle)) then
+            show = show and hudReady
+            local vehicle = GetVehiclePedIsIn(player, false)
+            local vehicleModel = vehicle ~= 0 and GetEntityModel(vehicle) or 0
+            local inMotorVehicle = IsPedInAnyVehicle(player, false) and vehicle ~= 0 and not IsThisModelABicycle(vehicleModel)
+
+            if not inMotorVehicle then
                 updatePlayerHud({
                     show,
                     Menu.isDynamicHealthChecked,
@@ -765,11 +934,12 @@ CreateThread(function()
                 showAltitude = true
                 showSeatbelt = false
             end
-            if IsPedInAnyVehicle(player) and not IsThisModelABicycle(vehicle) then
+            if inMotorVehicle then
                 if not wasInVehicle then
                     DisplayRadar(true)
                 end
                 wasInVehicle = true
+                vehicleHudHidden = false
                 local engineHealth = GetVehicleEngineHealth(vehicle)
                 if engineHealth ~= engineHealth then -- This checks for NaN, as any NaN value is not equal to itself
                     engineHealth = 0
@@ -818,21 +988,27 @@ CreateThread(function()
                     showSeatbelt,
                     showSquareB,
                     showCircleB,
+                    GetVehicleCurrentRpm(vehicle),
+                    nos,
+                    GetVehicleCurrentGear(vehicle),
                 })
                 showAltitude = false
                 showSeatbelt = true
             else
                 if wasInVehicle then
                     wasInVehicle = false
-                    SendNUIMessage({
-                        action = 'car',
-                        show = false,
-                        seatbelt = false,
-                        cruise = false,
-                    })
+                    if not vehicleHudHidden then
+                        hideVehicleHud()
+                        vehicleHudHidden = true
+                    end
                     seatbeltOn = false
                     cruiseOn = false
                     harness = false
+                end
+                if hudReady and GetGameTimer() >= nextVehicleHide then
+                    hideVehicleHud()
+                    vehicleHudHidden = true
+                    nextVehicleHide = GetGameTimer() + 750
                 end
                 DisplayRadar(Menu.isOutMapChecked)
             end
@@ -841,6 +1017,11 @@ CreateThread(function()
                 action = 'hudtick',
                 show = false
             })
+            if not vehicleHudHidden then
+                hideVehicleHud()
+                vehicleHudHidden = true
+            end
+            wasInVehicle = false
         end
     end
 end)
@@ -869,6 +1050,8 @@ end)
 local Round = math.floor
 
 RegisterNetEvent('hud:client:ShowAccounts', function(type, amount)
+    if not hudReady then return end
+
     if type == 'cash' then
         SendNUIMessage({
             action = 'show',
@@ -885,9 +1068,15 @@ RegisterNetEvent('hud:client:ShowAccounts', function(type, amount)
 end)
 
 RegisterNetEvent('hud:client:OnMoneyChange', function(type, amount, isMinus)
+    if not hudReady then return end
+
     local money = PlayerData.money or QBCore.Functions.GetPlayerData().money or {}
     cashAmount = money['cash'] or cashAmount
     bankAmount = money['bank'] or bankAmount
+    if PlayerData.money then
+        PlayerData.money['cash'] = cashAmount
+        PlayerData.money['bank'] = bankAmount
+    end
     SendNUIMessage({
         action = 'updatemoney',
         cash = Round(cashAmount),
@@ -1150,5 +1339,18 @@ CreateThread(function()
             end
         end
         lastHeading = heading
+    end
+end)
+
+
+-- DISTOPIA HUD: oculta o nome/classe do veículo padrão do GTA/FiveM ao entrar em qualquer carro
+CreateThread(function()
+    while true do
+        Wait(0)
+        HideHudComponentThisFrame(6) -- Vehicle name
+        HideHudComponentThisFrame(8) -- Vehicle class
+        HideHudComponentThisFrame(2) -- Weapon icon
+        HideHudComponentThisFrame(20) -- Weapon stats/ammo
+        DisplayAmmoThisFrame(false)
     end
 end)

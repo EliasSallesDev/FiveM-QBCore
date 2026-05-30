@@ -1,6 +1,6 @@
 -- Variables
 
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore
 local meterIsOpen = false
 local meterActive = false
 local lastLocation = nil
@@ -36,22 +36,61 @@ local NpcData = {
     CrashCount = 0
 }
 
+local function GetQBCore()
+    if QBCore then return QBCore end
+
+    while GetResourceState('qb-core') ~= 'started' do
+        Wait(100)
+    end
+
+    while not QBCore do
+        local ok, core = pcall(function()
+            return exports['qb-core']:GetCoreObject()
+        end)
+        if ok and core then
+            QBCore = core
+        else
+            Wait(100)
+        end
+    end
+
+    return QBCore
+end
+
+CreateThread(function()
+    GetQBCore()
+end)
+
+local function getCurrentJob()
+    if PlayerJob and PlayerJob.name then return PlayerJob end
+
+    local playerData = GetQBCore().Functions.GetPlayerData()
+    PlayerJob = playerData and playerData.job or {}
+    return PlayerJob
+end
+
+local function setupTaxiInteractions()
+    if not Config.UseTarget then return end
+    while type(setupTarget) ~= 'function' or type(setupCabParkingLocation) ~= 'function' do
+        Wait(50)
+    end
+
+    setupTarget()
+    setupCabParkingLocation()
+end
+
 -- events
 --just to prevent some bug if the resource get restarted on production
 AddEventHandler('onResourceStart', function(resourceName)
-    PlayerJob = QBCore.Functions.GetPlayerData().job
-    if Config.UseTarget then
-        setupTarget()
-        setupCabParkingLocation()
-    end
+    if resourceName ~= GetCurrentResourceName() then return end
+
+    getCurrentJob()
+    setupTaxiInteractions()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    PlayerJob = QBCore.Functions.GetPlayerData().job
-    if Config.UseTarget then
-        setupTarget()
-        setupCabParkingLocation()
-    end
+    getCurrentJob()
+    setupTaxiInteractions()
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
@@ -63,7 +102,8 @@ local function onDuty()
     dutyKey = true
     CreateThread(function()
         while dutyKey do
-            if PlayerJob.name == jobRequired then
+            local job = getCurrentJob()
+            if job.name == jobRequired then
                 if IsControlJustReleased(0, 38) then
                     TriggerServerEvent('QBCore:ToggleDuty')
                     dutyKey = false
@@ -351,7 +391,8 @@ function TaxiGarage()
         }
     end
     -- qb-bossmenu:client:openMenu
-    if PlayerJob.name == jobRequired and PlayerJob.isboss and Config.UseTarget then
+    local job = getCurrentJob()
+    if job.name == jobRequired and job.isboss and Config.UseTarget then
         vehicleMenu[#vehicleMenu + 1] = {
             header = Lang:t('menu.boss_menu'),
             txt = '',
@@ -402,7 +443,8 @@ end
 
 -- Events
 RegisterNetEvent('qb-taxi:client:DoTaxiNpc', function()
-    if not PlayerJob.onduty then return end
+    local job = getCurrentJob()
+    if not job.onduty then return end
     if whitelistedVehicle() then
         if not NpcData.Active then
             NpcData.CurrentNpc = math.random(1, #Config.NPCLocations.TakeLocations)
@@ -619,8 +661,12 @@ CreateThread(function()
         if not Config.UseTarget then
             local inRange = false
             if LocalPlayer.state.isLoggedIn then
-                local Player = QBCore.Functions.GetPlayerData()
-                if Player.job.name == jobRequired then
+                local Player = GetQBCore().Functions.GetPlayerData()
+                local job = Player and Player.job or {}
+                if not job.name then
+                    job = getCurrentJob()
+                end
+                if job.name == jobRequired then
                     local ped = PlayerPedId()
                     local pos = GetEntityCoords(ped)
                     local vehDist = #(pos - vector3(Config.parkLocation.x, Config.parkLocation.y, Config.parkLocation.z))
@@ -638,7 +684,8 @@ CreateThread(function()
                             else
                                 DrawText3D(Config.parkLocation.x, Config.parkLocation.y, Config.parkLocation.z + 0.3, Lang:t('info.job_vehicles'))
                                 if IsControlJustReleased(0, 38) then
-                                    if PlayerJob.onduty then
+                                    local job = getCurrentJob()
+                                    if job.onduty then
                                         TaxiGarage()
                                     else
                                         QBCore.Functions.Notify('Voce precisa estar em servico')
@@ -706,7 +753,7 @@ function createNpcPickUpLocation()
         if isPlayerInside then
             if whitelistedVehicle() and not isInsidePickupZone and not NpcData.NpcTaken then
                 isInsidePickupZone = true
-                exports['qb-core']:DrawText(Lang:t('info.call_npc'), Config.DefaultTextLocation)
+                exports['qb-core']:DrawText(Lang:t('info.call_npc'), Config.DefaultTextLocation, 'qb-taxijob')
                 callNpcPoly()
             end
         else
@@ -727,7 +774,7 @@ function createNpcDelieveryLocation()
         if isPlayerInside then
             if whitelistedVehicle() and not isInsideDropZone and NpcData.NpcTaken then
                 isInsideDropZone = true
-                exports['qb-core']:DrawText(Lang:t('info.drop_off_npc'), Config.DefaultTextLocation)
+                exports['qb-core']:DrawText(Lang:t('info.drop_off_npc'), Config.DefaultTextLocation, 'qb-taxijob')
                 dropNpcPoly()
             end
         else
@@ -836,12 +883,12 @@ function setupCabParkingLocation()
     taxiParking:onPlayerInOut(function(isPlayerInside)
         if isPlayerInside and not Notified and Config.UseTarget then
             if whitelistedVehicle() then
-                exports['qb-core']:DrawText(Lang:t('info.vehicle_parking'), Config.DefaultTextLocation)
+                exports['qb-core']:DrawText(Lang:t('info.vehicle_parking'), Config.DefaultTextLocation, 'qb-taxijob')
                 Notified = true
                 isPlayerInsideZone = true
             end
         else
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-taxijob')
             Notified = false
             isPlayerInsideZone = false
         end
@@ -885,15 +932,16 @@ CreateThread(function()
     dutyZone:onPlayerInOut(function(isPointInside)
         if isPointInside then
             dutyKey = true
-            if not PlayerJob.onduty then
-                exports['qb-core']:DrawText(Lang:t('info.on_duty'), 'left')
+            local job = getCurrentJob()
+            if not job.onduty then
+                exports['qb-core']:DrawText(Lang:t('info.on_duty'), 'left', 'qb-taxijob')
             else
-                exports['qb-core']:DrawText(Lang:t('info.off_duty'), 'left')
+                exports['qb-core']:DrawText(Lang:t('info.off_duty'), 'left', 'qb-taxijob')
             end
             onDuty()
         else
             dutyKey = false
-            exports['qb-core']:HideText()
+            exports['qb-core']:HideText('qb-taxijob')
         end
     end)
 end)

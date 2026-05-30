@@ -1,5 +1,36 @@
 -- Commands
 
+QBCore = QBCore or exports['qb-core']:GetCoreObject()
+
+local function GetPlayerStateSafe(source)
+    source = tonumber(source)
+    if not source or source <= 0 then return nil end
+
+    local ok, player = pcall(Player, source)
+    if not ok or not player then return nil end
+
+    return player.state
+end
+
+local function IsInventoryCommandBlocked(source)
+    source = tonumber(source)
+    if not source or source <= 0 then return true end
+
+    local state = GetPlayerStateSafe(source)
+    if state and state.inv_busy then return true end
+
+    if not QBCore or not QBCore.Functions then return true end
+
+    local ok, QBPlayer = pcall(QBCore.Functions.GetPlayer, source)
+    if not ok then return true end
+    if not QBPlayer or not QBPlayer.PlayerData then return true end
+
+    local metadata = QBPlayer.PlayerData.metadata or {}
+    if metadata['isdead'] or metadata['inlaststand'] or metadata['ishandcuffed'] then return true end
+
+    return false, QBPlayer
+end
+
 QBCore.Commands.Add('giveitem', 'Give An Item (Admin Only)', { { name = 'id', help = 'Player ID' }, { name = 'item', help = 'Name of the item (not a label)' }, { name = 'amount', help = 'Amount of items' } }, false, function(source, args)
     local id = tonumber(args[1])
     local player = QBCore.Functions.GetPlayer(id)
@@ -98,10 +129,9 @@ RegisterCommand('closeInv', function(source)
 end, false)
 
 RegisterCommand('hotbar', function(source)
-    if Player(source).state.inv_busy then return end
-    local QBPlayer = QBCore.Functions.GetPlayer(source)
-    if not QBPlayer then return end
-    if not QBPlayer or QBPlayer.PlayerData.metadata['isdead'] or QBPlayer.PlayerData.metadata['inlaststand'] or QBPlayer.PlayerData.metadata['ishandcuffed'] then return end
+    local blocked, QBPlayer = IsInventoryCommandBlocked(source)
+    if blocked then return end
+
     local hotbarItems = {
         QBPlayer.PlayerData.items[1],
         QBPlayer.PlayerData.items[2],
@@ -113,11 +143,10 @@ RegisterCommand('hotbar', function(source)
 end, false)
 
 RegisterCommand('inventory', function(source)
-    if Player(source).state.inv_busy then return end
-    local QBPlayer = QBCore.Functions.GetPlayer(source)
-    if not QBPlayer then return end
-    if not QBPlayer or QBPlayer.PlayerData.metadata['isdead'] or QBPlayer.PlayerData.metadata['inlaststand'] or QBPlayer.PlayerData.metadata['ishandcuffed'] then return end
-    QBCore.Functions.TriggerClientCallback('qb-inventory:client:vehicleCheck', source, function(inventory, class)
+    local blocked = IsInventoryCommandBlocked(source)
+    if blocked then return end
+
+    local ok = pcall(QBCore.Functions.TriggerClientCallback, 'qb-inventory:client:vehicleCheck', source, function(inventory, class)
         if not inventory then return OpenInventory(source) end
         if inventory:find('trunk-') then
             OpenInventory(source, inventory, {
@@ -133,4 +162,7 @@ RegisterCommand('inventory', function(source)
             return
         end
     end)
+    if not ok then
+        OpenInventory(source)
+    end
 end, false)

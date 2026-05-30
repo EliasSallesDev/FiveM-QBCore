@@ -313,16 +313,16 @@ CreateThread(function()
 					while insidefreedom do
 						if IsControlJustReleased(0, 38) then
 							exports['qb-core']:KeyPressed()
-							exports['qb-core']:HideText()
+							exports['qb-core']:HideText('qb-prison')
 							TriggerEvent('prison:client:Leave')
 							break
 						end
 						Wait(0)
 					end
 				end)
-				exports['qb-core']:DrawText('[E] Check Time', 'left')
+				exports['qb-core']:DrawText('[E] Check Time', 'left', 'qb-prison')
 			else
-				exports['qb-core']:HideText()
+				exports['qb-core']:HideText('qb-prison')
 			end
 		end)
 	end

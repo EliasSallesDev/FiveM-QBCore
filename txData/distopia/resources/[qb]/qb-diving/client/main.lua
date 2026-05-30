@@ -136,10 +136,10 @@ local function setDivingLocation(divingLocation)
             Zones[k]:onPlayerInOut(function(inside)
                 if inside then
                     CurrentArea = k
-                    exports['qb-core']:DrawText(Lang:t("info.collect_coral_dt"))
+                    exports['qb-core']:DrawText(Lang:t("info.collect_coral_dt"), 'left', 'qb-diving')
                 else
                     CurrentArea = 0
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-diving')
                 end
             end)
         end
@@ -198,10 +198,10 @@ local function createSeller()
             zone:onPlayerInOut(function(inside)
                 if inside then
                     inSellerZone = true
-                    exports['qb-core']:DrawText(Lang:t("info.sell_coral_dt"))
+                    exports['qb-core']:DrawText(Lang:t("info.sell_coral_dt"), 'left', 'qb-diving')
                 else
                     inSellerZone = false
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-diving')
                 end
             end)
         end
@@ -379,7 +379,7 @@ CreateThread(function()
                     takeCoral(CurrentArea)
                     exports['qb-core']:KeyPressed()
                     Wait(500)
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-diving')
                     sleep = 3000
                 end
             end
@@ -390,7 +390,7 @@ CreateThread(function()
                     sellCoral()
                     exports['qb-core']:KeyPressed()
                     Wait(500)
-                    exports['qb-core']:HideText()
+                    exports['qb-core']:HideText('qb-diving')
                     sleep = 3000
                 end
             end

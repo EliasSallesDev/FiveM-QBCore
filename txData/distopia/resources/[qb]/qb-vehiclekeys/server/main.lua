@@ -4,6 +4,28 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local VehicleList = {}
 
+local function NormalizePlate(plate)
+    if type(plate) ~= 'string' then return nil end
+
+    plate = QBCore.Shared.Trim(plate)
+    if plate == '' then return nil end
+
+    return plate
+end
+
+local function GetPlayerCurrentPlate(id)
+    local ped = GetPlayerPed(id)
+    if not ped or ped == 0 then return nil end
+
+    local vehicle = GetVehiclePedIsIn(ped, false)
+    if not vehicle or vehicle == 0 then return nil end
+
+    local ok, plate = pcall(GetVehicleNumberPlateText, vehicle)
+    if not ok then return nil end
+
+    return NormalizePlate(plate)
+end
+
 -----------------------
 ----   Threads     ----
 -----------------------
@@ -21,7 +43,7 @@ RegisterNetEvent('qb-vehiclekeys:server:GiveVehicleKeys', function(receiver, pla
         TriggerClientEvent('QBCore:Notify', giver, Lang:t('notify.vgkeys'), 'success')
         if type(receiver) == 'table' then
             for _, r in ipairs(receiver) do
-                GiveKeys(receiver[r], plate)
+                GiveKeys(r, plate)
             end
         else
             GiveKeys(receiver, plate)
@@ -64,7 +86,10 @@ end)
 
 RegisterNetEvent('qb-vehiclekeys:server:AcquireVehicleKeys', function(plate)
     local src = source
-    GiveKeys(src, plate)
+    local ok, gaveKeys = pcall(GiveKeys, src, plate)
+    if not ok then
+        print(('[qb-vehiclekeys] Failed to give keys to %s: %s'):format(src, gaveKeys))
+    end
 end)
 
 RegisterNetEvent('qb-vehiclekeys:server:breakLockpick', function(itemName)
@@ -111,16 +136,16 @@ end)
 -----------------------
 
 function GiveKeys(id, plate)
+    id = tonumber(id)
+    if not id then return false end
+
     local Player = QBCore.Functions.GetPlayer(id)
-    if not Player then return end
+    if not Player then return false end
     local citizenid = Player.PlayerData.citizenid
 
+    plate = NormalizePlate(plate) or GetPlayerCurrentPlate(id)
     if not plate then
-        if GetVehiclePedIsIn(GetPlayerPed(id), false) ~= 0 then
-            plate = QBCore.Shared.Trim(GetVehicleNumberPlateText(GetVehiclePedIsIn(GetPlayerPed(id), false)))
-        else
-            return
-        end
+        return false
     end
 
     if not VehicleList[plate] then VehicleList[plate] = {} end
@@ -132,13 +157,18 @@ function GiveKeys(id, plate)
 
     TriggerClientEvent('QBCore:Notify', id, Lang:t('notify.vgetkeys'))
     TriggerClientEvent('qb-vehiclekeys:client:AddKeys', id, plate)
+    return true
 end
 
 exports('GiveKeys', GiveKeys)
 
 function RemoveKeys(id, plate)
+    id = tonumber(id)
+    plate = NormalizePlate(plate)
+    if not id or not plate then return false end
+
     local Player = QBCore.Functions.GetPlayer(id)
-    if not Player then return end
+    if not Player then return false end
     local citizenid = Player.PlayerData.citizenid
 
     if VehicleList[plate] and VehicleList[plate][citizenid] then
@@ -150,11 +180,16 @@ function RemoveKeys(id, plate)
     Player.Functions.SetMetaData("vehicleKeys", oldKeys)
 
     TriggerClientEvent('qb-vehiclekeys:client:RemoveKeys', id, plate)
+    return true
 end
 
 exports('RemoveKeys', RemoveKeys)
 
 function HasKeys(id, plate)
+    id = tonumber(id)
+    plate = NormalizePlate(plate)
+    if not id or not plate then return false end
+
     local Player = QBCore.Functions.GetPlayer(id)
     if not Player then return false end
     local citizenid = Player.PlayerData.citizenid

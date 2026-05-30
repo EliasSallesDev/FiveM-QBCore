@@ -201,6 +201,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 RegisterNetEvent('qb-vehiclekeys:client:AddKeys', function(plate)
+    if type(plate) ~= 'string' or plate == '' then return end
     KeysList[plate] = true
     local ped = PlayerPedId()
     if not IsPedInAnyVehicle(ped, false) then return end
@@ -316,6 +317,7 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
 end)
 -- Backwards Compatibility ONLY -- Remove at some point --
 RegisterNetEvent('vehiclekeys:client:SetOwner', function(plate)
+    if type(plate) ~= 'string' or plate == '' then return end
     TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
 end)
 -- Backwards Compatibility ONLY -- Remove at some point --
